@@ -23,7 +23,6 @@
 ### ---Police Commands---
 
 * /2729 {first} {last} - Check the name of a person in the system
-* /28 {plate} - Check the plate of a vehicle in the system
 
 ## In the works
 
