@@ -17,7 +17,7 @@
 
 // Definitions
 #define ENABLE_VEH // Undefined because work is needed on topic
-#define DEBUG // Leave undefined unless you want unwanted messages in chat
+#undef DEBUG // Leave undefined unless you want unwanted messages in chat
 #undef DB // Add future version of DB?
 
 #if !DB
