@@ -1,0 +1,6 @@
+C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\Server\obj\Debug\Server.csprojResolveAssemblyReference.cache
+C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\bin\Debug\dispatchsystem.server.net.dll
+C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\bin\Debug\dispatchsystem.server.net.pdb
+C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\Server\obj\Debug\dispatchsystem.server.net.dll
+C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\Server\obj\Debug\dispatchsystem.server.net.pdb
