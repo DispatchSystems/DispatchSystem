@@ -16,9 +16,11 @@
 */
 
 // Definitions
-#undef ENABLE_VEH // Undefined because work is needed on topic
-#undef DEBUG // Leave undefined unless you want unwanted messages in chat
+#define ENABLE_VEH // Undefined because work is needed on topic
+#define DEBUG // Leave undefined unless you want unwanted messages in chat
+#undef DB // Add future version of DB?
 
+#if !DB
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,21 +48,22 @@ namespace DispatchSystem.Server
             EventHandlers["dispatchsystem:setCitations"] += new Action<string, int>(SetCitations);
               // Vehicle Events
 #if ENABLE_VEH
-            EventHandlers["dispatchsystem:setVehicle"] += new Action<string>(SetVehicle);
+            EventHandlers["dispatchsystem:setVehicle"] += new Action<string, string>(SetVehicle);
             EventHandlers["dispatchsystem:toggleVehStolen"] += new Action<string>(ToggleVehicleStolen);
+            EventHandlers["dispatchsystem:toggleVehRegi"] += new Action<string>(ToggleVehicleRegistration);
+            EventHandlers["dispatchsystem:toggleVehInsured"] += new Action<string>(ToggleVehicleInsurance);
 #endif
               // Police Events
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
 #if ENABLE_VEH
             EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
-            EventHandlers["dispatchsystem:transferLP"] += new Action<string>(TransferLicense);
 #endif
 
             Debug.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
             SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
         }
 
-        #region Event Methods
+#region Event Methods
         public static void SetName(string handle, string first, string last)
         {
             Player p = GetPlayerByHandle(handle);
@@ -126,43 +129,96 @@ namespace DispatchSystem.Server
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your citations");
         }
 #if ENABLE_VEH
-        public static void SetVehicle(string handle)
+        public static void SetVehicle(string handle, string plate)
         {
             Player p = GetPlayerByHandle(handle);
-            string lp = GetLicensePlate(p);
-            if (lp == null)
+
+            if (GetCivilian(handle) == null)
             {
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must be in a vehicle to execute that operation!");
+                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle");
+                return;
             }
 
             if (GetCivilianVeh(handle) != null)
             {
-                int index = civVehs.IndexOf(GetCivilianVeh(handle));
+                Int32 index = civVehs.IndexOf(GetCivilianVeh(handle));
 
-                civVehs[index] = new CivilianVeh(p, lp, false);
+                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), plate.ToUpper(), false, true, true);
 
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New Vehicle license plate set to {civVehs[index].Plate}");
+                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
             else
             {
-                civVehs.Add(new CivilianVeh(p, lp, false));
+                civVehs.Add(new CivilianVeh(p, GetCivilian(handle), plate.ToUpper(), false, true, true));
+
+                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
         }
         public static void ToggleVehicleStolen(string handle)
         {
             Player p = GetPlayerByHandle(handle);
 
+            if (GetCivilian(handle) == null)
+            {
+                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle stolen");
+                return;
+            }
+
             if (GetCivilianVeh(handle) != null)
             {
                 int index = civVehs.IndexOf(GetCivilianVeh(handle));
                 CivilianVeh last = civVehs[index];
 
-                civVehs[index] = new CivilianVeh(p, last.Plate, !last.StolenStatus);
+                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), last.Plate, !last.StolenStatus, last.Registered, last.Insured);
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Stolen status set to {civVehs[index].StolenStatus.ToString()}");
             }
             else
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must have a vehicle set to execute that operation!");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your vehicle before you can set your vehicle stolen");
+        }
+        public static void ToggleVehicleRegistration(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetCivilian(handle) == null)
+            {
+                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle registration");
+                return;
+            }
+
+            if (GetCivilianVeh(handle) != null)
+            {
+                int index = civVehs.IndexOf(GetCivilianVeh(handle));
+                CivilianVeh last = civVehs[index];
+
+                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), last.Plate, last.StolenStatus, !last.Registered, last.Insured);
+
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Registration status set to {civVehs[index].Registered.ToString()}");
+            }
+            else
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your vehicle before you can set your Regisration");
+        }
+        public static void ToggleVehicleInsurance(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetCivilian(handle) == null)
+            {
+                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle insurance");
+                return;
+            }
+
+            if (GetCivilianVeh(handle) != null)
+            {
+                int index = civVehs.IndexOf(GetCivilianVeh(handle));
+                CivilianVeh last = civVehs[index];
+
+                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), last.Plate, last.StolenStatus, last.Registered, !last.Insured);
+
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Insurance status set to {civVehs[index].Insured.ToString()}");
+            }
+            else
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your vehicle before you can set your Insurance");
         }
 #endif
         public static void RequestCivilian(string handle, string first, string last)
@@ -190,12 +246,17 @@ namespace DispatchSystem.Server
 
             if (civVeh != null)
             {
+                WriteChatLine(invoker);
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "Results: ");
-                SendMessage(invoker, "", new[] { 0, 0, 0 }, $"Plate: {civVeh.Plate}");
-                SendMessage(invoker, "", new[] { 0, 0, 0 }, $"Stolen: {civVeh.StolenStatus.ToString()}");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Plate: {civVeh.Plate}");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Stolen: {civVeh.StolenStatus.ToString()}");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Registered: {civVeh.Registered.ToString()}");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Insured: {civVeh.Insured.ToString()}");
+                if (civVeh.Registered) SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"R/O: {civVeh.Owner.First} {civVeh.Owner.Last}");
+                WriteChatLine(invoker);
             }
             else
-                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That plate doesn't exist in the system");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
         }
 #endif
 #endregion
@@ -206,6 +267,11 @@ namespace DispatchSystem.Server
             List<string> args = msg.Split(' ').ToList();
             string cmd = args[0].ToLower();
             args.RemoveAt(0);
+
+#if DEBUG
+            SendMessage(p, "", new[] { 0, 0, 0 }, p.Handle);
+            Debug.WriteLine($"<{n}> {msg}");
+#endif
 
               // Player Commands
             if (cmd == "/newname")
@@ -248,12 +314,29 @@ namespace DispatchSystem.Server
             if (cmd == "/newveh")
             {
                 CancelEvent();
-                TriggerEvent("dispatchsystem:setVehicle", p.Handle);
+
+                if (args.Count < 1)
+                {
+                    SendUsage(p, "You must have atleast 2 arguments");
+                    return;
+                }
+
+                TriggerEvent("dispatchsystem:setVehicle", p.Handle, args[0]);
             }
             if (cmd == "/stolen")
             {
                 CancelEvent();
                 TriggerEvent("dispatchsystem:toggleVehStolen", p.Handle);
+            }
+            if (cmd == "/registered")
+            {
+                CancelEvent();
+                TriggerEvent("dispatchsystem:toggleVehRegi", p.Handle);
+            }
+            if (cmd == "/insured")
+            {
+                CancelEvent();
+                TriggerEvent("dispatchsystem:toggleVehInsured", p.Handle);
             }
 #endif
 
@@ -278,9 +361,10 @@ namespace DispatchSystem.Server
                 if (args.Count < 1)
                 {
                     SendUsage(p, "You must have atleast 1 argument");
+                    return;
                 }
 
-                TriggerEvent("dispatchsystem:getCivilianVeh");
+                TriggerEvent("dispatchsystem:getCivilianVeh", p.Handle, args[0]);
             }
 #endif
         }
@@ -355,14 +439,17 @@ namespace DispatchSystem.Server
             return null;
         }
 
+#region Chat Commands
         private static void WriteChatLine(Player p) => TriggerClientEvent(p, "chatMessage", "", new[] { 0, 0, 0 }, "\n");
         private static void WriteChatLine() => TriggerClientEvent("chatMessage", "", new[] { 0, 0, 0 }, "\n");
         private static void SendMessage(Player p, string title, int[] rgb, string msg) => TriggerClientEvent(p, "chatMessage", title, rgb, msg);
         private static void SendMessage(string title, int[] rgb, string msg) => TriggerClientEvent("chatMessage", title, rgb, msg);
         private static void SendUsage(Player p, string usage) => TriggerClientEvent(p, "chatMessage", "Usage", new[] { 255, 255, 255 }, usage);
+#endregion
 
         private static void CancelEvent() => Function.Call(Hash.CANCEL_EVENT);
 #endregion
     }
 }
 
+#endif
