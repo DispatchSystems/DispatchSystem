@@ -40,12 +40,11 @@ luac.out
 *.yml
 
 # Annoying files
-src/.vs/DispatchSystems/v15/.suo
-src/.vs/DispatchSystems/v15/sqlite3/storage.ide
+src/.vs/DispatchSystem/v15/sqlite3/storage.ide
 
 # Build folders
-src/DispatchSystems.Client/obj/*
-src/DispatchSystems.Server/obj/*
+src/Server/obj/*
 src/bin/Debug/*
 src/bin/Release/*
 .vs/*
+src/.vs/*
