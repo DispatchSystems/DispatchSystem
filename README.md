@@ -20,18 +20,24 @@
 * /warrant - Toggles a warrant on your current PED
 * /citations {num} - Set the amount of citations that your PED has gotten in the past
 
+### ---Vehicle Commands---
+
+* /newveh {plate} - Set's a plate as a new plate in the system
+* /stolen - Toggles a stolen status of the vehicle
+* /registered - Toggles the registration status of the vehicle
+* /insured - Toggles the insurance status of the vehicle
+
 ### ---Police Commands---
 
 * /2729 {first} {last} - Check the name of a person in the system
+* /28 {plate} - Check the plate of a vehicle in the system
 
 ## In the works
 
-1. Vehicle information - Everything that has to do with vehicles and such (Includes registration, insurance, and stolen status)
+1. Arrest ability - `/arrest {first} {last}` arrests a ped and show it in the system
 
-2. Arrest ability - `/arrest {first} {last}` arrests a ped and show it in the system
+2. BOLO - `/bolo {first} {last}` `/bolo {plate}` Either one will show a bolo tag on the type if searched up in the system
 
-3. BOLO - `/bolo {first} {last}` `/bolo {plate}` Either one will show a bolo tag on the type if searched up in the system
+3. Ticket - `/ticket {first} {last}` Tickets the player then adds 1 to the citation count
 
-4. Ticket - `/ticket {first} {last}` Tickets the player then adds 1 to the citation count
-
-5. Notes `/note {playerid} {notes}` Notes a comment on the player's profile
+4. Notes `/note {playerid} {notes}` Notes a comment on the player's profile
