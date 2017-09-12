@@ -419,6 +419,7 @@ namespace DispatchSystem.Server
                         continue;
 
                     note += args[i];
+                    note += ' ';
                 }
 
                 TriggerEvent("dispatchsystem:addCivNote", p.Handle, args[0], args[1], note);
@@ -441,6 +442,7 @@ namespace DispatchSystem.Server
                         continue;
 
                     reason += args[i];
+                    reason += ' ';
                 }
 
                 if (float.TryParse(args[2], out float amount))
