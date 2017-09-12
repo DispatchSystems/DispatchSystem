@@ -269,7 +269,7 @@ namespace DispatchSystem.Server
 
             if (GetCivilian(handle) == null)
             {
-                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle");
                 return;
             }
 
@@ -279,13 +279,13 @@ namespace DispatchSystem.Server
 
                 civVehs[index] = new CivilianVeh(p, GetCivilian(handle), plate.ToUpper(), false, true, true);
 
-                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
             else
             {
                 civVehs.Add(new CivilianVeh(p, GetCivilian(handle), plate.ToUpper(), false, true, true));
 
-                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
         }
         public static void ToggleVehicleStolen(string handle)
@@ -294,7 +294,7 @@ namespace DispatchSystem.Server
 
             if (GetCivilian(handle) == null)
             {
-                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle stolen");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle stolen");
                 return;
             }
 
@@ -316,7 +316,7 @@ namespace DispatchSystem.Server
 
             if (GetCivilian(handle) == null)
             {
-                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle registration");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle registration");
                 return;
             }
 
@@ -338,7 +338,7 @@ namespace DispatchSystem.Server
 
             if (GetCivilian(handle) == null)
             {
-                SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle insurance");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle insurance");
                 return;
             }
 
@@ -368,9 +368,9 @@ namespace DispatchSystem.Server
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Citations: {civ.CitationCount.ToString()}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "Notes:");
                 if (civ.Notes.Count == 0)
-                    SendMessage("", new[] { 0, 0, 0 }, "^9None");
+                    SendMessage(invoker, "", new[] { 0, 0, 0 }, "^9None");
                 else
-                    civ.Notes.ForEach(x => SendMessage("", new[] { 0, 0, 0 }, $"^7{x}"));
+                    civ.Notes.ForEach(x => SendMessage(invoker, "", new[] { 0, 0, 0 }, $"^7{x}"));
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
