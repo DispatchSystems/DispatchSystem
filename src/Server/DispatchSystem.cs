@@ -55,6 +55,7 @@ namespace DispatchSystem.Server
 #endif
               // Police Events
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
+            EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
 #if ENABLE_VEH
             EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
 #endif
@@ -73,13 +74,13 @@ namespace DispatchSystem.Server
             {
                 int index = civs.IndexOf(GetCivilian(handle));
 
-                civs[index] = new Civilian(p, first, last, false, 0);
+                civs[index] = new Civilian(p, first, last, false, 0, new List<string>());
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New name set to: {civs[index].First} {civs[index].Last}");
             }
             else
             {
-                civs.Add(new Civilian(p, first, last, false, 0));
+                civs.Add(new Civilian(p, first, last, false, 0, new List<string>()));
                 int index = civs.IndexOf(GetCivilian(handle));
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New name set to: {civs[index].First} {civs[index].Last}");
@@ -105,7 +106,7 @@ namespace DispatchSystem.Server
                 int index = civs.IndexOf(GetCivilian(handle));
                 Civilian last = civs[index];
 
-                civs[index] = new Civilian(p, last.First, last.Last, !last.WarrantStatus, last.CitationCount);
+                civs[index] = new Civilian(p, last.First, last.Last, !last.WarrantStatus, last.CitationCount, last.Notes);
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Warrant status set to {civs[index].WarrantStatus.ToString()}");
             }
@@ -121,7 +122,7 @@ namespace DispatchSystem.Server
                 int index = civs.IndexOf(GetCivilian(handle));
                 Civilian last = civs[index];
 
-                civs[index] = new Civilian(p, last.First, last.Last, last.WarrantStatus, count);
+                civs[index] = new Civilian(p, last.First, last.Last, last.WarrantStatus, count, last.Notes);
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Citation count set to {count.ToString()}");
             }
@@ -228,12 +229,15 @@ namespace DispatchSystem.Server
 
             if (civ != null)
             {
-                WriteChatLine(invoker);
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "Results: ");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"First: {civ.First} | Last: {civ.Last}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Warrant: {civ.WarrantStatus.ToString()}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Citations: {civ.CitationCount.ToString()}");
-                WriteChatLine(invoker);
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "Notes:");
+                if (civ.Notes.Count == 0)
+                    SendMessage("", new[] { 0, 0, 0 }, "^9None");
+                else
+                    civ.Notes.ForEach(x => SendMessage("", new[] { 0, 0, 0 }, $"^7{x}"));
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
@@ -246,19 +250,31 @@ namespace DispatchSystem.Server
 
             if (civVeh != null)
             {
-                WriteChatLine(invoker);
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "Results: ");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Plate: {civVeh.Plate}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Stolen: {civVeh.StolenStatus.ToString()}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Registered: {civVeh.Registered.ToString()}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Insured: {civVeh.Insured.ToString()}");
                 if (civVeh.Registered) SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"R/O: {civVeh.Owner.First} {civVeh.Owner.Last}");
-                WriteChatLine(invoker);
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
         }
 #endif
+        public static void AddCivilianNote(string invokerHandle, string first, string last, string note)
+        {
+            Player invoker = GetPlayerByHandle(invokerHandle);
+            Civilian civ = GetCivilianByName(first, last);
+
+            if (civ != null)
+            {
+                int index = civs.IndexOf(civ);
+                civs[index].Notes.Add(note);
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Note of \"{note}\" has been added to the Civilian");
+            }
+            else
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
+        }
 #endregion
 
         private void OnChatMessage(int source, string n, string msg)
@@ -367,6 +383,28 @@ namespace DispatchSystem.Server
                 TriggerEvent("dispatchsystem:getCivilianVeh", p.Handle, args[0]);
             }
 #endif
+            if (cmd == "/note")
+            {
+                CancelEvent();
+
+                if (args.Count < 3)
+                {
+                    SendUsage(p, "You must have atleast 3 arguments");
+                    return;
+                }
+
+                string note = string.Empty;
+
+                for (int i = 0; i < args.Count; i++)
+                {
+                    if (i == 0 || i == 1)
+                        continue;
+
+                    note += args[i];
+                }
+
+                TriggerEvent("dispatchsystem:addCivNote", p.Handle, args[0], args[1], note);
+            }
         }
 
 #region Common
@@ -439,7 +477,8 @@ namespace DispatchSystem.Server
             return null;
         }
 
-#region Chat Commands
+
+        #region Chat Commands
         private static void WriteChatLine(Player p) => TriggerClientEvent(p, "chatMessage", "", new[] { 0, 0, 0 }, "\n");
         private static void WriteChatLine() => TriggerClientEvent("chatMessage", "", new[] { 0, 0, 0 }, "\n");
         private static void SendMessage(Player p, string title, int[] rgb, string msg) => TriggerClientEvent(p, "chatMessage", title, rgb, msg);
