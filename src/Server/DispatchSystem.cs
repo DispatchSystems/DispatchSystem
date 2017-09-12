@@ -56,6 +56,7 @@ namespace DispatchSystem.Server
               // Police Events
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
             EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
+            EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
 #if ENABLE_VEH
             EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
 #endif
@@ -275,6 +276,23 @@ namespace DispatchSystem.Server
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
         }
+        public static void TicketCivilian(string invokerHandle, string first, string last, string reason, float amount)
+        {
+            Player invoker = GetPlayerByHandle(invokerHandle);
+            Civilian civ = GetCivilianByName(first, last);
+
+            if (civ != null)
+            {
+                int index = civs.IndexOf(civ);
+                Player p = civs[index].Source;
+                Civilian _last = civs[index];
+                civs[index] = new Civilian(_last.Source, _last.First, _last.Last, _last.WarrantStatus, _last.CitationCount + 1, _last.Notes);
+                SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
+            }
+            else
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
+        }
 #endregion
 
         private void OnChatMessage(int source, string n, string msg)
@@ -405,6 +423,33 @@ namespace DispatchSystem.Server
 
                 TriggerEvent("dispatchsystem:addCivNote", p.Handle, args[0], args[1], note);
             }
+            if (cmd == "/ticket")
+            {
+                CancelEvent();
+
+                if (args.Count < 4)
+                {
+                    SendUsage(p, "You must have atleast 4 arguments");
+                    return;
+                }
+
+                string reason = string.Empty;
+
+                for (int i = 0; i < args.Count; i++)
+                {
+                    if (i == 0 || i == 1 || i == 2)
+                        continue;
+
+                    reason += args[i];
+                }
+
+                if (float.TryParse(args[2], out float amount))
+                {
+                    TriggerEvent("dispatchsystem:ticketCiv", p.Handle, args[0], args[1], reason, amount);
+                }
+                else
+                    SendUsage(p, "The amount must be a valid number");
+            }
         }
 
 #region Common
@@ -415,7 +460,7 @@ namespace DispatchSystem.Server
                 if (item.Source.Handle == pHandle)
                     return item;
             }
-
+            
             return null;
         }
         private static Civilian GetCivilianByName(string first, string last)
