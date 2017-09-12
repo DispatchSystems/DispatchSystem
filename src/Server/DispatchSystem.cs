@@ -31,41 +31,173 @@ using CitizenFX.Core.Native;
 
 namespace DispatchSystem.Server
 {
+    internal delegate void InvokedCommand(Player player, string[] args);
+
     public class DispatchSystem : BaseScript
     {
         protected static List<Civilian> civs = new List<Civilian>();
         protected static List<CivilianVeh> civVehs = new List<CivilianVeh>();
 
+        private Dictionary<string, InvokedCommand> commands = new Dictionary<string, InvokedCommand>();
+
         public DispatchSystem()
         {
-            // Setting event handlers here:
+            RegisterEvents();
+            RegisterCommands();
+
+            Debug.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
+            SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
+        }
+
+        private void RegisterEvents()
+        {
             EventHandlers["chatMessage"] += new Action<int, string, string>(OnChatMessage);
 
-            // Adding event handlers here:
-              // Player Events
+            #region Civilian Commands
             EventHandlers["dispatchsystem:setName"] += new Action<string, string, string>(SetName);
             EventHandlers["dispatchsystem:toggleWarrant"] += new Action<string>(ToggleWarrant);
             EventHandlers["dispatchsystem:setCitations"] += new Action<string, int>(SetCitations);
-              // Vehicle Events
+            #endregion
+
 #if ENABLE_VEH
+            #region Vehicle Commands
             EventHandlers["dispatchsystem:setVehicle"] += new Action<string, string>(SetVehicle);
             EventHandlers["dispatchsystem:toggleVehStolen"] += new Action<string>(ToggleVehicleStolen);
             EventHandlers["dispatchsystem:toggleVehRegi"] += new Action<string>(ToggleVehicleRegistration);
             EventHandlers["dispatchsystem:toggleVehInsured"] += new Action<string>(ToggleVehicleInsurance);
+            #endregion
 #endif
-              // Police Events
+
+            #region Police Commands
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
             EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
             EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
 #if ENABLE_VEH
             EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
 #endif
+            #endregion
+        }
+        private void RegisterCommands()
+        {
+            #region Player Commands
+            commands.Add("/newname", (p, args) =>
+            {
+                if (args.Count() < 2)
+                {
+                    SendUsage(p, "You must have atleast 2 arguments");
+                    return;
+                }
 
-            Debug.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
-            SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
+                TriggerEvent("dispatchsystem:setName", p.Handle, args[0], args[1]);
+            });
+            commands.Add("/warrant", (p, args) => TriggerEvent("dispatchsystem:toggleWarrant", p.Handle));
+            commands.Add("/citations", (p, args) =>
+            {
+                if (args.Count() < 1)
+                {
+                    SendUsage(p, "You must have atleast 1 argument");
+                    return;
+                }
+
+                if (int.TryParse(args[0], out int parse))
+                {
+                    TriggerEvent("dispatchsystem:setCitations", p.Handle, parse);
+                }
+                else
+                    SendUsage(p, "The argument specified is not a valid number");
+            });
+            #endregion
+#if ENABLE_VEH
+            #region Vehicle Commands
+            commands.Add("/newveh", (p, args) =>
+            {
+                if (args.Count() < 1)
+                {
+                    SendUsage(p, "You must have atleast 2 arguments");
+                    return;
+                }
+
+                TriggerEvent("dispatchsystem:setVehicle", p.Handle, args[0]);
+            });
+            commands.Add("/stolen", (p, args) => TriggerEvent("dispatchsystem:toggleVehStolen", p.Handle));
+            commands.Add("/registered", (p, args) => TriggerEvent("dispatchsystem:toggleVehRegi", p.Handle));
+            commands.Add("/insured", (p, args) => TriggerEvent("dispatchsystem:toggleVehInsured", p.Handle));
+            #endregion
+#endif
+            #region Police Commands
+            commands.Add("/2729", (p, args) =>
+            {
+                if (args.Count() < 2)
+                {
+                    SendUsage(p, "You must have atleast 2 arguments");
+                    return;
+                }
+
+                TriggerEvent("dispatchsystem:getCivilian", p.Handle, args[0], args[1]);
+            });
+#if ENABLE_VEH
+            commands.Add("/28", (p, args) =>
+            {
+                if (args.Count() < 1)
+                {
+                    SendUsage(p, "You must have atleast 1 argument");
+                    return;
+                }
+
+                TriggerEvent("dispatchsystem:getCivilianVeh", p.Handle, args[0]);
+            });
+#endif
+            commands.Add("/note", (p, args) =>
+            {
+                if (args.Count() < 3)
+                {
+                    SendUsage(p, "You must have atleast 3 arguments");
+                    return;
+                }
+
+                string note = string.Empty;
+
+                for (int i = 0; i < args.Count(); i++)
+                {
+                    if (i == 0 || i == 1)
+                        continue;
+
+                    note += args[i];
+                    note += ' ';
+                }
+
+                TriggerEvent("dispatchsystem:addCivNote", p.Handle, args[0], args[1], note);
+            });
+            commands.Add("/ticket", (p, args) =>
+            {
+                if (args.Count() < 4)
+                {
+                    SendUsage(p, "You must have atleast 4 arguments");
+                    return;
+                }
+
+                string reason = string.Empty;
+
+                for (int i = 0; i < args.Count(); i++)
+                {
+                    if (i == 0 || i == 1 || i == 2)
+                        continue;
+
+                    reason += args[i];
+                    reason += ' ';
+                }
+
+                if (float.TryParse(args[2], out float amount))
+                {
+                    TriggerEvent("dispatchsystem:ticketCiv", p.Handle, args[0], args[1], reason, amount);
+                }
+                else
+                    SendUsage(p, "The amount must be a valid number");
+            });
+            #endregion
         }
 
-#region Event Methods
+        #region Event Methods
         public static void SetName(string handle, string first, string last)
         {
             Player p = GetPlayerByHandle(handle);
@@ -297,160 +429,15 @@ namespace DispatchSystem.Server
 
         private void OnChatMessage(int source, string n, string msg)
         {
-            Player p = Players[source];
-            List<string> args = msg.Split(' ').ToList();
-            string cmd = args[0].ToLower();
+            Player p = this.Players[source];
+            var args = msg.Split(' ').ToList();
+            var cmd = args[0];
             args.RemoveAt(0);
 
-#if DEBUG
-            SendMessage(p, "", new[] { 0, 0, 0 }, p.Handle);
-            Debug.WriteLine($"<{n}> {msg}");
-#endif
-
-              // Player Commands
-            if (cmd == "/newname")
+            if (commands.ContainsKey(cmd.ToLower()))
             {
                 CancelEvent();
-
-                if (args.Count < 2)
-                {
-                    SendUsage(p, "You must have atleast 2 arguments");
-                    return;
-                }
-
-                TriggerEvent("dispatchsystem:setName", p.Handle, args[0], args[1]);
-            }
-            if (cmd == "/warrant")
-            {
-                CancelEvent();
-                TriggerEvent("dispatchsystem:toggleWarrant", p.Handle);
-            }
-            if (cmd == "/citations")
-            {
-                CancelEvent();
-
-                if (args.Count < 1)
-                {
-                    SendUsage(p, "You must have atleast 1 argument");
-                    return;
-                }
-
-                if (int.TryParse(args[0], out int parse))
-                {
-                    TriggerEvent("dispatchsystem:setCitations", p.Handle, parse);
-                }
-                else
-                    SendUsage(p, "The argument specified is not a valid number");
-            }
-
-              // Vehicle Commands
-#if ENABLE_VEH
-            if (cmd == "/newveh")
-            {
-                CancelEvent();
-
-                if (args.Count < 1)
-                {
-                    SendUsage(p, "You must have atleast 2 arguments");
-                    return;
-                }
-
-                TriggerEvent("dispatchsystem:setVehicle", p.Handle, args[0]);
-            }
-            if (cmd == "/stolen")
-            {
-                CancelEvent();
-                TriggerEvent("dispatchsystem:toggleVehStolen", p.Handle);
-            }
-            if (cmd == "/registered")
-            {
-                CancelEvent();
-                TriggerEvent("dispatchsystem:toggleVehRegi", p.Handle);
-            }
-            if (cmd == "/insured")
-            {
-                CancelEvent();
-                TriggerEvent("dispatchsystem:toggleVehInsured", p.Handle);
-            }
-#endif
-
-              // Police Commands
-            if (cmd == "/2729")
-            {
-                CancelEvent();
-
-                if (args.Count < 2)
-                {
-                    SendUsage(p, "You must have atleast 2 arguments");
-                    return;
-                }
-
-                TriggerEvent("dispatchsystem:getCivilian", p.Handle, args[0], args[1]);
-            }
-#if ENABLE_VEH
-            if (cmd == "/28")
-            {
-                CancelEvent();
-
-                if (args.Count < 1)
-                {
-                    SendUsage(p, "You must have atleast 1 argument");
-                    return;
-                }
-
-                TriggerEvent("dispatchsystem:getCivilianVeh", p.Handle, args[0]);
-            }
-#endif
-            if (cmd == "/note")
-            {
-                CancelEvent();
-
-                if (args.Count < 3)
-                {
-                    SendUsage(p, "You must have atleast 3 arguments");
-                    return;
-                }
-
-                string note = string.Empty;
-
-                for (int i = 0; i < args.Count; i++)
-                {
-                    if (i == 0 || i == 1)
-                        continue;
-
-                    note += args[i];
-                    note += ' ';
-                }
-
-                TriggerEvent("dispatchsystem:addCivNote", p.Handle, args[0], args[1], note);
-            }
-            if (cmd == "/ticket")
-            {
-                CancelEvent();
-
-                if (args.Count < 4)
-                {
-                    SendUsage(p, "You must have atleast 4 arguments");
-                    return;
-                }
-
-                string reason = string.Empty;
-
-                for (int i = 0; i < args.Count; i++)
-                {
-                    if (i == 0 || i == 1 || i == 2)
-                        continue;
-
-                    reason += args[i];
-                    reason += ' ';
-                }
-
-                if (float.TryParse(args[2], out float amount))
-                {
-                    TriggerEvent("dispatchsystem:ticketCiv", p.Handle, args[0], args[1], reason, amount);
-                }
-                else
-                    SendUsage(p, "The amount must be a valid number");
+                commands[cmd].Invoke(p, args.ToArray());
             }
         }
 
