@@ -19,6 +19,24 @@ void TriggerServerEvent("dispatchsystem:getCivilianVeh", String invokerHandle, S
 ```
 ***
 ```csharp
+// Eventname: dispatchsystem:addCivNote
+
+void TriggerServerEvent("dispatchsystem:addCivNote", String invokerHandle, String firstName, String lastName, String note);
+```
+***
+```csharp
+// Eventname: dispatchsystem:displayCivNotes
+
+void TriggerServerEvent("dispatchsystem:displayCivNotes", String invokerHandle, String firstName, String lastName);
+```
+***
+```csharp
+// Eventname: dispatchsystem:ticketCiv
+
+void TriggerServerEvent("dispatchsystem:ticketCiv", String invokerHandle, String firstName, String lastName, String reason, Single amount);
+```
+***
+```csharp
 // Eventname: dispatchsystem:setName
 
 void TriggerServerEvent("dispatchsystem:setName", String playerHandle, String firstName, String lastName);

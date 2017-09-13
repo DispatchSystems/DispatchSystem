@@ -31,6 +31,9 @@
 
 * /2729 {first} {last} - Check the name of a person in the system
 * /28 {plate} - Check the plate of a vehicle in the system
+* /note {first} {last} {note} - Adds a note to a civilian
+* /ticket {first} {last} {amount} {reason} - Adds a ticket to a civilian
+* /notes {first} {last} - Displays all of the notes of a civilian
 
 ## In the works
 
@@ -38,6 +41,6 @@
 
 2. BOLO - `/bolo {first} {last}` `/bolo {plate}` Either one will show a bolo tag on the type if searched up in the system
 
-3. Ticket - `/ticket {first} {last}` Tickets the player then adds 1 to the citation count
+3. Tickets Extension - `/tickets {first} {last}` System to display all of the tickets a Civilian has gotten
 
-4. Notes `/note {playerid} {notes}` Notes a comment on the player's profile
+4. Warrant Types - `/warrant {type}` have different types of bench warrants and also a toggle for outstanding
