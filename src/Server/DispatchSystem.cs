@@ -16,11 +16,10 @@
 */
 
 // Definitions
-#define ENABLE_VEH // Undefined because work is needed on topic
 #undef DEBUG // Leave undefined unless you want unwanted messages in chat
-#undef DB // Add future version of DB?
+#undef VDB // Add future version of DB?
 
-#if !DB
+#if !VDB
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,14 +30,14 @@ using CitizenFX.Core.Native;
 
 namespace DispatchSystem.Server
 {
-    internal delegate void InvokedCommand(Player player, string[] args);
+    internal delegate void Command(Player player, string[] args);
 
     public class DispatchSystem : BaseScript
     {
         protected static List<Civilian> civs = new List<Civilian>();
         protected static List<CivilianVeh> civVehs = new List<CivilianVeh>();
 
-        private Dictionary<string, InvokedCommand> commands = new Dictionary<string, InvokedCommand>();
+        private Dictionary<string, Command> commands = new Dictionary<string, Command>();
 
         public DispatchSystem()
         {
@@ -46,7 +45,7 @@ namespace DispatchSystem.Server
             RegisterCommands();
 
             Debug.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
-            SendMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
+            SendAllMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
         }
 
         private void RegisterEvents()
@@ -59,23 +58,19 @@ namespace DispatchSystem.Server
             EventHandlers["dispatchsystem:setCitations"] += new Action<string, int>(SetCitations);
             #endregion
 
-#if ENABLE_VEH
             #region Vehicle Commands
             EventHandlers["dispatchsystem:setVehicle"] += new Action<string, string>(SetVehicle);
             EventHandlers["dispatchsystem:toggleVehStolen"] += new Action<string>(ToggleVehicleStolen);
             EventHandlers["dispatchsystem:toggleVehRegi"] += new Action<string>(ToggleVehicleRegistration);
             EventHandlers["dispatchsystem:toggleVehInsured"] += new Action<string>(ToggleVehicleInsurance);
             #endregion
-#endif
 
             #region Police Commands
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
             EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
             EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
             EventHandlers["dispatchsystem:displayCivNotes"] += new Action<string, string, string>(DipslayCivilianNotes);
-#if ENABLE_VEH
             EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
-#endif
             #endregion
         }
         private void RegisterCommands()
@@ -108,7 +103,6 @@ namespace DispatchSystem.Server
                     SendUsage(p, "The argument specified is not a valid number");
             });
             #endregion
-#if ENABLE_VEH
             #region Vehicle Commands
             commands.Add("/newveh", (p, args) =>
             {
@@ -124,7 +118,6 @@ namespace DispatchSystem.Server
             commands.Add("/registered", (p, args) => TriggerEvent("dispatchsystem:toggleVehRegi", p.Handle));
             commands.Add("/insured", (p, args) => TriggerEvent("dispatchsystem:toggleVehInsured", p.Handle));
             #endregion
-#endif
             #region Police Commands
             commands.Add("/2729", (p, args) =>
             {
@@ -136,7 +129,6 @@ namespace DispatchSystem.Server
 
                 TriggerEvent("dispatchsystem:getCivilian", p.Handle, args[0], args[1]);
             });
-#if ENABLE_VEH
             commands.Add("/28", (p, args) =>
             {
                 if (args.Count() < 1)
@@ -147,7 +139,6 @@ namespace DispatchSystem.Server
 
                 TriggerEvent("dispatchsystem:getCivilianVeh", p.Handle, args[0]);
             });
-#endif
             commands.Add("/note", (p, args) =>
             {
                 if (args.Count() < 3)
@@ -232,14 +223,12 @@ namespace DispatchSystem.Server
                 SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new civilian profile...");
 #endif
             }
-#if ENABLE_VEH
             if (GetCivilianVeh(handle) != null)
             {
                 int index = civVehs.IndexOf(GetCivilianVeh(handle));
 
                 civVehs[index] = new CivilianVeh(p);
             }
-#endif
         }
         public static void ToggleWarrant(string handle)
         {
@@ -273,7 +262,6 @@ namespace DispatchSystem.Server
             else
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your citations");
         }
-#if ENABLE_VEH
         public static void SetVehicle(string handle, string plate)
         {
             Player p = GetPlayerByHandle(handle);
@@ -365,7 +353,6 @@ namespace DispatchSystem.Server
             else
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your vehicle before you can set your Insurance");
         }
-#endif
         public static void RequestCivilian(string handle, string first, string last)
         {
             Player invoker = GetPlayerByHandle(handle);
@@ -381,7 +368,6 @@ namespace DispatchSystem.Server
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
         }
-#if ENABLE_VEH
         public static void RequestCivilianVeh(string handle, string plate)
         {
             Player invoker = GetPlayerByHandle(handle);
@@ -399,7 +385,6 @@ namespace DispatchSystem.Server
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
         }
-#endif
         public static void AddCivilianNote(string invokerHandle, string first, string last, string note)
         {
             Player invoker = GetPlayerByHandle(invokerHandle);
@@ -483,7 +468,6 @@ namespace DispatchSystem.Server
 
             return null;
         }
-#if ENABLE_VEH
         private static CivilianVeh GetCivilianVeh(string pHandle)
         {
             foreach (var item in civVehs)
@@ -522,7 +506,6 @@ namespace DispatchSystem.Server
 
             return @return;
         }
-#endif
 
         private static Player GetPlayerByHandle(string handle)
         {
@@ -537,7 +520,7 @@ namespace DispatchSystem.Server
         private static void WriteChatLine(Player p) => TriggerClientEvent(p, "chatMessage", "", new[] { 0, 0, 0 }, "\n");
         private static void WriteChatLine() => TriggerClientEvent("chatMessage", "", new[] { 0, 0, 0 }, "\n");
         private static void SendMessage(Player p, string title, int[] rgb, string msg) => TriggerClientEvent(p, "chatMessage", title, rgb, msg);
-        private static void SendMessage(string title, int[] rgb, string msg) => TriggerClientEvent("chatMessage", title, rgb, msg);
+        private static void SendAllMessage(string title, int[] rgb, string msg) => TriggerClientEvent("chatMessage", title, rgb, msg);
         private static void SendUsage(Player p, string usage) => TriggerClientEvent(p, "chatMessage", "Usage", new[] { 255, 255, 255 }, usage);
 #endregion
 
