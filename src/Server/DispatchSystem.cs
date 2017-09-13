@@ -72,6 +72,7 @@ namespace DispatchSystem.Server
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
             EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
             EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
+            EventHandlers["dispatchsystem:displayCivNotes"] += new Action<string, string, string>(DipslayCivilianNotes);
 #if ENABLE_VEH
             EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
 #endif
@@ -193,6 +194,16 @@ namespace DispatchSystem.Server
                 }
                 else
                     SendUsage(p, "The amount must be a valid number");
+            });
+            commands.Add("/notes", (p, args) =>
+            {
+                if (args.Count() < 2)
+                {
+                    SendUsage(p, "You must have atleast 2 arguments");
+                    return;
+                }
+
+                TriggerEvent("dispatchsystem:displayCivNotes", p.Handle, args[0], args[1]);
             });
             #endregion
         }
@@ -367,10 +378,6 @@ namespace DispatchSystem.Server
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Warrant: {civ.WarrantStatus.ToString()}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Citations: {civ.CitationCount.ToString()}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "Notes:");
-                if (civ.Notes.Count == 0)
-                    SendMessage(invoker, "", new[] { 0, 0, 0 }, "^9None");
-                else
-                    civ.Notes.ForEach(x => SendMessage(invoker, "", new[] { 0, 0, 0 }, $"^7{x}"));
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
@@ -421,6 +428,21 @@ namespace DispatchSystem.Server
                 civs[index] = new Civilian(_last.Source, _last.First, _last.Last, _last.WarrantStatus, _last.CitationCount + 1, _last.Notes);
                 SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
+            }
+            else
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
+        }
+        public static void DipslayCivilianNotes(string handle, string first, string last)
+        {
+            Player invoker = GetPlayerByHandle(handle);
+            Civilian civ = GetCivilianByName(first, last);
+
+            if (civ != null)
+            {
+                if (civ.Notes.Count == 0)
+                    SendMessage(invoker, "", new[] { 0, 0, 0 }, "^9None");
+                else
+                    civ.Notes.ForEach(x => SendMessage(invoker, "", new[] { 0, 0, 0 }, x));
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
