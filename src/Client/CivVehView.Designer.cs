@@ -215,7 +215,7 @@
             this.Name = "CivVehView";
             this.Sizable = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Civilian View";
+            this.Text = "Civilian Vehicle View";
             this.ResumeLayout(false);
             this.PerformLayout();
 
