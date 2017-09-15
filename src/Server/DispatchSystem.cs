@@ -16,17 +16,18 @@
 */
 
 // Definitions
-#undef DEBUG // Leave undefined unless you want unwanted messages in chat
+#define DEBUG // Leave undefined unless you want unwanted messages in chat
 #undef VDB // Add future version of DB?
 
 #if !VDB
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
+using Config.Reader;
 
 namespace DispatchSystem.Server
 {
@@ -34,13 +35,21 @@ namespace DispatchSystem.Server
 
     public class DispatchSystem : BaseScript
     {
-        protected static List<Civilian> civs = new List<Civilian>();
-        protected static List<CivilianVeh> civVehs = new List<CivilianVeh>();
+        protected static iniconfig cfg;
+        private static Server server;
 
-        private Dictionary<string, Command> commands = new Dictionary<string, Command>();
+        protected static List<Civilian> civs;
+        protected static List<CivilianVeh> civVehs;
+        public static IEnumerable<Civilian> Civilians => civs.AsEnumerable();
+        public static IEnumerable<CivilianVeh> CivilianVehs => civVehs.AsEnumerable();
+
+        private Dictionary<string, Command> commands;
 
         public DispatchSystem()
         {
+            Server.Log.Create("dispatchsystem.log");
+
+            InitializeComponents();
             RegisterEvents();
             RegisterCommands();
 
@@ -197,6 +206,22 @@ namespace DispatchSystem.Server
                 TriggerEvent("dispatchsystem:displayCivNotes", p.Handle, args[0], args[1]);
             });
             #endregion
+        }
+        private void InitializeComponents()
+        {
+            cfg = new iniconfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
+            if (cfg.GetIntValue("server", "enable", 0) == 1)
+            {
+                ThreadPool.QueueUserWorkItem(x => server = new Server((iniconfig)x), cfg);
+                Server.Log.WriteLine("Starting DISPATCH server");
+            }
+            else
+                Server.Log.WriteLine("Not starting DISPATCH server");
+                
+
+            civs = new List<Civilian>();
+            civVehs = new List<CivilianVeh>();
+            commands = new Dictionary<string, Command>();
         }
 
         #region Event Methods
@@ -448,7 +473,7 @@ namespace DispatchSystem.Server
         }
 
 #region Common
-        private static Civilian GetCivilian(string pHandle)
+        public static Civilian GetCivilian(string pHandle)
         {
             foreach (var item in civs)
             {
@@ -458,7 +483,7 @@ namespace DispatchSystem.Server
             
             return null;
         }
-        private static Civilian GetCivilianByName(string first, string last)
+        public static Civilian GetCivilianByName(string first, string last)
         {
             foreach (var item in civs)
             {
@@ -468,7 +493,7 @@ namespace DispatchSystem.Server
 
             return null;
         }
-        private static CivilianVeh GetCivilianVeh(string pHandle)
+        public static CivilianVeh GetCivilianVeh(string pHandle)
         {
             foreach (var item in civVehs)
             {
@@ -478,7 +503,7 @@ namespace DispatchSystem.Server
 
             return null;
         }
-        private static CivilianVeh GetCivilianVehByPlate(string plate)
+        public static CivilianVeh GetCivilianVehByPlate(string plate)
         {
             foreach (var item in civVehs)
             {
