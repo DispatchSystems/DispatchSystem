@@ -43,8 +43,10 @@ luac.out
 src/.vs/DispatchSystem/v15/sqlite3/storage.ide
 
 # Build folders
+src/Client/bin/*
+src/Client/obj/*
 src/Server/obj/*
-src/bin/Debug/*
-src/bin/Release/*
+src/bin/*
+src/bin/*
 .vs/*
 src/.vs/*
