@@ -90,6 +90,7 @@ namespace DispatchSystem.Server
 
                 switch (tag)
                 {
+                    // Civilian Request
                     case 1:
                         Log.WriteLine("Civilian Request Recieved");
 
@@ -120,6 +121,7 @@ namespace DispatchSystem.Server
                         }
 
                         break;
+                    // Civilian Veh Request
                     case 2:
                         Log.WriteLine("Civilian Veh Request Recieved");
 
@@ -144,6 +146,52 @@ namespace DispatchSystem.Server
                             Log.WriteLine("Civilian Veh not found, sending null");
                             socket.Send(new byte[] { 4 });
                         }
+
+                        break;
+                    // Bolos list request
+                    case 3:
+                        Log.WriteLine("Bolos list Request Recieved");
+
+                        string outstring = string.Empty;
+                        if (DispatchSystem.ActiveBolos.Count > 0)
+                            for (int i = 0; i < DispatchSystem.ActiveBolos.Count; i++)
+                            {
+                                var item = DispatchSystem.ActiveBolos[i];
+
+                                if (i != 0)
+                                    outstring += '|';
+
+                                outstring += $"{i}\\{item.Item1}:{item.Item2}";
+                            }
+                        else
+                            outstring = "?";
+                        outstring += "^";
+
+                        Log.WriteLine("Sending back BOLO information");
+                        socket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
+                        Log.WriteLine("Information Sent");
+
+                        break;
+                    // Remove bolo from list Request
+                    case 4:
+                        Log.WriteLine("Remove Bolo from List Request Recieved");
+
+                        string instring = Encoding.UTF8.GetString(buffer).Split('^')[0];
+                        int parse = int.Parse(instring);
+
+                        try { DispatchSystem.ActiveBolos.RemoveAt(parse); Log.WriteLine("Removed Active BOLO from the List"); }
+                        catch { Log.WriteLine("Index for BOLO not found, not removing..."); }
+
+                        break;
+                    // Add bolo to list Request
+                    case 5:
+                        Log.WriteLine("Add Bolo from List Request Recieved");
+
+                        string anInstring = Encoding.UTF8.GetString(buffer).Split('^')[0];
+                        string[] main = anInstring.Split('|');
+
+                        Log.WriteLine($"Adding new Bolo for \"{main[1]}\"");
+                        DispatchSystem.ActiveBolos.Add((main[0], main[1]));
 
                         break;
                 }

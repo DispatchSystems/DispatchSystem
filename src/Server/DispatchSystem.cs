@@ -38,10 +38,12 @@ namespace DispatchSystem.Server
         protected static iniconfig cfg;
         private static Server server;
 
+        protected static List<(string, string)> bolos;
         protected static List<Civilian> civs;
         protected static List<CivilianVeh> civVehs;
         public static IEnumerable<Civilian> Civilians => civs.AsEnumerable();
         public static IEnumerable<CivilianVeh> CivilianVehs => civVehs.AsEnumerable();
+        public static List<(string, string)> ActiveBolos => bolos;
 
         private Dictionary<string, Command> commands;
 
@@ -53,7 +55,7 @@ namespace DispatchSystem.Server
             RegisterEvents();
             RegisterCommands();
 
-            Debug.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
+            Server.Log.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
             SendAllMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
         }
 
@@ -205,6 +207,24 @@ namespace DispatchSystem.Server
 
                 TriggerEvent("dispatchsystem:displayCivNotes", p.Handle, args[0], args[1]);
             });
+            commands.Add("/bolo", (p, args) =>
+            {
+                if (args.Count() < 1)
+                {
+                    SendUsage(p, "You must have atleast 1 argument");
+                    return;
+                }
+
+                bolos.Add((p.Name, string.Join(" ", args)));
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"BOLO for \"{string.Join(" ", args)}\" added");
+            });
+            commands.Add("/bolos", (p, args) =>
+            {
+                if (bolos.Count > 0)
+                    bolos.ForEach(x => SendMessage(p, "", new[] { 0, 0, 0 }, $"^8{x.Item1}^7: ^3{x.Item2}"));
+                else
+                    SendMessage(p, "", new[] { 0, 0, 0 }, "^7None");
+            });
             #endregion
         }
         private void InitializeComponents()
@@ -222,6 +242,7 @@ namespace DispatchSystem.Server
             civs = new List<Civilian>();
             civVehs = new List<CivilianVeh>();
             commands = new Dictionary<string, Command>();
+            bolos = new List<(string, string)>();
         }
 
         #region Event Methods

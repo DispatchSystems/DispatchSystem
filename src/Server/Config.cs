@@ -69,7 +69,6 @@ namespace Config
             {
                 // LOADS RESOURCE FILE
                 string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, resourceName, file);
-                DispatchSystem.Server.Server.Log.WriteLine(data);
 
                 // ENSURE THE RESOURCE FILE IS FOUND AND NOT EMPTY
                 if (data != null && data != "")

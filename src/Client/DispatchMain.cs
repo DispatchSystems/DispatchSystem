@@ -37,7 +37,7 @@ namespace Client
             if (!(string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text)))
             {
                 usrSocket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(string.Join("|", new string[] { firstName.Text.Trim(), $"{lastName.Text.Trim()}!" }))).ToArray());
-                byte[] incoming = new byte[1001];
+                byte[] incoming = new byte[5001];
                 usrSocket.Receive(incoming);
                 byte tag = incoming[0];
                 incoming = incoming.Skip(1).ToArray();
@@ -73,7 +73,7 @@ namespace Client
             if (!string.IsNullOrWhiteSpace(plate.Text))
             {
                 usrSocket.Send(new byte[] { 2 }.Concat(Encoding.UTF8.GetBytes($"{plate.Text}!")).ToArray());
-                byte[] incoming = new byte[1001];
+                byte[] incoming = new byte[5001];
                 usrSocket.Receive(incoming);
                 byte tag = incoming[0];
                 incoming = incoming.Skip(1).ToArray();
@@ -97,6 +97,50 @@ namespace Client
             }
 
             usrSocket.Disconnect(false);
+        }
+
+        private void OnViewBolosClick(object sender, EventArgs e)
+        {
+            usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(IPAddress.Parse(Config.IP), Config.Port); }
+            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            usrSocket.Send(new byte[] { 3 });
+            byte[] incoming = new byte[5001];
+            usrSocket.Receive(incoming);
+            byte tag = incoming[0];
+            incoming = incoming.Skip(1).ToArray();
+
+            if (tag == 5)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
+
+                    BoloView boloView = new BoloView(data);
+                    boloView.Show();
+                });
+            }
+
+            usrSocket.Disconnect(false);
+        }
+
+        private void OnRemoveBoloClick(object sender, EventArgs e)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.Remove);
+                boloView.Show();
+            });
+        }
+
+        private void OnAddBoloClick(object sender, EventArgs e)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.Add);
+                boloView.Show();
+            });
         }
     }
 }

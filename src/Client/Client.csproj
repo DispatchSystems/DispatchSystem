@@ -37,6 +37,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,6 +51,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddRemoveView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddRemoveView.Designer.cs">
+      <DependentUpon>AddRemoveView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BoloView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BoloView.Designer.cs">
+      <DependentUpon>BoloView.cs</DependentUpon>
+    </Compile>
     <Compile Include="CivVehView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -69,6 +84,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AddRemoveView.resx">
+      <DependentUpon>AddRemoveView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BoloView.resx">
+      <DependentUpon>BoloView.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CivVehView.resx">
       <DependentUpon>CivVehView.cs</DependentUpon>
     </EmbeddedResource>
