@@ -119,11 +119,19 @@ namespace DispatchSystem.Server
             {
                 if (args.Count() < 1)
                 {
-                    SendUsage(p, "You must have atleast 2 arguments");
+                    SendUsage(p, "You must have atleast 1 argument");
                     return;
                 }
 
-                TriggerEvent("dispatchsystem:setVehicle", p.Handle, args[0]);
+                string plate = string.Join(" ", args);
+
+                if (plate.Count() > 8)
+                {
+                    SendUsage(p, "Your plate cannot be over 8 characters long");
+                    return;
+                }
+
+                TriggerEvent("dispatchsystem:setVehicle", p.Handle, plate);
             });
             commands.Add("/stolen", (p, args) => TriggerEvent("dispatchsystem:toggleVehStolen", p.Handle));
             commands.Add("/registered", (p, args) => TriggerEvent("dispatchsystem:toggleVehRegi", p.Handle));
