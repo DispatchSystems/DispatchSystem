@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,7 +11,7 @@ namespace Client
 {
     public class Config
     {
-        public static string IP { get; private set; }
+        public static IPAddress IP { get; private set; }
         public static int Port { get; private set; }
 
         public static void Create(string FilePath)
@@ -27,13 +28,17 @@ namespace Client
                             Environment.Exit(0);
                         }
 
-                        IP = line[1];
+                        if (!IPAddress.TryParse(line[1], out IPAddress address))
+                        {
+                            MessageBox.Show("The ip address is invalid.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Environment.Exit(0);
+                        }
+
+                        IP = address;
                         break;
 
                     case "Port":
-                        int _Port;
-
-                        if (!int.TryParse(line[1], out _Port) || _Port < 1024 || _Port > 65536)
+                        if (!int.TryParse(line[1], out int _Port) || _Port < 1024 || _Port > 65536)
                         {
                             MessageBox.Show("The port is invalid.\nMake sure it is a positive integer within 1025-65535.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             Environment.Exit(0);

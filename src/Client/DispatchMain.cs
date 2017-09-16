@@ -31,7 +31,7 @@ namespace Client
         private void OnViewCivClick(object sender, EventArgs e)
         {
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(IPAddress.Parse(Config.IP), Config.Port); }
+            try { usrSocket.Connect(Config.IP, Config.Port); }
             catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             if (!(string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text)))
@@ -67,7 +67,7 @@ namespace Client
         private void OnViewCivVehClick(object sender, EventArgs e)
         {
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(IPAddress.Parse(Config.IP), Config.Port); }
+            try { usrSocket.Connect(Config.IP, Config.Port); }
             catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             if (!string.IsNullOrWhiteSpace(plate.Text))
@@ -102,7 +102,7 @@ namespace Client
         private void OnViewBolosClick(object sender, EventArgs e)
         {
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(IPAddress.Parse(Config.IP), Config.Port); }
+            try { usrSocket.Connect(Config.IP, Config.Port); }
             catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             usrSocket.Send(new byte[] { 3 });
