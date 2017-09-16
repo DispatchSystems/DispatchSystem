@@ -11,21 +11,18 @@ namespace DispatchSystem.Server
     public class Civilian
     {
         public Player Source { get; }
-        public String First { get; }
-        public String Last { get; }
-        public Boolean WarrantStatus { get; }
-        public Int32 CitationCount { get; }
+        public String First { get; set; }
+        public String Last { get; set; }
+        public Boolean WarrantStatus { get; set; }
+        public Int32 CitationCount { get; set; }
         public List<string> Notes { get; }
 
-        public Civilian(Player source) : this(source, null, null, false, 0, new List<string>()) { }
-        public Civilian(Player source, String first, String last, Boolean warrant, Int32 citations, List<string> notes)
+        public Civilian(Player source)
         {
-            this.Source = source;
-            this.First = first;
-            this.Last = last;
-            this.WarrantStatus = warrant;
-            this.CitationCount = citations;
-            this.Notes = notes;
+            Source = source;
+            Notes = new List<string>();
+            WarrantStatus = false;
+            CitationCount = 0;
         }
 
         public override string ToString()

@@ -11,21 +11,18 @@ namespace DispatchSystem.Server
     public class CivilianVeh
     {
         public Player Source { get; }
-        public Civilian Owner { get; }
-        public String Plate { get; }
-        public Boolean StolenStatus { get; }
-        public Boolean Registered { get; }
-        public Boolean Insured { get; }
+        public Civilian Owner { get; set; }
+        public String Plate { get; set; }
+        public Boolean StolenStatus { get; set; }
+        public Boolean Registered { get; set; }
+        public Boolean Insured { get; set; }
 
-        public CivilianVeh(Player source) : this(source, null, null, false, true, true) { }
-        public CivilianVeh(Player source, Civilian owner, String plate, Boolean stolen, Boolean regi, Boolean insur)
+        public CivilianVeh(Player source)
         {
-            this.Source = source;
-            this.Plate = plate;
-            this.StolenStatus = stolen;
-            this.Owner = owner;
-            this.Registered = regi;
-            this.Insured = insur;
+            Source = source;
+            StolenStatus = false;
+            Registered = true;
+            Insured = true;
         }
 
         public override string ToString()

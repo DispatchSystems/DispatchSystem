@@ -263,13 +263,13 @@ namespace DispatchSystem.Server
             {
                 int index = civs.IndexOf(GetCivilian(handle));
 
-                civs[index] = new Civilian(p, first, last, false, 0, new List<string>());
+                civs[index] = new Civilian(p) { First = first, Last = last };
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New name set to: {civs[index].First} {civs[index].Last}");
             }
             else
             {
-                civs.Add(new Civilian(p, first, last, false, 0, new List<string>()));
+                civs.Add(new Civilian(p) { First = first, Last = last });
                 int index = civs.IndexOf(GetCivilian(handle));
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New name set to: {civs[index].First} {civs[index].Last}");
@@ -291,10 +291,7 @@ namespace DispatchSystem.Server
             if (GetCivilian(handle) != null)
             {
                 int index = civs.IndexOf(GetCivilian(handle));
-                Civilian last = civs[index];
-
-                civs[index] = new Civilian(p, last.First, last.Last, !last.WarrantStatus, last.CitationCount, last.Notes);
-
+                civs[index].WarrantStatus = !civs[index].WarrantStatus;
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Warrant status set to {civs[index].WarrantStatus.ToString()}");
             }
             else
@@ -307,9 +304,7 @@ namespace DispatchSystem.Server
             if (GetCivilian(handle) != null)
             {
                 int index = civs.IndexOf(GetCivilian(handle));
-                Civilian last = civs[index];
-
-                civs[index] = new Civilian(p, last.First, last.Last, last.WarrantStatus, count, last.Notes);
+                civs[index].CitationCount = count;
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Citation count set to {count.ToString()}");
             }
@@ -330,13 +325,13 @@ namespace DispatchSystem.Server
             {
                 Int32 index = civVehs.IndexOf(GetCivilianVeh(handle));
 
-                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), plate.ToUpper(), false, true, true);
+                civVehs[index] = new CivilianVeh(p) { Plate = plate.ToUpper(), Owner = GetCivilian(handle) };
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
             else
             {
-                civVehs.Add(new CivilianVeh(p, GetCivilian(handle), plate.ToUpper(), false, true, true));
+                civVehs.Add(new CivilianVeh(p) { Plate = plate.ToLower(), Owner = GetCivilian(handle) });
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
@@ -354,9 +349,7 @@ namespace DispatchSystem.Server
             if (GetCivilianVeh(handle) != null)
             {
                 int index = civVehs.IndexOf(GetCivilianVeh(handle));
-                CivilianVeh last = civVehs[index];
-
-                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), last.Plate, !last.StolenStatus, last.Registered, last.Insured);
+                civVehs[index].StolenStatus = !civVehs[index].StolenStatus;
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Stolen status set to {civVehs[index].StolenStatus.ToString()}");
             }
@@ -376,9 +369,7 @@ namespace DispatchSystem.Server
             if (GetCivilianVeh(handle) != null)
             {
                 int index = civVehs.IndexOf(GetCivilianVeh(handle));
-                CivilianVeh last = civVehs[index];
-
-                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), last.Plate, last.StolenStatus, !last.Registered, last.Insured);
+                civVehs[index].Registered = !civVehs[index].Registered;
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Registration status set to {civVehs[index].Registered.ToString()}");
             }
@@ -400,7 +391,7 @@ namespace DispatchSystem.Server
                 int index = civVehs.IndexOf(GetCivilianVeh(handle));
                 CivilianVeh last = civVehs[index];
 
-                civVehs[index] = new CivilianVeh(p, GetCivilian(handle), last.Plate, last.StolenStatus, last.Registered, !last.Insured);
+                civVehs[index].Insured = !civVehs[index].Insured;
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Insurance status set to {civVehs[index].Insured.ToString()}");
             }
@@ -462,8 +453,7 @@ namespace DispatchSystem.Server
             {
                 int index = civs.IndexOf(civ);
                 Player p = civs[index].Source;
-                Civilian _last = civs[index];
-                civs[index] = new Civilian(_last.Source, _last.First, _last.Last, _last.WarrantStatus, _last.CitationCount + 1, _last.Notes);
+                civs[index].CitationCount++;
                 SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
             }
