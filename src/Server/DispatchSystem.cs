@@ -491,10 +491,10 @@ namespace DispatchSystem.Server
         {
             Player p = this.Players[source];
             var args = msg.Split(' ').ToList();
-            var cmd = args[0];
+            var cmd = args[0].ToLower();
             args.RemoveAt(0);
 
-            if (commands.ContainsKey(cmd.ToLower()))
+            if (commands.ContainsKey(cmd))
             {
                 CancelEvent();
                 commands[cmd].Invoke(p, args.ToArray());
