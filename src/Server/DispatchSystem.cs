@@ -80,6 +80,7 @@ namespace DispatchSystem.Server
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
             EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
             EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
+            EventHandlers["dispatchsystem:civTickets"] += new Action<string, string, string>(DisplayCivilianTickets);
             EventHandlers["dispatchsystem:displayCivNotes"] += new Action<string, string, string>(DipslayCivilianNotes);
             EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
             #endregion
@@ -204,6 +205,16 @@ namespace DispatchSystem.Server
                 }
                 else
                     SendUsage(p, "The amount must be a valid number");
+            });
+            commands.Add("/tickets", (p, args) =>
+            {
+                if (args.Count() < 2)
+                {
+                    SendUsage(p, "You must have atleast 2 arguments");
+                    return;
+                }
+
+                TriggerEvent("dispatchsystem:civTickets", p.Handle, args[0], args[1]);
             });
             commands.Add("/notes", (p, args) =>
             {
@@ -454,8 +465,25 @@ namespace DispatchSystem.Server
                 int index = civs.IndexOf(civ);
                 Player p = civs[index].Source;
                 civs[index].CitationCount++;
+                civs[index].Tickets.Add((reason, amount));
                 SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
+            }
+            else
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
+        }
+        public static void DisplayCivilianTickets(string invokerHandle, string first, string last)
+        {
+            Player invoker = GetPlayerByHandle(invokerHandle);
+            Civilian civ = GetCivilianByName(first, last);
+
+            if (civ != null)
+            {
+                int index = civs.IndexOf(civ);
+                if (civs[index].Tickets.Count() == 0)
+                    SendMessage(invoker, "", new[] { 0, 0, 0 }, "^7None");
+                else
+                    civs[index].Tickets.ForEach(x => SendMessage(invoker, "", new[] { 0, 0, 0 }, $"^7${x.Item2}: {x.Item1}"));
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");

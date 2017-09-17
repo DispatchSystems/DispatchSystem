@@ -40,8 +40,18 @@
             this.citationsView = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.materialDivider3 = new MaterialSkin.Controls.MaterialDivider();
             this.notesView = new MaterialSkin.Controls.MaterialListView();
+            this.materialDivider4 = new MaterialSkin.Controls.MaterialDivider();
+            this.ticketsView = new MaterialSkin.Controls.MaterialListView();
+            this.ticketsLabel = new MaterialSkin.Controls.MaterialLabel();
+            this.amountColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.descColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             noteColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
+            // 
+            // noteColumn
+            // 
+            noteColumn.Text = "Notes";
+            noteColumn.Width = 500;
             // 
             // nameLabel
             // 
@@ -96,12 +106,12 @@
             // 
             this.wantedLabel.AutoSize = true;
             this.wantedLabel.Depth = 0;
-            this.wantedLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            this.wantedLabel.Font = new System.Drawing.Font("Roboto", 11F);
             this.wantedLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
             this.wantedLabel.Location = new System.Drawing.Point(206, 76);
             this.wantedLabel.MouseState = MaterialSkin.MouseState.HOVER;
             this.wantedLabel.Name = "wantedLabel";
-            this.wantedLabel.Size = new System.Drawing.Size(63, 18);
+            this.wantedLabel.Size = new System.Drawing.Size(63, 19);
             this.wantedLabel.TabIndex = 3;
             this.wantedLabel.Text = "Wanted:";
             // 
@@ -186,11 +196,6 @@
             this.materialDivider3.TabIndex = 9;
             this.materialDivider3.Text = "materialDivider3";
             // 
-            // noteColumn
-            // 
-            noteColumn.Text = "Notes";
-            noteColumn.Width = 500;
-            // 
             // notesView
             // 
             this.notesView.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -210,12 +215,68 @@
             this.notesView.UseCompatibleStateImageBehavior = false;
             this.notesView.View = System.Windows.Forms.View.Details;
             // 
+            // materialDivider4
+            // 
+            this.materialDivider4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialDivider4.Depth = 0;
+            this.materialDivider4.Location = new System.Drawing.Point(452, 75);
+            this.materialDivider4.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialDivider4.Name = "materialDivider4";
+            this.materialDivider4.Size = new System.Drawing.Size(15, 430);
+            this.materialDivider4.TabIndex = 11;
+            this.materialDivider4.Text = "materialDivider4";
+            // 
+            // ticketsView
+            // 
+            this.ticketsView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.ticketsView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.amountColumn,
+            this.descColumn});
+            this.ticketsView.Depth = 0;
+            this.ticketsView.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F);
+            this.ticketsView.FullRowSelect = true;
+            this.ticketsView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.ticketsView.Location = new System.Drawing.Point(487, 111);
+            this.ticketsView.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.ticketsView.MouseState = MaterialSkin.MouseState.OUT;
+            this.ticketsView.Name = "ticketsView";
+            this.ticketsView.OwnerDraw = true;
+            this.ticketsView.Size = new System.Drawing.Size(405, 394);
+            this.ticketsView.TabIndex = 12;
+            this.ticketsView.UseCompatibleStateImageBehavior = false;
+            this.ticketsView.View = System.Windows.Forms.View.Details;
+            // 
+            // ticketsLabel
+            // 
+            this.ticketsLabel.AutoSize = true;
+            this.ticketsLabel.Depth = 0;
+            this.ticketsLabel.Font = new System.Drawing.Font("Roboto", 11F);
+            this.ticketsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.ticketsLabel.Location = new System.Drawing.Point(483, 76);
+            this.ticketsLabel.MouseState = MaterialSkin.MouseState.HOVER;
+            this.ticketsLabel.Name = "ticketsLabel";
+            this.ticketsLabel.Size = new System.Drawing.Size(63, 19);
+            this.ticketsLabel.TabIndex = 13;
+            this.ticketsLabel.Text = "Tickets:";
+            // 
+            // amountColumn
+            // 
+            this.amountColumn.Text = "Amount";
+            // 
+            // descColumn
+            // 
+            this.descColumn.Text = "Information";
+            this.descColumn.Width = 345;
+            // 
             // CivView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(436, 517);
+            this.ClientSize = new System.Drawing.Size(914, 517);
+            this.Controls.Add(this.ticketsLabel);
+            this.Controls.Add(this.ticketsView);
+            this.Controls.Add(this.materialDivider4);
             this.Controls.Add(this.notesView);
             this.Controls.Add(this.materialDivider3);
             this.Controls.Add(this.citationsView);
@@ -250,5 +311,10 @@
         private MaterialSkin.Controls.MaterialSingleLineTextField citationsView;
         private MaterialSkin.Controls.MaterialDivider materialDivider3;
         private MaterialSkin.Controls.MaterialListView notesView;
+        private MaterialSkin.Controls.MaterialDivider materialDivider4;
+        private MaterialSkin.Controls.MaterialListView ticketsView;
+        private MaterialSkin.Controls.MaterialLabel ticketsLabel;
+        private System.Windows.Forms.ColumnHeader amountColumn;
+        private System.Windows.Forms.ColumnHeader descColumn;
     }
 }

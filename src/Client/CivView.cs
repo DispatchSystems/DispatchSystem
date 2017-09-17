@@ -20,6 +20,7 @@ namespace Client
         bool wanted = true;
         int citations;
         string[] notes;
+        (float, string)[] tickets;
 
         public CivView(string civData)
         {
@@ -43,6 +44,16 @@ namespace Client
             {
                 this.notes.ToList().ForEach(x => notesView.Items.Add(x));
             }
+
+            if (tickets.Count() != 0)
+            {
+                foreach (var item in tickets)
+                {
+                    ListViewItem li = new ListViewItem($"${item.Item1.ToString()}");
+                    li.SubItems.Add(item.Item2);
+                    ticketsView.Items.Add(li);
+                }
+            }
         }
 
         private void ParseCivilian(string data)
@@ -52,6 +63,17 @@ namespace Client
             bool wanted = bool.Parse(main[1]);
             int citations = int.Parse(main[2]);
             string[] notes = main[3].Split('\\');
+            string[] ticketsMain = main[4].Split('\\');
+            List<(float, string)> tickets = new List<(float, string)>();
+            if (ticketsMain[0] != "?")
+                foreach (var item in ticketsMain)
+                {
+                    string[] main2 = item.Split('!');
+                    float amount = float.Parse(main2[0]);
+                    string reason = main2[1];
+                    tickets.Add((amount, reason));
+                }
+            this.tickets = tickets.ToArray();
 
             this.firstName = name[0];
             this.lastName = name[1];
