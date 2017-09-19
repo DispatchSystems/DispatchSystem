@@ -30,7 +30,7 @@ namespace Client
 
             Timer = new Timer
             {
-                Interval = 5000
+                Interval = 15000
             };
             Timer.Tick += OnTick;
             Timer.Start();
