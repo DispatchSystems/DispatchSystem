@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DEBUG
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -78,7 +80,7 @@ namespace DispatchSystem.Server
             {
                 ThreadPool.QueueUserWorkItem(x => { try { Connect(x); } catch (Exception e)
                     {
-                        Log.WriteLine(e.ToString());
+                        Log.WriteLineSilent(e.ToString());
                     } }, tcp.AcceptSocket());
             }
         }
@@ -87,7 +89,11 @@ namespace DispatchSystem.Server
         {
             Socket socket = (Socket)socket0;
             string ip = socket.RemoteEndPoint.ToString().Split(':')[0];
+#if DEBUG
             Log.WriteLine($"New connection from ip");
+#else
+            Log.WriteLineSilent($"New connection from ip");
+#endif
 
             while (socket.Connected)
             {
@@ -102,7 +108,11 @@ namespace DispatchSystem.Server
                     // Civilian Request
                     case 1:
                         {
+#if DEBUG
                             Log.WriteLine("Civilian Request Recieved");
+#else
+                            Log.WriteLineSilent("Civilian Request Recieved");
+#endif
 
                             string name_input = Encoding.UTF8.GetString(buffer);
                             name_input = name_input.Split('!')[0];
@@ -121,12 +131,20 @@ namespace DispatchSystem.Server
                             }
                             if (civ != null)
                             {
+#if DEBUG
                                 Log.WriteLine("Sending Civilian information to Client");
+#else
+                                Log.WriteLineSilent("Sending Civilian information to Client");
+#endif
                                 socket.Send(new byte[] { 1 }.Concat(civ.ToBytes()).ToArray());
                             }
                             else
                             {
+#if DEBUG
                                 Log.WriteLine("Civilian not found, sending null");
+#else
+                                Log.WriteLineSilent("Civilian not found, sending null");
+#endif
                                 socket.Send(new byte[] { 2 });
                             }
 
@@ -135,7 +153,11 @@ namespace DispatchSystem.Server
                     // Civilian Veh Request
                     case 2:
                         {
+#if DEBUG
                             Log.WriteLine("Civilian Veh Request Recieved");
+#else
+                            Log.WriteLineSilent("Civilian Veh Request Recieved");
+#endif
 
                             string plate_input = Encoding.UTF8.GetString(buffer);
                             plate_input = plate_input.Split('!')[0];
@@ -150,12 +172,20 @@ namespace DispatchSystem.Server
                             }
                             if (civVeh != null)
                             {
+#if DEBUG
                                 Log.WriteLine("Sending Civilian Veh information to Client");
+#else
+                                Log.WriteLineSilent("Sending Civilian Veh information to Client");
+#endif
                                 socket.Send(new byte[] { 3 }.Concat(civVeh.ToBytes()).ToArray());
                             }
                             else
                             {
+#if DEBUG
                                 Log.WriteLine("Civilian Veh not found, sending null");
+#else
+                                Log.WriteLineSilent("Civilian Veh not found, sending null");
+#endif
                                 socket.Send(new byte[] { 4 });
                             }
 
@@ -164,7 +194,11 @@ namespace DispatchSystem.Server
                     // Bolos list request
                     case 3:
                         {
+#if DEBUG
                             Log.WriteLine("Bolos list Request Recieved");
+#else
+                            Log.WriteLineSilent("Bolos list Request Recieved");
+#endif
 
                             string outstring = string.Empty;
                             if (DispatchSystem.ActiveBolos.Count > 0)
@@ -181,9 +215,15 @@ namespace DispatchSystem.Server
                                 outstring = "?";
                             outstring += "^";
 
+#if DEBUG
                             Log.WriteLine("Sending back BOLO information");
                             socket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
                             Log.WriteLine("Information Sent");
+#else
+                            Log.WriteLineSilent("Sending back BOLO information");
+                            socket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
+                            Log.WriteLineSilent("Information Sent");
+#endif
 
                             break;
                         }
@@ -208,7 +248,7 @@ namespace DispatchSystem.Server
                             string anInstring = Encoding.UTF8.GetString(buffer).Split('^')[0];
                             string[] main = anInstring.Split('|');
 
-                            Log.WriteLine($"Adding new Bolo for \"{main[1]}\"");
+                            Log.WriteLineSilent($"Adding new Bolo for \"{main[1]}\"");
                             DispatchSystem.ActiveBolos.Add((main[0], main[1]));
 
                             break;
@@ -219,7 +259,6 @@ namespace DispatchSystem.Server
                             Log.WriteLine("Add Civilian note Request Recieved");
 
                             string input = Encoding.UTF8.GetString(buffer).Split('^')[0];
-                            Log.WriteLine(input);
                             string[] main = input.Split('|');
                             string[] name = main[0].Split(',');
                             string note = main[1];
@@ -237,7 +276,11 @@ namespace DispatchSystem.Server
                         }
                 }
             }
+#if DEBUG
             Log.WriteLine($"Connection from ip broken");
+#else
+            Log.WriteLineSilent($"Connection from ip broken");
+#endif
         }
     }
 }
