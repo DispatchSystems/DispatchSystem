@@ -39,6 +39,15 @@ namespace DispatchSystem.Server
                     Debug.WriteLine($"(DispatchSystem) {formatted}");
                 }
             }
+            public static void WriteLineSilent(string line)
+            {
+                lock (_lock)
+                {
+                    string formatted = $"[{DateTime.Now.ToString()}]: {line}";
+                    writer.WriteLine(formatted);
+                    writer.Flush();
+                }
+            }
         }
 
         TcpListener tcp;
