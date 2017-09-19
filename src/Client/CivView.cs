@@ -11,13 +11,21 @@ using System.Windows.Forms;
 using MaterialSkin;
 using MaterialSkin.Controls;
 
+using System.Net;
+using System.Net.Sockets;
+
 namespace Client
 {
-    public partial class CivView : MaterialForm
+    public partial class CivView : MaterialForm, ISyncable
     {
-        string firstName = "Test";
-        string lastName = "Name";
-        bool wanted = true;
+        public Timer Timer { get; }
+        public bool IsCurrentlySyncing { get; private set; }
+
+        string data;
+
+        string firstName;
+        string lastName;
+        bool wanted;
         int citations;
         string[] notes;
         (float, string)[] tickets;
@@ -25,27 +33,51 @@ namespace Client
         public CivView(string civData)
         {
             InitializeComponent();
+            this.data = civData;
+
+            Timer = new Timer
+            {
+                Interval = 5000
+            };
+            Timer.Tick += OnTick;
+            Timer.Start();
 
             ParseCivilian(civData);
             UpdateCurrentInfromation();
         }
 
+        private void OnTick(object sender, EventArgs e)
+        {
+            if (this.IsHandleCreated)
+                new Task(async () => await Resync()).Start();
+            else
+                Timer.Dispose();
+        }
+
         public void UpdateCurrentInfromation()
         {
+            firstNameView.ResetText();
+            lastNameView.ResetText();
+            citationsView.ResetText();
+            if (notesView.Items.Count != notes.Count())
+                notesView.Items.Clear();
+            if (ticketsView.Items.Count != tickets.Count())
+                ticketsView.Items.Clear();
+
             firstNameView.Text = firstName;
             lastNameView.Text = lastName;
             wantedView.Checked = wanted;
             citationsView.Text = citations.ToString();
 
             if (notes[0] == "?")
-                notes[0] = "None";
+                notes = new List<string>().ToArray();
 
-            if (notes[0] != null)
+            if (notes.Count() != 0 && notesView.Items.Count != notes.Count())
             {
                 this.notes.ToList().ForEach(x => notesView.Items.Add(x));
             }
 
-            if (tickets.Count() != 0)
+            if (tickets.Count() != 0 && ticketsView.Items.Count != tickets.Count())
             {
                 foreach (var item in tickets)
                 {
@@ -80,6 +112,50 @@ namespace Client
             this.wanted = wanted;
             this.citations = citations;
             this.notes = notes;
+        }
+
+        private void OnAddNoteClick(object sender, EventArgs e)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                new AddRemoveView(AddRemoveView.Type.AddNote, firstName, lastName).Show();
+            });
+        }
+
+        public async Task Resync()
+        {
+            Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(Config.IP, Config.Port); }
+            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            IsCurrentlySyncing = true;
+
+            if (!(string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName)))
+            {
+                usrSocket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(string.Join("|", new string[] { firstName.Trim(), $"{lastName.Trim()}!" }))).ToArray());
+                byte[] incoming = new byte[5001];
+                usrSocket.Receive(incoming);
+                byte tag = incoming[0];
+                incoming = incoming.Skip(1).ToArray();
+
+                if (tag == 1)
+                {
+                    Invoke((MethodInvoker)delegate
+                    {
+                        this.data = Encoding.UTF8.GetString(incoming).Split('^')[0];
+                        ParseCivilian(data);
+                        UpdateCurrentInfromation();
+                    });
+                }
+                else if (tag == 2)
+                {
+                    MessageBox.Show("That is an Invalid name!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            usrSocket.Disconnect(false);
+            IsCurrentlySyncing = false;
+            await this.Delay(0);
         }
     }
 }

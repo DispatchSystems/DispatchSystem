@@ -42,9 +42,10 @@
             this.notesView = new MaterialSkin.Controls.MaterialListView();
             this.materialDivider4 = new MaterialSkin.Controls.MaterialDivider();
             this.ticketsView = new MaterialSkin.Controls.MaterialListView();
-            this.ticketsLabel = new MaterialSkin.Controls.MaterialLabel();
             this.amountColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.descColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ticketsLabel = new MaterialSkin.Controls.MaterialLabel();
+            this.btnAddNote = new MaterialSkin.Controls.MaterialRaisedButton();
             noteColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
@@ -222,7 +223,7 @@
             this.materialDivider4.Location = new System.Drawing.Point(452, 75);
             this.materialDivider4.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialDivider4.Name = "materialDivider4";
-            this.materialDivider4.Size = new System.Drawing.Size(15, 430);
+            this.materialDivider4.Size = new System.Drawing.Size(15, 475);
             this.materialDivider4.TabIndex = 11;
             this.materialDivider4.Text = "materialDivider4";
             // 
@@ -241,10 +242,19 @@
             this.ticketsView.MouseState = MaterialSkin.MouseState.OUT;
             this.ticketsView.Name = "ticketsView";
             this.ticketsView.OwnerDraw = true;
-            this.ticketsView.Size = new System.Drawing.Size(405, 394);
+            this.ticketsView.Size = new System.Drawing.Size(405, 439);
             this.ticketsView.TabIndex = 12;
             this.ticketsView.UseCompatibleStateImageBehavior = false;
             this.ticketsView.View = System.Windows.Forms.View.Details;
+            // 
+            // amountColumn
+            // 
+            this.amountColumn.Text = "Amount";
+            // 
+            // descColumn
+            // 
+            this.descColumn.Text = "Information";
+            this.descColumn.Width = 345;
             // 
             // ticketsLabel
             // 
@@ -259,21 +269,29 @@
             this.ticketsLabel.TabIndex = 13;
             this.ticketsLabel.Text = "Tickets:";
             // 
-            // amountColumn
+            // btnAddNote
             // 
-            this.amountColumn.Text = "Amount";
-            // 
-            // descColumn
-            // 
-            this.descColumn.Text = "Information";
-            this.descColumn.Width = 345;
+            this.btnAddNote.AutoSize = true;
+            this.btnAddNote.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnAddNote.Depth = 0;
+            this.btnAddNote.Icon = null;
+            this.btnAddNote.Location = new System.Drawing.Point(12, 514);
+            this.btnAddNote.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnAddNote.Name = "btnAddNote";
+            this.btnAddNote.Primary = true;
+            this.btnAddNote.Size = new System.Drawing.Size(87, 36);
+            this.btnAddNote.TabIndex = 14;
+            this.btnAddNote.Text = "Add Note";
+            this.btnAddNote.UseVisualStyleBackColor = true;
+            this.btnAddNote.Click += new System.EventHandler(this.OnAddNoteClick);
             // 
             // CivView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(914, 517);
+            this.ClientSize = new System.Drawing.Size(914, 562);
+            this.Controls.Add(this.btnAddNote);
             this.Controls.Add(this.ticketsLabel);
             this.Controls.Add(this.ticketsView);
             this.Controls.Add(this.materialDivider4);
@@ -316,5 +334,6 @@
         private MaterialSkin.Controls.MaterialLabel ticketsLabel;
         private System.Windows.Forms.ColumnHeader amountColumn;
         private System.Windows.Forms.ColumnHeader descColumn;
+        private MaterialSkin.Controls.MaterialRaisedButton btnAddNote;
     }
 }

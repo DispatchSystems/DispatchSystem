@@ -92,108 +92,140 @@ namespace DispatchSystem.Server
                 {
                     // Civilian Request
                     case 1:
-                        Log.WriteLine("Civilian Request Recieved");
-
-                        string name_input = Encoding.UTF8.GetString(buffer);
-                        name_input = name_input.Split('!')[0];
-                        string[] split = name_input.Split('|');
-                        string first, last;
-                        first = split[0];
-                        last = split[1];
-                        Civilian civ = null;
-                        foreach (var item in DispatchSystem.Civilians)
                         {
-                            if (item.First.ToLower() == first.ToLower() && item.Last.ToLower() == last.ToLower())
+                            Log.WriteLine("Civilian Request Recieved");
+
+                            string name_input = Encoding.UTF8.GetString(buffer);
+                            name_input = name_input.Split('!')[0];
+                            string[] split = name_input.Split('|');
+                            string first, last;
+                            first = split[0];
+                            last = split[1];
+                            Civilian civ = null;
+                            foreach (var item in DispatchSystem.Civilians)
                             {
-                                civ = item;
-                                break;
+                                if (item.First.ToLower() == first.ToLower() && item.Last.ToLower() == last.ToLower())
+                                {
+                                    civ = item;
+                                    break;
+                                }
                             }
-                        }
-                        if (civ != null)
-                        {
-                            Log.WriteLine("Sending Civilian information to Client");
-                            socket.Send(new byte[] { 1 }.Concat(civ.ToBytes()).ToArray());
-                        }
-                        else
-                        {
-                            Log.WriteLine("Civilian not found, sending null");
-                            socket.Send(new byte[] { 2 });
-                        }
+                            if (civ != null)
+                            {
+                                Log.WriteLine("Sending Civilian information to Client");
+                                socket.Send(new byte[] { 1 }.Concat(civ.ToBytes()).ToArray());
+                            }
+                            else
+                            {
+                                Log.WriteLine("Civilian not found, sending null");
+                                socket.Send(new byte[] { 2 });
+                            }
 
-                        break;
+                            break;
+                        }
                     // Civilian Veh Request
                     case 2:
-                        Log.WriteLine("Civilian Veh Request Recieved");
-
-                        string plate_input = Encoding.UTF8.GetString(buffer);
-                        plate_input = plate_input.Split('!')[0];
-                        CivilianVeh civVeh = null;
-                        foreach (var item in DispatchSystem.CivilianVehs)
                         {
-                            if (item.Plate.ToLower() == plate_input.ToLower())
+                            Log.WriteLine("Civilian Veh Request Recieved");
+
+                            string plate_input = Encoding.UTF8.GetString(buffer);
+                            plate_input = plate_input.Split('!')[0];
+                            CivilianVeh civVeh = null;
+                            foreach (var item in DispatchSystem.CivilianVehs)
                             {
-                                civVeh = item;
-                                break;
+                                if (item.Plate.ToLower() == plate_input.ToLower())
+                                {
+                                    civVeh = item;
+                                    break;
+                                }
                             }
-                        }
-                        if (civVeh != null)
-                        {
-                            Log.WriteLine("Sending Civilian Veh information to Client");
-                            socket.Send(new byte[] { 3 }.Concat(civVeh.ToBytes()).ToArray());
-                        }
-                        else
-                        {
-                            Log.WriteLine("Civilian Veh not found, sending null");
-                            socket.Send(new byte[] { 4 });
-                        }
+                            if (civVeh != null)
+                            {
+                                Log.WriteLine("Sending Civilian Veh information to Client");
+                                socket.Send(new byte[] { 3 }.Concat(civVeh.ToBytes()).ToArray());
+                            }
+                            else
+                            {
+                                Log.WriteLine("Civilian Veh not found, sending null");
+                                socket.Send(new byte[] { 4 });
+                            }
 
-                        break;
+                            break;
+                        }
                     // Bolos list request
                     case 3:
-                        Log.WriteLine("Bolos list Request Recieved");
+                        {
+                            Log.WriteLine("Bolos list Request Recieved");
 
-                        string outstring = string.Empty;
-                        if (DispatchSystem.ActiveBolos.Count > 0)
-                            for (int i = 0; i < DispatchSystem.ActiveBolos.Count; i++)
-                            {
-                                var item = DispatchSystem.ActiveBolos[i];
+                            string outstring = string.Empty;
+                            if (DispatchSystem.ActiveBolos.Count > 0)
+                                for (int i = 0; i < DispatchSystem.ActiveBolos.Count; i++)
+                                {
+                                    var item = DispatchSystem.ActiveBolos[i];
 
-                                if (i != 0)
-                                    outstring += '|';
+                                    if (i != 0)
+                                        outstring += '|';
 
-                                outstring += $"{i}\\{item.Item1}:{item.Item2}";
-                            }
-                        else
-                            outstring = "?";
-                        outstring += "^";
+                                    outstring += $"{i}\\{item.Item1}:{item.Item2}";
+                                }
+                            else
+                                outstring = "?";
+                            outstring += "^";
 
-                        Log.WriteLine("Sending back BOLO information");
-                        socket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
-                        Log.WriteLine("Information Sent");
+                            Log.WriteLine("Sending back BOLO information");
+                            socket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
+                            Log.WriteLine("Information Sent");
 
-                        break;
+                            break;
+                        }
                     // Remove bolo from list Request
                     case 4:
-                        Log.WriteLine("Remove Bolo from List Request Recieved");
+                        {
+                            Log.WriteLine("Remove Bolo from List Request Recieved");
 
-                        string instring = Encoding.UTF8.GetString(buffer).Split('^')[0];
-                        int parse = int.Parse(instring);
+                            string instring = Encoding.UTF8.GetString(buffer).Split('^')[0];
+                            int parse = int.Parse(instring);
 
-                        try { DispatchSystem.ActiveBolos.RemoveAt(parse); Log.WriteLine("Removed Active BOLO from the List"); }
-                        catch { Log.WriteLine("Index for BOLO not found, not removing..."); }
+                            try { DispatchSystem.ActiveBolos.RemoveAt(parse); Log.WriteLine("Removed Active BOLO from the List"); }
+                            catch { Log.WriteLine("Index for BOLO not found, not removing..."); }
 
-                        break;
+                            break;
+                        }
                     // Add bolo to list Request
                     case 5:
-                        Log.WriteLine("Add Bolo from List Request Recieved");
+                        {
+                            Log.WriteLine("Add Bolo from List Request Recieved");
 
-                        string anInstring = Encoding.UTF8.GetString(buffer).Split('^')[0];
-                        string[] main = anInstring.Split('|');
+                            string anInstring = Encoding.UTF8.GetString(buffer).Split('^')[0];
+                            string[] main = anInstring.Split('|');
 
-                        Log.WriteLine($"Adding new Bolo for \"{main[1]}\"");
-                        DispatchSystem.ActiveBolos.Add((main[0], main[1]));
+                            Log.WriteLine($"Adding new Bolo for \"{main[1]}\"");
+                            DispatchSystem.ActiveBolos.Add((main[0], main[1]));
 
-                        break;
+                            break;
+                        }
+                    // Add Civilian Note
+                    case 6:
+                        {
+                            Log.WriteLine("Add Civilian note Request Recieved");
+
+                            string input = Encoding.UTF8.GetString(buffer).Split('^')[0];
+                            Log.WriteLine(input);
+                            string[] main = input.Split('|');
+                            string[] name = main[0].Split(',');
+                            string note = main[1];
+
+                            Civilian civ = DispatchSystem.GetCivilianByName(name[0], name[1]);
+
+                            if (civ != null)
+                            {
+                                Log.WriteLine($"Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
+                                civ.Notes.Add(note);
+                            }
+                            else
+                                Log.WriteLine("Civilian not found, not adding note...");
+                            break;
+                        }
                 }
             }
             Log.WriteLine($"Connection from ip broken");

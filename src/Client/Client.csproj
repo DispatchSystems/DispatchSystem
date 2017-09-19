@@ -82,6 +82,8 @@
     <Compile Include="DispatchMain.Designer.cs">
       <DependentUpon>DispatchMain.cs</DependentUpon>
     </Compile>
+    <Compile Include="Extension.cs" />
+    <Compile Include="ISyncable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AddRemoveView.resx">

@@ -6,13 +6,15 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
-using System.Net.Sockets;
-using System.Net;
-using System.Runtime.InteropServices;
 
 using MaterialSkin;
 using MaterialSkin.Controls;
+
+using System.Net.Sockets;
+using System.Net;
+using System.Runtime.InteropServices;
 
 namespace Client
 {
@@ -28,7 +30,7 @@ namespace Client
             SkinManager.ColorScheme = new ColorScheme(Primary.Blue700, Primary.Blue900, Primary.Blue400, Accent.Blue700, TextShade.WHITE);
         }
 
-        private void OnViewCivClick(object sender, EventArgs e)
+        public void OnViewCivClick(object sender, EventArgs e)
         {
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
@@ -129,7 +131,7 @@ namespace Client
         {
             Invoke((MethodInvoker)delegate
             {
-                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.Remove);
+                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.RemoveBolo);
                 boloView.Show();
             });
         }
@@ -138,7 +140,7 @@ namespace Client
         {
             Invoke((MethodInvoker)delegate
             {
-                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.Add);
+                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.AddBolo);
                 boloView.Show();
             });
         }
