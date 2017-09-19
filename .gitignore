@@ -38,6 +38,7 @@ luac.out
 
 # Things
 *.yml
+*.userprefs
 
 # Annoying files
 src/.vs/DispatchSystem/v15/sqlite3/storage.ide
