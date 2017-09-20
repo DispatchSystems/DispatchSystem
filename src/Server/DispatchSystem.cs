@@ -29,14 +29,16 @@ using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using Config.Reader;
 
-namespace DispatchSystem.Server
+using DispatchSystem.sv.External;
+
+namespace DispatchSystem.sv
 {
     internal delegate void Command(Player player, string[] args);
 
     public class DispatchSystem : BaseScript
     {
         protected static iniconfig cfg;
-        private static Server server;
+        private static External.Server server;
 
         protected static List<(string, string)> bolos;
         protected static List<Civilian> civs;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using CitizenFX.Core;
 
-namespace DispatchSystem.Server
+namespace DispatchSystem.sv
 {
     public class CivilianVeh
     {

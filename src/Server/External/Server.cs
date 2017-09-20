@@ -16,7 +16,7 @@ using Config.Reader;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 
-namespace DispatchSystem.Server
+namespace DispatchSystem.sv.External
 {
     internal class Server
     {
