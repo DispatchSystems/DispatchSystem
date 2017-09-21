@@ -15,8 +15,8 @@ namespace DispatchSystem.sv
         public String Last { get; set; }
         public Boolean WarrantStatus { get; set; }
         public Int32 CitationCount { get; set; }
-        public List<string> Notes { get; }
-        public List<(string, float)> Tickets { get; }
+        public List<string> Notes { get; set; }
+        public List<(string, float)> Tickets { get; set; }
 
         public Civilian(Player source)
         {
@@ -29,8 +29,6 @@ namespace DispatchSystem.sv
 
         public override string ToString()
         {
-
-
             string[] strOut = new string[5];
             strOut[0] = string.IsNullOrWhiteSpace(First) || string.IsNullOrWhiteSpace(Last) ? "?,?" : $"{First},{Last}";
             strOut[1] = WarrantStatus.ToString();
