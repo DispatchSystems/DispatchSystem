@@ -38,6 +38,7 @@
             this.plateLabel = new MaterialSkin.Controls.MaterialLabel();
             this.registrationView = new MaterialSkin.Controls.MaterialCheckBox();
             this.insuranceView = new MaterialSkin.Controls.MaterialCheckBox();
+            this.btnResync = new MaterialSkin.Controls.MaterialRaisedButton();
             this.SuspendLayout();
             // 
             // nameLabel
@@ -126,7 +127,7 @@
             this.materialDivider1.Location = new System.Drawing.Point(186, 75);
             this.materialDivider1.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialDivider1.Name = "materialDivider1";
-            this.materialDivider1.Size = new System.Drawing.Size(15, 193);
+            this.materialDivider1.Size = new System.Drawing.Size(15, 238);
             this.materialDivider1.TabIndex = 5;
             this.materialDivider1.Text = "materialDivider1";
             // 
@@ -195,12 +196,29 @@
             this.insuranceView.Text = "Insurance";
             this.insuranceView.UseVisualStyleBackColor = true;
             // 
+            // btnResync
+            // 
+            this.btnResync.AutoSize = true;
+            this.btnResync.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnResync.Depth = 0;
+            this.btnResync.Icon = null;
+            this.btnResync.Location = new System.Drawing.Point(12, 278);
+            this.btnResync.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnResync.Name = "btnResync";
+            this.btnResync.Primary = true;
+            this.btnResync.Size = new System.Drawing.Size(73, 36);
+            this.btnResync.TabIndex = 10;
+            this.btnResync.Text = "Resync";
+            this.btnResync.UseVisualStyleBackColor = true;
+            this.btnResync.Click += new System.EventHandler(this.OnResyncClick);
+            // 
             // CivVehView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(378, 297);
+            this.ClientSize = new System.Drawing.Size(378, 325);
+            this.Controls.Add(this.btnResync);
             this.Controls.Add(this.insuranceView);
             this.Controls.Add(this.registrationView);
             this.Controls.Add(this.plateView);
@@ -233,5 +251,6 @@
         private MaterialSkin.Controls.MaterialLabel plateLabel;
         private MaterialSkin.Controls.MaterialCheckBox registrationView;
         private MaterialSkin.Controls.MaterialCheckBox insuranceView;
+        private MaterialSkin.Controls.MaterialRaisedButton btnResync;
     }
 }

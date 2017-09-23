@@ -10,7 +10,7 @@ namespace Client
     public interface ISyncable
     {
         bool IsCurrentlySyncing { get; }
-        Timer Timer { get; }
+        DateTime LastSyncTime { get; }
         Task Resync();
     }
 }

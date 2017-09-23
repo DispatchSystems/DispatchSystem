@@ -46,6 +46,7 @@
             this.descColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ticketsLabel = new MaterialSkin.Controls.MaterialLabel();
             this.btnAddNote = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.btnResync = new MaterialSkin.Controls.MaterialRaisedButton();
             noteColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
@@ -250,6 +251,7 @@
             // amountColumn
             // 
             this.amountColumn.Text = "Amount";
+            this.amountColumn.Width = 87;
             // 
             // descColumn
             // 
@@ -275,7 +277,7 @@
             this.btnAddNote.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnAddNote.Depth = 0;
             this.btnAddNote.Icon = null;
-            this.btnAddNote.Location = new System.Drawing.Point(12, 514);
+            this.btnAddNote.Location = new System.Drawing.Point(105, 514);
             this.btnAddNote.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnAddNote.Name = "btnAddNote";
             this.btnAddNote.Primary = true;
@@ -285,12 +287,29 @@
             this.btnAddNote.UseVisualStyleBackColor = true;
             this.btnAddNote.Click += new System.EventHandler(this.OnAddNoteClick);
             // 
+            // btnResync
+            // 
+            this.btnResync.AutoSize = true;
+            this.btnResync.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnResync.Depth = 0;
+            this.btnResync.Icon = null;
+            this.btnResync.Location = new System.Drawing.Point(12, 514);
+            this.btnResync.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnResync.Name = "btnResync";
+            this.btnResync.Primary = true;
+            this.btnResync.Size = new System.Drawing.Size(73, 36);
+            this.btnResync.TabIndex = 15;
+            this.btnResync.Text = "Resync";
+            this.btnResync.UseVisualStyleBackColor = true;
+            this.btnResync.Click += new System.EventHandler(this.OnResyncClick);
+            // 
             // CivView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(914, 562);
+            this.Controls.Add(this.btnResync);
             this.Controls.Add(this.btnAddNote);
             this.Controls.Add(this.ticketsLabel);
             this.Controls.Add(this.ticketsView);
@@ -335,5 +354,6 @@
         private System.Windows.Forms.ColumnHeader amountColumn;
         private System.Windows.Forms.ColumnHeader descColumn;
         private MaterialSkin.Controls.MaterialRaisedButton btnAddNote;
+        private MaterialSkin.Controls.MaterialRaisedButton btnResync;
     }
 }

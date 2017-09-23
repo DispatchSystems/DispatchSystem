@@ -18,8 +18,8 @@ namespace Client
 {
     public partial class CivView : MaterialForm, ISyncable
     {
-        public Timer Timer { get; }
         public bool IsCurrentlySyncing { get; private set; }
+        public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
         string data;
 
@@ -35,23 +35,8 @@ namespace Client
             InitializeComponent();
             this.data = civData;
 
-            Timer = new Timer
-            {
-                Interval = 15000
-            };
-            Timer.Tick += OnTick;
-            Timer.Start();
-
             ParseCivilian(civData);
             UpdateCurrentInfromation();
-        }
-
-        private void OnTick(object sender, EventArgs e)
-        {
-            if (this.IsHandleCreated)
-                new Task(async () => await Resync()).Start();
-            else
-                Timer.Dispose();
         }
 
         public void UpdateCurrentInfromation()
@@ -124,11 +109,19 @@ namespace Client
 
         public async Task Resync()
         {
+            if ((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing)
+            {
+                MessageBox.Show($"You must wait 15 seconds before the last sync time \nSeconds to wait: {15 - (DateTime.Now - LastSyncTime).Seconds}", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            LastSyncTime = DateTime.Now;
+            IsCurrentlySyncing = true;
+
             Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); IsCurrentlySyncing = false; return; }
 
-            IsCurrentlySyncing = true;
 
             if (!(string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName)))
             {
@@ -157,5 +150,7 @@ namespace Client
             IsCurrentlySyncing = false;
             await this.Delay(0);
         }
+
+        private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync()).Start();
     }
 }
