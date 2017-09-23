@@ -424,7 +424,7 @@ namespace DispatchSystem.sv
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"Citations: {civ.CitationCount.ToString()}");
             }
             else
-                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That civilian doesn't exist in the system");
         }
         public static void RequestCivilianVeh(string handle, string plate)
         {
@@ -441,7 +441,7 @@ namespace DispatchSystem.sv
                 if (civVeh.Registered) SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"R/O: {civVeh.Owner.First} {civVeh.Owner.Last}");
             }
             else
-                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That vehicle doesn't exist in the system");
         }
         public static void AddCivilianNote(string invokerHandle, string first, string last, string note)
         {
