@@ -49,7 +49,7 @@ namespace Client
         private void ParseCivilian(string data)
         {
             string[] main = data.Split('|');
-            string plate = main[0];
+            string plate = main[0].ToUpper();
             string[] name = main[1].Split(',');
             bool stolen = bool.Parse(main[2]);
             bool registered = bool.Parse(main[3]);
