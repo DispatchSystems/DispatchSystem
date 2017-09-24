@@ -94,7 +94,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 2)
                 {
-                    SendUsage(p, "You must have atleast 2 arguments");
+                    SendUsage(p, "/newname {first} {last}");
                     return;
                 }
 
@@ -105,7 +105,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 1)
                 {
-                    SendUsage(p, "You must have atleast 1 argument");
+                    SendUsage(p, "/citations {amount}");
                     return;
                 }
 
@@ -114,7 +114,7 @@ namespace DispatchSystem.sv
                     TriggerEvent("dispatchsystem:setCitations", p.Handle, parse);
                 }
                 else
-                    SendUsage(p, "The argument specified is not a valid number");
+                    SendUsage(p, "The amount is not a valid number!");
             });
             #endregion
             #region Vehicle Commands
@@ -122,7 +122,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 1)
                 {
-                    SendUsage(p, "You must have atleast 1 argument");
+                    SendUsage(p, "/newveh {plate}");
                     return;
                 }
 
@@ -145,7 +145,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 2)
                 {
-                    SendUsage(p, "You must have atleast 2 arguments");
+                    SendUsage(p, "/2729 {first} {last}");
                     return;
                 }
 
@@ -155,7 +155,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 1)
                 {
-                    SendUsage(p, "You must have atleast 1 argument");
+                    SendUsage(p, "/28 {first} {last}");
                     return;
                 }
 
@@ -165,7 +165,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 3)
                 {
-                    SendUsage(p, "You must have atleast 3 arguments");
+                    SendUsage(p, "/note {first} {last} {text}");
                     return;
                 }
 
@@ -186,7 +186,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 4)
                 {
-                    SendUsage(p, "You must have atleast 4 arguments");
+                    SendUsage(p, "/ticket {first} {last} {amount} {reason}");
                     return;
                 }
 
@@ -206,13 +206,13 @@ namespace DispatchSystem.sv
                     TriggerEvent("dispatchsystem:ticketCiv", p.Handle, args[0], args[1], reason, amount);
                 }
                 else
-                    SendUsage(p, "The amount must be a valid number");
+                    SendUsage(p, "The amount is not a valid number!");
             });
             commands.Add("/tickets", (p, args) =>
             {
                 if (args.Count() < 2)
                 {
-                    SendUsage(p, "You must have atleast 2 arguments");
+                    SendUsage(p, "/tickets {first} {last}");
                     return;
                 }
 
@@ -222,7 +222,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 2)
                 {
-                    SendUsage(p, "You must have atleast 2 arguments");
+                    SendUsage(p, "/notes {first} {last}");
                     return;
                 }
 
@@ -232,7 +232,7 @@ namespace DispatchSystem.sv
             {
                 if (args.Count() < 1)
                 {
-                    SendUsage(p, "You must have atleast 1 argument");
+                    SendUsage(p, "/bolo {reason}");
                     return;
                 }
 
