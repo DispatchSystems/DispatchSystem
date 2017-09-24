@@ -365,6 +365,11 @@ namespace DispatchSystem.sv
                 int index = civVehs.IndexOf(GetCivilianVeh(handle));
                 civVehs[index].StolenStatus = !civVehs[index].StolenStatus;
 
+                if (civVehs[index].StolenStatus)
+                    civVehs[index].Owner = Civilian.CreateRandomCivilian();
+                else
+                    civVehs[index].Owner = GetCivilian(handle);
+
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Stolen status set to {civVehs[index].StolenStatus.ToString()}");
             }
             else
