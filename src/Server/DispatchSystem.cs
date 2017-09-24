@@ -30,6 +30,7 @@ using CitizenFX.Core.Native;
 using Config.Reader;
 
 using DispatchSystem.sv.External;
+using DispatchSystem.sv.Storage;
 
 namespace DispatchSystem.sv
 {
@@ -465,10 +466,11 @@ namespace DispatchSystem.sv
             if (civ != null)
             {
                 int index = civs.IndexOf(civ);
-                Player p = civs[index].Source;
+                Player p = civs[index].Player();
                 civs[index].CitationCount++;
                 civs[index].Tickets.Add((reason, amount));
-                SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
+                if (p != null)
+                    SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
             }
             else
@@ -526,8 +528,9 @@ namespace DispatchSystem.sv
         {
             foreach (var item in civs)
             {
-                if (item.Source.Handle == pHandle)
-                    return item;
+                if (item.Player() != null)
+                    if (item.Player().Handle == pHandle)
+                        return item;
             }
             
             return null;
@@ -546,8 +549,9 @@ namespace DispatchSystem.sv
         {
             foreach (var item in civVehs)
             {
-                if (item.Source.Handle == pHandle)
-                    return item;
+                if (item.Player() != null)
+                    if (item.Player().Handle == pHandle)
+                        return item;
             }
 
             return null;

@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 using CitizenFX.Core;
 
-namespace DispatchSystem.sv
+namespace DispatchSystem.sv.Storage
 {
-    public class CivilianVeh
+    public class CivilianVeh : CivilianBase
     {
-        public Player Source { get; }
         public Civilian Owner { get; set; }
         public String Plate { get; set; }
         public Boolean StolenStatus { get; set; }
@@ -19,7 +18,7 @@ namespace DispatchSystem.sv
 
         public CivilianVeh(Player source)
         {
-            Source = source;
+            SourceIP = source.Identifiers["ip"];
             StolenStatus = false;
             Registered = true;
             Insured = true;
@@ -37,7 +36,5 @@ namespace DispatchSystem.sv
 
             return string.Join("|", strOut);
         }
-        public byte[] ToBytes() =>
-            Encoding.UTF8.GetBytes(ToString());
     }
 }

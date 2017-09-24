@@ -50,12 +50,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Civilian.cs" />
-    <Compile Include="CivilianVeh.cs" />
+    <Compile Include="Storage\Civilian.cs" />
+    <Compile Include="Storage\CivilianVeh.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DispatchSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="External\Server.cs" />
+    <Compile Include="Storage\CivilianBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
