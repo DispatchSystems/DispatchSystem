@@ -14,11 +14,7 @@ namespace DispatchSystem.sv.Storage
 
         public CivilianBase(Player source)
         {
-            SourceIP = source.Identifiers["ip"];
-        }
-        public CivilianBase()
-        {
-            SourceIP = string.Empty;
+            SourceIP = source == null ? string.Empty : source.Identifiers["ip"];
         }
 
         public virtual Player Player()

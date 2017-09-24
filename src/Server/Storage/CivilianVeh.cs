@@ -16,7 +16,7 @@ namespace DispatchSystem.sv.Storage
         public Boolean Registered { get; set; }
         public Boolean Insured { get; set; }
 
-        public CivilianVeh(Player source)
+        public CivilianVeh(Player source) : base(source)
         {
             SourceIP = source.Identifiers["ip"];
             StolenStatus = false;

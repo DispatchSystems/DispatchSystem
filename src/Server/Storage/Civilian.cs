@@ -24,13 +24,6 @@ namespace DispatchSystem.sv.Storage
             WarrantStatus = false;
             CitationCount = 0;
         }
-        public Civilian() : base()
-        {
-            Notes = new List<string>();
-            Tickets = new List<(string, float)>();
-            WarrantStatus = false;
-            CitationCount = 0;
-        }
 
         public override string ToString()
         {
@@ -100,7 +93,7 @@ namespace DispatchSystem.sv.Storage
 
             string[] name = rndNames[rnd.Next(rndNames.Count)].Split(' ');
 
-            return new Civilian
+            return new Civilian(null)
             {
                 First = name[0],
                 Last = name[1],
