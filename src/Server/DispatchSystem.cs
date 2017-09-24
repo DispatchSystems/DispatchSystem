@@ -469,7 +469,7 @@ namespace DispatchSystem.sv
                 civs[index].CitationCount++;
                 civs[index].Tickets.Add((reason, amount));
                 SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
+                SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
