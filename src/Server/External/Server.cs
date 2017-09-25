@@ -164,7 +164,7 @@ namespace DispatchSystem.sv.External
                             string plate_input = Encoding.UTF8.GetString(buffer);
                             plate_input = plate_input.Split('!')[0];
                             CivilianVeh civVeh = null;
-                            foreach (var item in DispatchSystem.CivilianVehs)
+                            foreach (var item in DispatchSystem.CivilianVehicles)
                             {
                                 if (item.Plate.ToLower() == plate_input.ToLower())
                                 {
