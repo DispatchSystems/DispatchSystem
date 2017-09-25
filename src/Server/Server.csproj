@@ -57,6 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="External\Server.cs" />
     <Compile Include="Storage\CivilianBase.cs" />
+    <Compile Include="Storage\StorageManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -24,6 +24,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Collections.ObjectModel;
 
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
@@ -39,13 +40,13 @@ namespace DispatchSystem.sv
     public class DispatchSystem : BaseScript
     {
         protected static iniconfig cfg;
-        private static External.Server server;
+        private static Server server;
 
-        protected static List<(string, string)> bolos;
-        protected static List<Civilian> civs;
-        protected static List<CivilianVeh> civVehs;
-        public static IEnumerable<Civilian> Civilians => civs.AsEnumerable();
-        public static IEnumerable<CivilianVeh> CivilianVehs => civVehs.AsEnumerable();
+        internal static List<(string, string)> bolos;
+        internal static StorageManager<Civilian> civs;
+        internal static StorageManager<CivilianVeh> civVehs;
+        public static ReadOnlyCollection<Civilian> Civilians => new ReadOnlyCollection<Civilian>(civs);
+        public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
         public static List<(string, string)> ActiveBolos => bolos;
 
         private Dictionary<string, Command> commands;
@@ -259,10 +260,10 @@ namespace DispatchSystem.sv
             }
             else
                 Server.Log.WriteLine("Not starting DISPATCH server");
-                
 
-            civs = new List<Civilian>();
-            civVehs = new List<CivilianVeh>();
+
+            civs = new StorageManager<Civilian>();
+            civVehs = new StorageManager<CivilianVeh>();
             commands = new Dictionary<string, Command>();
             bolos = new List<(string, string)>();
         }
@@ -377,7 +378,7 @@ namespace DispatchSystem.sv
                     civs.Remove(civ);
                     civVehs[index].Owner = GetCivilian(handle);
                 }
-                    
+
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Stolen status set to {civVehs[index].StolenStatus.ToString()}");
             }
@@ -521,7 +522,7 @@ namespace DispatchSystem.sv
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
         }
-#endregion
+        #endregion
 
         private void OnChatMessage(int source, string n, string msg)
         {
@@ -537,7 +538,7 @@ namespace DispatchSystem.sv
             }
         }
 
-#region Common
+        #region Common
         public static Civilian GetCivilian(string pHandle)
         {
             foreach (var item in civs)
@@ -546,7 +547,7 @@ namespace DispatchSystem.sv
                     if (item.Player().Handle == pHandle)
                         return item;
             }
-            
+
             return null;
         }
         public static Civilian GetCivilianByName(string first, string last)
@@ -614,11 +615,10 @@ namespace DispatchSystem.sv
         private static void SendMessage(Player p, string title, int[] rgb, string msg) => TriggerClientEvent(p, "chatMessage", title, rgb, msg);
         private static void SendAllMessage(string title, int[] rgb, string msg) => TriggerClientEvent("chatMessage", title, rgb, msg);
         private static void SendUsage(Player p, string usage) => TriggerClientEvent(p, "chatMessage", "Usage", new[] { 255, 255, 255 }, usage);
-#endregion
+        #endregion
 
         private static void CancelEvent() => Function.Call(Hash.CANCEL_EVENT);
-#endregion
+        #endregion
     }
 }
-
 #endif
