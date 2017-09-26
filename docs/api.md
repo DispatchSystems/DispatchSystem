@@ -7,6 +7,18 @@ Dispatchsystems API is sort of new. Because it is in the works there is no set A
 These events will be in the context of C# and **NOT** lua.
 
 ```csharp
+// Eventname: dispatchsystem:ticketCiv
+
+void TriggerServerEvent("dispatchsystem:ticketCiv", String invokerHandle, String first, String last, String ticket, Single amount);
+```
+***
+```csharp
+// Eventname: dispatchsystem:civTickets
+
+void TriggerServerEvent("dispatchsystem:civTickets", String invokerHandle, String first, String last);
+```
+***
+```csharp
 // Eventname: dispatchsystem:getCivilian
 
 void TriggerServerEvent("dispatchsystem:getCivilian", String invokerHandle, String firstName, String lastName);

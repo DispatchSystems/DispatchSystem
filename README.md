@@ -34,13 +34,17 @@
 * /note {first} {last} {note} - Adds a note to a civilian
 * /ticket {first} {last} {amount} {reason} - Adds a ticket to a civilian
 * /notes {first} {last} - Displays all of the notes of a civilian
+* /bolos - Displays all current BOLOs
+* /bolo {desc} - Adds a new BOLO to the database
+* /ticket {first} {last} {amount} {reason} - Tickets a Civilian
+* /tickets {first} {last} - Displays all tickets for a Civilian
 
 ## In the works
 
 1. Arrest ability - `/arrest {first} {last}` arrests a ped and show it in the system
 
-2. BOLO - `/bolo {first} {last}` `/bolo {plate}` Either one will show a bolo tag on the type if searched up in the system
+2. Warrant Types - `/warrant {type}` have different types of bench warrants and also a toggle for outstanding
 
-3. Tickets Extension - `/tickets {first} {last}` System to display all of the tickets a Civilian has gotten
+3. Database - A civilian database for storing civilians
 
-4. Warrant Types - `/warrant {type}` have different types of bench warrants and also a toggle for outstanding
+4. Permissions - Permissions for Civilians, Cops, and Disptachers
