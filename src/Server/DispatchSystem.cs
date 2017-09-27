@@ -582,24 +582,6 @@ namespace DispatchSystem.sv
             return null;
         }
 
-        static string lastPlate = null;
-        public static void TransferLicense(string license) => lastPlate = license;
-        public static string GetLicensePlate(Player p)
-        {
-            TriggerClientEvent(p, "dispatchsystem:requestLP");
-
-            while (lastPlate == null)
-                Delay(10).Wait();
-
-            string @return = null;
-            if (lastPlate != "---------")
-                @return = lastPlate;
-
-            lastPlate = null;
-
-            return @return;
-        }
-
         private static Player GetPlayerByHandle(string handle)
         {
             foreach (var plr in new PlayerList())
