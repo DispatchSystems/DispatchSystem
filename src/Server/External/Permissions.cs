@@ -68,7 +68,7 @@ namespace DispatchSystem.sv.External
         }
         public void Refresh()
         {
-            Server.Log.WriteLine("Setting the permissions");
+            Log.WriteLine("Setting the permissions");
             string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, resourceName, fileName);
             string current = string.Empty;
             string[] lines = data.Split('\n').Where(x => !string.IsNullOrWhiteSpace(x)).Where(x => !x.StartsWith("//")).Select(x => x.Trim().ToLower()).ToArray();
@@ -102,7 +102,7 @@ namespace DispatchSystem.sv.External
                     items.Add((current, line));
             }
 
-            Server.Log.WriteLine("Permissions set!");
+            Log.WriteLine("Permissions set!");
         }
     }
 }

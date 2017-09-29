@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="External\Log.cs" />
     <Compile Include="External\Permissions.cs" />
     <Compile Include="Storage\Civilian.cs" />
     <Compile Include="Storage\CivilianVeh.cs" />

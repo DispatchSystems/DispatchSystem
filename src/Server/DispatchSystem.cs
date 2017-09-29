@@ -54,13 +54,13 @@ namespace DispatchSystem.sv
 
         public DispatchSystem()
         {
-            Server.Log.Create("dispatchsystem.log");
+            Log.Create("dispatchsystem.log");
 
             InitializeComponents();
             RegisterEvents();
             RegisterCommands();
 
-            Server.Log.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
+            Log.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
             SendAllMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
         }
 
@@ -257,10 +257,10 @@ namespace DispatchSystem.sv
             if (cfg.GetIntValue("server", "enable", 0) == 1)
             {
                 ThreadPool.QueueUserWorkItem(x => server = new Server((iniconfig)x), cfg);
-                Server.Log.WriteLine("Starting DISPATCH server");
+                Log.WriteLine("Starting DISPATCH server");
             }
             else
-                Server.Log.WriteLine("Not starting DISPATCH server");
+                Log.WriteLine("Not starting DISPATCH server");
             (new Action<string>(x => { perms = new Permissions(x, Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME)); perms.Refresh(); }))("permissions.perms");
 
 
