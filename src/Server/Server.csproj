@@ -50,9 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="External\Permissions.cs" />
     <Compile Include="Storage\Civilian.cs" />
     <Compile Include="Storage\CivilianVeh.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="External\Config.cs" />
     <Compile Include="DispatchSystem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="External\Server.cs" />

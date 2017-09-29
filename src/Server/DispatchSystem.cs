@@ -40,6 +40,7 @@ namespace DispatchSystem.sv
     public class DispatchSystem : BaseScript
     {
         protected static iniconfig cfg;
+        protected static Permissions perms;
         private static Server server;
 
         internal static List<(string, string)> bolos;
@@ -260,6 +261,7 @@ namespace DispatchSystem.sv
             }
             else
                 Server.Log.WriteLine("Not starting DISPATCH server");
+            (new Action<string>(x => { perms = new Permissions(x, Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME)); perms.Refresh(); }))("permissions.perms");
 
 
             civs = new StorageManager<Civilian>();

@@ -14,17 +14,20 @@ using System.IO;
  |_|    |_| \_/ \___|_|  |_|   \_____\___/|_| |_|_| |_|\__, |  |_|  \_\___|\__,_|\__,_|\___|_|   
                                                         __/ |                                   
                                                        |___/  - BY ZOMBIEGUY
+
     INFO ---------------------------------------------------------------------------------------
     - LOADS INI FILES INTO A DICTIONARY FOR EASY ACCESS
     - READS DATA THROUGH SIMPLE FUNCTIONS
     - BASED ON A SIMPLE INI PARSER
     - GET VALUE TYPES: STRING, INT, FLOAT, DOUBLE
+
     SUPPORT ------------------------------------------------------------------------------------
     - INI FILES MUST FOLLOW THIS SETUP:
         
     [SECTION]
     KEY=VALUE
     ;COMMENT  
+
     HOW TO USE ---------------------------------------------------------------------------------
     1. ADD THIS CS FILE TO YOUR CLIENT SCRIPT
     2. ADD A REFERENCE TO THIS SCRIPT LIKE SO: using Config.Reader;
@@ -37,14 +40,17 @@ using System.IO;
     - FILE = FILENAME / LOCATION FROM DLL E.G. CONFIG.INI OR CONFIG/CONFIG.INI
     - FALLBACK VALUES WILL BE USED WHEN THERE IS NO INI FILE, OR WHEN A VALUE DOES NOT EXSIST
     - THIS SCRIPT DEPENDS ON:
+
         using System;
         using System.Collections.Generic;
         using System.Linq;
         using CitizenFX.Core.Native;
         using System.IO;
+
+
 */ // INFORMATION ABOUT THIS SCRIPT CAN BE FOUND BY EXPANDING THIS COMMENT...
 
-#pragma warning disable IDE1006 // Naming rule violation
+#pragma warning disable IDE1006 // Name rule violation
 
 namespace Config
 {
@@ -172,8 +178,7 @@ namespace Config
                 if (dict.ContainsKey("[" + section + "]" + key))
                 {
                     // TRYS TO CONVERT A STRING TO AN INT
-                    double result;
-                    if (double.TryParse(dict["[" + section + "]" + key], out result))
+                    if (double.TryParse(dict["[" + section + "]" + key], out double result))
                     {
                         // STRING CONVERSION SUCCEEDED
                         return result;
@@ -196,8 +201,7 @@ namespace Config
                 if (dict.ContainsKey("[" + section + "]" + key))
                 {
                     // TRYS TO CONVERT A STRING TO A FLOAT
-                    float result;
-                    if (float.TryParse(dict["[" + section + "]" + key], out result))
+                    if (float.TryParse(dict["[" + section + "]" + key], out float result))
                     {
                         // STRING CONVERSION SUCCEEDED
                         return result;
@@ -220,8 +224,7 @@ namespace Config
                 if (dict.ContainsKey("[" + section + "]" + key))
                 {
                     // TRYS TO CONVERT A STRING TO AN INT
-                    int result;
-                    if (int.TryParse(dict["[" + section + "]" + key], out result))
+                    if (int.TryParse(dict["[" + section + "]" + key], out int result))
                     {
                         // STRING CONVERSION SUCCEEDED
                         return result;
