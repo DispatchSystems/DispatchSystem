@@ -17,6 +17,26 @@ namespace DispatchSystem.sv.External
     }
     public sealed class Permissions
     {
+        #region Singleton
+        static object _lock = new object();
+        static Permissions obj = null;
+        static string _fileName;
+        static string _resourceName;
+        public static void SetInformation(string fileName, string resourceName) { _fileName = fileName; _resourceName = resourceName; }
+
+        public static Permissions Get
+        {
+            get
+            {
+                if (obj == null)
+                    lock (_lock)
+                        if (obj == null)
+                            obj = new Permissions(_fileName, _resourceName);
+                return obj;
+            }
+        }
+        #endregion
+
         public const string CIV_KEY = "civilian:";
         public const string COP_KEY = "leo:";
         public const string DISPATCH_KEY = "dispatcher:";
@@ -61,7 +81,8 @@ namespace DispatchSystem.sv.External
             }
         }
 
-        public Permissions(string fileName, string resourceName)
+        #region constructor
+        private Permissions(string fileName, string resourceName)
         {
             this.fileName = fileName;
             this.resourceName = resourceName;
@@ -104,5 +125,10 @@ namespace DispatchSystem.sv.External
 
             Log.WriteLine("Permissions set!");
         }
+        #endregion
+
+        public bool CivContains(IPAddress address) => CivilianData.Contains(address);
+        public bool LeoContains(IPAddress address) => LeoData.Contains(address);
+        public bool DispatchContains(IPAddress address) => DispatchData.Contains(address);
     }
 }

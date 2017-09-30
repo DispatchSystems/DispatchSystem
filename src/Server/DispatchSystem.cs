@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Collections.ObjectModel;
+using System.Net;
 
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
@@ -36,6 +37,11 @@ using DispatchSystem.sv.Storage;
 namespace DispatchSystem.sv
 {
     internal delegate void Command(Player player, string[] args);
+    internal enum CommandType
+    {
+        Leo,
+        Civilian
+    }
 
     public class DispatchSystem : BaseScript
     {
@@ -50,7 +56,7 @@ namespace DispatchSystem.sv
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
         public static List<(string, string)> ActiveBolos => bolos;
 
-        private Dictionary<string, Command> commands;
+        private Dictionary<string, (Command, CommandType)> commands;
 
         public DispatchSystem()
         {
@@ -93,7 +99,7 @@ namespace DispatchSystem.sv
         private void RegisterCommands()
         {
             #region Player Commands
-            commands.Add("/newname", (p, args) =>
+            commands.Add("/newname", ((p, args) =>
             {
                 if (args.Count() < 2)
                 {
@@ -102,9 +108,9 @@ namespace DispatchSystem.sv
                 }
 
                 TriggerEvent("dispatchsystem:setName", p.Handle, args[0], args[1]);
-            });
-            commands.Add("/warrant", (p, args) => TriggerEvent("dispatchsystem:toggleWarrant", p.Handle));
-            commands.Add("/citations", (p, args) =>
+            }, CommandType.Civilian));
+            commands.Add("/warrant", ((p, args) => TriggerEvent("dispatchsystem:toggleWarrant", p.Handle), CommandType.Civilian));
+            commands.Add("/citations", ((p, args) =>
             {
                 if (args.Count() < 1)
                 {
@@ -118,10 +124,11 @@ namespace DispatchSystem.sv
                 }
                 else
                     SendUsage(p, "The amount is not a valid number!");
-            });
+            }, CommandType.Civilian));
             #endregion
+
             #region Vehicle Commands
-            commands.Add("/newveh", (p, args) =>
+            commands.Add("/newveh", ((p, args) =>
             {
                 if (args.Count() < 1)
                 {
@@ -138,13 +145,14 @@ namespace DispatchSystem.sv
                 }
 
                 TriggerEvent("dispatchsystem:setVehicle", p.Handle, plate);
-            });
-            commands.Add("/stolen", (p, args) => TriggerEvent("dispatchsystem:toggleVehStolen", p.Handle));
-            commands.Add("/registered", (p, args) => TriggerEvent("dispatchsystem:toggleVehRegi", p.Handle));
-            commands.Add("/insured", (p, args) => TriggerEvent("dispatchsystem:toggleVehInsured", p.Handle));
+            }, CommandType.Leo));
+            commands.Add("/stolen", ((p, args) => TriggerEvent("dispatchsystem:toggleVehStolen", p.Handle), CommandType.Leo));
+            commands.Add("/registered", ((p, args) => TriggerEvent("dispatchsystem:toggleVehRegi", p.Handle), CommandType.Leo));
+            commands.Add("/insured", ((p, args) => TriggerEvent("dispatchsystem:toggleVehInsured", p.Handle), CommandType.Leo));
             #endregion
+
             #region Police Commands
-            commands.Add("/2729", (p, args) =>
+            commands.Add("/2729", ((p, args) =>
             {
                 if (args.Count() < 2)
                 {
@@ -153,8 +161,8 @@ namespace DispatchSystem.sv
                 }
 
                 TriggerEvent("dispatchsystem:getCivilian", p.Handle, args[0], args[1]);
-            });
-            commands.Add("/28", (p, args) =>
+            }, CommandType.Leo));
+            commands.Add("/28", ((p, args) =>
             {
                 if (args.Count() < 1)
                 {
@@ -163,8 +171,8 @@ namespace DispatchSystem.sv
                 }
 
                 TriggerEvent("dispatchsystem:getCivilianVeh", p.Handle, args[0]);
-            });
-            commands.Add("/note", (p, args) =>
+            }, CommandType.Leo));
+            commands.Add("/note", ((p, args) =>
             {
                 if (args.Count() < 3)
                 {
@@ -184,8 +192,8 @@ namespace DispatchSystem.sv
                 }
 
                 TriggerEvent("dispatchsystem:addCivNote", p.Handle, args[0], args[1], note);
-            });
-            commands.Add("/ticket", (p, args) =>
+            }, CommandType.Leo));
+            commands.Add("/ticket", ((p, args) =>
             {
                 if (args.Count() < 4)
                 {
@@ -210,8 +218,8 @@ namespace DispatchSystem.sv
                 }
                 else
                     SendUsage(p, "The amount is not a valid number!");
-            });
-            commands.Add("/tickets", (p, args) =>
+            }, CommandType.Leo));
+            commands.Add("/tickets", ((p, args) =>
             {
                 if (args.Count() < 2)
                 {
@@ -220,8 +228,8 @@ namespace DispatchSystem.sv
                 }
 
                 TriggerEvent("dispatchsystem:civTickets", p.Handle, args[0], args[1]);
-            });
-            commands.Add("/notes", (p, args) =>
+            }, CommandType.Leo));
+            commands.Add("/notes", ((p, args) =>
             {
                 if (args.Count() < 2)
                 {
@@ -230,8 +238,8 @@ namespace DispatchSystem.sv
                 }
 
                 TriggerEvent("dispatchsystem:displayCivNotes", p.Handle, args[0], args[1]);
-            });
-            commands.Add("/bolo", (p, args) =>
+            }, CommandType.Leo));
+            commands.Add("/bolo", ((p, args) =>
             {
                 if (args.Count() < 1)
                 {
@@ -241,32 +249,32 @@ namespace DispatchSystem.sv
 
                 bolos.Add((p.Name, string.Join(" ", args)));
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"BOLO for \"{string.Join(" ", args)}\" added");
-            });
-            commands.Add("/bolos", (p, args) =>
+            }, CommandType.Leo));
+            commands.Add("/bolos", ((p, args) =>
             {
                 if (bolos.Count > 0)
                     bolos.ForEach(x => SendMessage(p, "", new[] { 0, 0, 0 }, $"^8{x.Item1}^7: ^3{x.Item2}"));
                 else
                     SendMessage(p, "", new[] { 0, 0, 0 }, "^7None");
-            });
+            }, CommandType.Leo));
             #endregion
         }
         private void InitializeComponents()
         {
             cfg = new iniconfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
+            (new Action<string>(fileName => { Permissions.SetInformation(fileName, Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME)); perms = Permissions.Get; perms.Refresh(); }))("permissions.perms");
             if (cfg.GetIntValue("server", "enable", 0) == 1)
             {
-                ThreadPool.QueueUserWorkItem(x => server = new Server((iniconfig)x), cfg);
+                ThreadPool.QueueUserWorkItem(x => server = new Server(cfg), null);
                 Log.WriteLine("Starting DISPATCH server");
             }
             else
                 Log.WriteLine("Not starting DISPATCH server");
-            (new Action<string>(x => { perms = new Permissions(x, Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME)); perms.Refresh(); }))("permissions.perms");
 
 
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
-            commands = new Dictionary<string, Command>();
+            commands = new Dictionary<string, (Command, CommandType)>();
             bolos = new List<(string, string)>();
         }
 
@@ -536,7 +544,34 @@ namespace DispatchSystem.sv
             if (commands.ContainsKey(cmd))
             {
                 CancelEvent();
-                commands[cmd].Invoke(p, args.ToArray());
+                if (commands[cmd].Item2 == CommandType.Civilian)
+                {
+                    if (perms.CivilianPermission == Permission.Specific)
+                    {
+                        if (perms.CivContains(IPAddress.Parse(p.Identifiers["ip"])))
+                            commands[cmd].Item1.Invoke(p, args.ToArray());
+                        else
+                            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                    }
+                    else if (perms.CivilianPermission == Permission.Everyone)
+                        commands[cmd].Item1.Invoke(p, args.ToArray());
+                    else
+                        SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                }
+                else if (commands[cmd].Item2 == CommandType.Leo)
+                {
+                    if (perms.LeoPermission == Permission.Specific)
+                    {
+                        if (perms.LeoContains(IPAddress.Parse(p.Identifiers["ip"])))
+                            commands[cmd].Item1.Invoke(p, args.ToArray());
+                        else
+                            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                    }
+                    else if (perms.LeoPermission == Permission.Everyone)
+                        commands[cmd].Item1.Invoke(p, args.ToArray());
+                    else
+                        SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                }
             }
         }
 

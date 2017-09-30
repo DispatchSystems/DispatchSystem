@@ -24,12 +24,14 @@ namespace DispatchSystem.sv.External
     {
         TcpListener tcp;
         iniconfig cfg;
+        Permissions perms;
         int port;
         int Port => port;
 
         public Server(iniconfig cfg)
         {
             this.cfg = cfg;
+            perms = Permissions.Get;
             port = this.cfg.GetIntValue("server", "port", 33333);
             Log.WriteLine("Setting port to " + port.ToString());
 
@@ -64,6 +66,16 @@ namespace DispatchSystem.sv.External
 #else
             Log.WriteLineSilent($"New connection from ip");
 #endif
+
+            Action<string> cancelInteraction = new Action<string>(msg =>
+            {
+                socket.Send(new byte[] { 3 });
+                socket.Disconnect(false);
+                Log.WriteLine(msg);
+            });
+
+            if (perms.DispatchPermission == Permission.Specific) { if (!perms.DispatchContains(IPAddress.Parse(ip))) { cancelInteraction($"[{ip}] NOT ENOUGH DISPATCH PERMISSIONS"); return; } }
+            else if (perms.DispatchPermission == Permission.None) { cancelInteraction($"[{ip}] NOT ENOUGH DISPATCH PERMISSIONS"); return; }
 
             while (socket.Connected)
             {
