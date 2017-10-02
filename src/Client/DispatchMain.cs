@@ -32,71 +32,71 @@ namespace Client
 
         public void OnViewCivClick(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text))
+                return;
+
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            if (!(string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text)))
+            usrSocket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(string.Join("|", new string[] { firstName.Text.Trim(), $"{lastName.Text.Trim()}!" }))).ToArray());
+            byte[] incoming = new byte[5001];
+            usrSocket.Receive(incoming);
+            byte tag = incoming[0];
+            incoming = incoming.Skip(1).ToArray();
+
+            if (tag == 1)
             {
-                usrSocket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(string.Join("|", new string[] { firstName.Text.Trim(), $"{lastName.Text.Trim()}!" }))).ToArray());
-                byte[] incoming = new byte[5001];
-                usrSocket.Receive(incoming);
-                byte tag = incoming[0];
-                incoming = incoming.Skip(1).ToArray();
-                
-                if (tag == 1)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
+                    string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
 
-                        CivView civView = new CivView(data);
-                        civView.Show();
-                    });
-                }
-                else if (tag == 2)
-                {
-                    MessageBox.Show("That is an Invalid name!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-                firstName.ResetText();
-                lastName.ResetText();
+                    CivView civView = new CivView(data);
+                    civView.Show();
+                });
             }
+            else if (tag == 2)
+                MessageBox.Show("That is an Invalid name!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else if (tag == 3)
+                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+
+            firstName.ResetText();
+            lastName.ResetText();
 
             usrSocket.Disconnect(false);
         }
 
         private void OnViewCivVehClick(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(plate.Text))
+                return;
+
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            if (!string.IsNullOrWhiteSpace(plate.Text))
+            usrSocket.Send(new byte[] { 2 }.Concat(Encoding.UTF8.GetBytes($"{plate.Text}!")).ToArray());
+            byte[] incoming = new byte[5001];
+            usrSocket.Receive(incoming);
+            byte tag = incoming[0];
+            incoming = incoming.Skip(1).ToArray();
+
+            if (tag == 1)
             {
-                usrSocket.Send(new byte[] { 2 }.Concat(Encoding.UTF8.GetBytes($"{plate.Text}!")).ToArray());
-                byte[] incoming = new byte[5001];
-                usrSocket.Receive(incoming);
-                byte tag = incoming[0];
-                incoming = incoming.Skip(1).ToArray();
-
-                if (tag == 3)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
+                    string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
 
-                        CivVehView civVehView = new CivVehView(data);
-                        civVehView.Show();
-                    });
-                }
-                else if (tag == 4)
-                {
-                    MessageBox.Show("That is an Invalid plate!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-
-                plate.ResetText();
+                    CivVehView civVehView = new CivVehView(data);
+                    civVehView.Show();
+                });
             }
+            else if (tag == 2)
+                MessageBox.Show("That is an Invalid plate!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else if (tag == 3)
+                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+
+            plate.ResetText();
 
             usrSocket.Disconnect(false);
         }
@@ -105,7 +105,7 @@ namespace Client
         {
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             usrSocket.Send(new byte[] { 3 });
             byte[] incoming = new byte[5001];
@@ -113,7 +113,7 @@ namespace Client
             byte tag = incoming[0];
             incoming = incoming.Skip(1).ToArray();
 
-            if (tag == 5)
+            if (tag == 1)
             {
                 Invoke((MethodInvoker)delegate
                 {
@@ -123,6 +123,8 @@ namespace Client
                     boloView.Show();
                 });
             }
+            if (tag == 3)
+                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
 
             usrSocket.Disconnect(false);
         }

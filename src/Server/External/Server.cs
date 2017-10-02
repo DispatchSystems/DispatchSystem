@@ -159,7 +159,7 @@ namespace DispatchSystem.sv.External
 #else
                                 Log.WriteLineSilent("Sending Civilian Veh information to Client");
 #endif
-                                socket.Send(new byte[] { 3 }.Concat(civVeh.ToBytes()).ToArray());
+                                socket.Send(new byte[] { 1 }.Concat(civVeh.ToBytes()).ToArray());
                             }
                             else
                             {
@@ -168,7 +168,7 @@ namespace DispatchSystem.sv.External
 #else
                                 Log.WriteLineSilent("Civilian Veh not found, sending null");
 #endif
-                                socket.Send(new byte[] { 4 });
+                                socket.Send(new byte[] { 2 });
                             }
 
                             break;
@@ -199,11 +199,11 @@ namespace DispatchSystem.sv.External
 
 #if DEBUG
                             Log.WriteLine("Sending back BOLO information");
-                            socket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
+                            socket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
                             Log.WriteLine("Information Sent");
 #else
                             Log.WriteLineSilent("Sending back BOLO information");
-                            socket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
+                            socket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
                             Log.WriteLineSilent("Information Sent");
 #endif
 
