@@ -284,6 +284,12 @@ namespace DispatchSystem.sv
             Player p = GetPlayerByHandle(handle);
             if (p == null) return;
 
+            if (GetCivilianByName(first, last) != null && GetCivilian(handle).Player() != p)
+            {
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"That name already exists in the system!");
+                return;
+            }
+
             if (GetCivilian(handle) != null)
             {
                 int index = civs.IndexOf(GetCivilian(handle));
@@ -343,6 +349,12 @@ namespace DispatchSystem.sv
             if (GetCivilian(handle) == null)
             {
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your vehicle");
+                return;
+            }
+
+            if (GetCivilianVehByPlate(plate) != null && GetCivilianVeh(handle).Player() != p)
+            {
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"That vehicle already exists in the system!");
                 return;
             }
 
