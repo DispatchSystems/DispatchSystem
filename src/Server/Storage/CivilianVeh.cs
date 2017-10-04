@@ -18,7 +18,12 @@ namespace DispatchSystem.sv.Storage
 
         public CivilianVeh(Player source) : base(source)
         {
-            SourceIP = source.Identifiers["ip"];
+            StolenStatus = false;
+            Registered = true;
+            Insured = true;
+        }
+        public CivilianVeh(string ip) : base(ip)
+        {
             StolenStatus = false;
             Registered = true;
             Insured = true;

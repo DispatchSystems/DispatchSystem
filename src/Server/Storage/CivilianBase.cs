@@ -16,6 +16,10 @@ namespace DispatchSystem.sv.Storage
         {
             SourceIP = source == null ? string.Empty : source.Identifiers["ip"];
         }
+        public CivilianBase(string ip)
+        {
+            SourceIP = string.IsNullOrWhiteSpace(ip) ? string.Empty : ip;
+        }
 
         public virtual Player Player()
         {
