@@ -73,7 +73,7 @@ namespace Client
 
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             usrSocket.Send(new byte[] { 2 }.Concat(Encoding.UTF8.GetBytes($"{plate.Text}!")).ToArray());
             byte[] incoming = new byte[5001];

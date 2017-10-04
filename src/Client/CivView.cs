@@ -120,7 +120,7 @@ namespace Client
 
             Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); IsCurrentlySyncing = false; return; }
+            catch (SocketException) { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); IsCurrentlySyncing = false; return; }
 
 
             if (!(string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName)))

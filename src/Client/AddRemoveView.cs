@@ -63,28 +63,33 @@ namespace Client
         {
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch (SocketException) { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            if (FormType == Type.AddBolo)
+            switch (FormType)
             {
-                if (!(string.IsNullOrWhiteSpace(line1.Text) || string.IsNullOrWhiteSpace(line2.Text)))
-                    usrSocket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes($"{line2.Text}|{line1.Text}^")).ToArray());
-                line1.ResetText();
-                line2.ResetText();
-            }
-            if (FormType == Type.RemoveBolo)
-            {
-                if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
-                result--;
-
-                usrSocket.Send(new byte[] { 4 }.Concat(Encoding.UTF8.GetBytes($"{result}^")).ToArray());
-                line1.ResetText();
-            }
-            if (FormType == Type.AddNote)
-            {
-                if (!string.IsNullOrEmpty(line1.Text))
-                    usrSocket.Send(new byte[] { 6 }.Concat(Encoding.UTF8.GetBytes($"{(string)arguments[0]},{(string)arguments[1]}|{line1.Text}^")).ToArray());
-                line1.ResetText();
+                case Type.AddBolo:
+                    {
+                        if (!(string.IsNullOrWhiteSpace(line1.Text) || string.IsNullOrWhiteSpace(line2.Text)))
+                            usrSocket.Send(new byte[] { 5 }.Concat(Encoding.UTF8.GetBytes($"{line2.Text}|{line1.Text}^")).ToArray());
+                        line1.ResetText();
+                        line2.ResetText();
+                        break;
+                    }
+                case Type.RemoveBolo:
+                    {
+                        if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
+                        result--;
+                        usrSocket.Send(new byte[] { 4 }.Concat(Encoding.UTF8.GetBytes($"{result}^")).ToArray());
+                        line1.ResetText();
+                        break;
+                    }
+                case Type.AddNote:
+                    {
+                        if (!string.IsNullOrEmpty(line1.Text))
+                            usrSocket.Send(new byte[] { 6 }.Concat(Encoding.UTF8.GetBytes($"{(string)arguments[0]},{(string)arguments[1]}|{line1.Text}^")).ToArray());
+                        line1.ResetText();
+                        break;
+                    }
             }
 
             this.Hide();

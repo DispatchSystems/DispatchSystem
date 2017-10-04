@@ -85,7 +85,7 @@ namespace Client
 
             Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch (SocketException) { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             usrSocket.Send(new byte[] { 3 });
             byte[] incoming = new byte[5001];
