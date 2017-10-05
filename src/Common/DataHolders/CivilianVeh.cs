@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using CitizenFX.Core;
-
-namespace DispatchSystem.sv.Storage
+namespace DispatchSystem.Common.DataHolders
 {
+    [Serializable]
     public class CivilianVeh : CivilianBase
     {
         public Civilian Owner { get; set; }
@@ -16,12 +15,6 @@ namespace DispatchSystem.sv.Storage
         public Boolean Registered { get; set; }
         public Boolean Insured { get; set; }
 
-        public CivilianVeh(Player source) : base(source)
-        {
-            StolenStatus = false;
-            Registered = true;
-            Insured = true;
-        }
         public CivilianVeh(string ip) : base(ip)
         {
             StolenStatus = false;
@@ -31,13 +24,14 @@ namespace DispatchSystem.sv.Storage
 
         public override string ToString()
         {
-            string[] strOut = new string[5];
+            string[] strOut = new string[6];
             strOut[0] = string.IsNullOrWhiteSpace(Plate) ? "?" : Plate;
             strOut[1] = string.IsNullOrWhiteSpace(Owner.First) || string.IsNullOrWhiteSpace(Owner.Last) ? "?,?" : $"{Owner.First},{Owner.Last}";
             strOut[2] = StolenStatus.ToString();
             strOut[3] = Registered.ToString();
             strOut[4] = Insured.ToString();
-            strOut[4] += "^";
+            strOut[5] = SourceIP;
+            strOut[5] += "^";
 
             return string.Join("|", strOut);
         }

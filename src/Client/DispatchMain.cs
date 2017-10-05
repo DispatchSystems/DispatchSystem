@@ -16,6 +16,8 @@ using System.Net.Sockets;
 using System.Net;
 using System.Runtime.InteropServices;
 
+using DispatchSystem.Common.DataHolders;
+
 namespace Client
 {
     public partial class DispatchMain : MaterialForm
@@ -37,9 +39,9 @@ namespace Client
 
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(string.Join("|", new string[] { firstName.Text.Trim(), $"{lastName.Text.Trim()}!" }))).ToArray());
+            usrSocket.Send(new byte[] { 1 }.Concat(new StorableValue<Tuple<string, string>>(new Tuple<string, string>(firstName.Text, lastName.Text)).Bytes).ToArray());
             byte[] incoming = new byte[5001];
             usrSocket.Receive(incoming);
             byte tag = incoming[0];
@@ -49,10 +51,8 @@ namespace Client
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
-
-                    CivView civView = new CivView(data);
-                    civView.Show();
+                    StorableValue<Civilian> item = new StorableValue<Civilian>(incoming);
+                    new CivView(item.Value).Show();
                 });
             }
             else if (tag == 2)
@@ -75,7 +75,7 @@ namespace Client
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 2 }.Concat(Encoding.UTF8.GetBytes($"{plate.Text}!")).ToArray());
+            usrSocket.Send(new byte[] { 2 }.Concat(new StorableValue<Tuple<string>>(new Tuple<string>(plate.Text)).Bytes).ToArray());
             byte[] incoming = new byte[5001];
             usrSocket.Receive(incoming);
             byte tag = incoming[0];
@@ -85,10 +85,8 @@ namespace Client
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
-
-                    CivVehView civVehView = new CivVehView(data);
-                    civVehView.Show();
+                    StorableValue<CivilianVeh> item = new StorableValue<CivilianVeh>(incoming);
+                    new CivVehView(item.Value).Show();
                 });
             }
             else if (tag == 2)
@@ -105,7 +103,7 @@ namespace Client
         {
             usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             usrSocket.Send(new byte[] { 3 });
             byte[] incoming = new byte[5001];
@@ -117,10 +115,7 @@ namespace Client
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
-
-                    BoloView boloView = new BoloView(data);
-                    boloView.Show();
+                    new BoloView(new StorableValue<List<Bolo>>(incoming).Value).Show();
                 });
             }
             if (tag == 3)
@@ -133,8 +128,7 @@ namespace Client
         {
             Invoke((MethodInvoker)delegate
             {
-                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.RemoveBolo);
-                boloView.Show();
+                new AddRemoveView(AddRemoveView.Type.RemoveBolo).Show();
             });
         }
 
@@ -142,8 +136,7 @@ namespace Client
         {
             Invoke((MethodInvoker)delegate
             {
-                AddRemoveView boloView = new AddRemoveView(AddRemoveView.Type.AddBolo);
-                boloView.Show();
+                new AddRemoveView(AddRemoveView.Type.AddBolo).Show();
             });
         }
     }

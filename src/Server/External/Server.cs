@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 using System.IO;
 
@@ -16,7 +17,9 @@ using Config.Reader;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 
-using DispatchSystem.sv.Storage;
+using DispatchSystem.Common.DataHolders;
+using DispatchSystem.Common.NetCode;
+using DispatchSystem.Common;
 
 namespace DispatchSystem.sv.External
 {
@@ -96,21 +99,8 @@ namespace DispatchSystem.sv.External
                             Log.WriteLineSilent("Civilian Request Recieved");
 #endif
 
-                            string name_input = Encoding.UTF8.GetString(buffer);
-                            name_input = name_input.Split('!')[0];
-                            string[] split = name_input.Split('|');
-                            string first, last;
-                            first = split[0];
-                            last = split[1];
-                            Civilian civ = null;
-                            foreach (var item in DispatchSystem.Civilians)
-                            {
-                                if (item.First.ToLower() == first.ToLower() && item.Last.ToLower() == last.ToLower())
-                                {
-                                    civ = item;
-                                    break;
-                                }
-                            }
+                            StorableValue<Tuple<string, string>> item = new StorableValue<Tuple<string, string>>(buffer);
+                            Civilian civ = DispatchSystem.GetCivilianByName(item.Value.Item1, item.Value.Item2);
                             if (civ != null)
                             {
 #if DEBUG
@@ -118,7 +108,7 @@ namespace DispatchSystem.sv.External
 #else
                                 Log.WriteLineSilent("Sending Civilian information to Client");
 #endif
-                                socket.Send(new byte[] { 1 }.Concat(civ.ToBytes()).ToArray());
+                                socket.Send(new byte[] { 1 }.Concat(new StorableValue<Civilian>(civ).Bytes).ToArray());
                             }
                             else
                             {
@@ -141,17 +131,8 @@ namespace DispatchSystem.sv.External
                             Log.WriteLineSilent("Civilian Veh Request Recieved");
 #endif
 
-                            string plate_input = Encoding.UTF8.GetString(buffer);
-                            plate_input = plate_input.Split('!')[0];
-                            CivilianVeh civVeh = null;
-                            foreach (var item in DispatchSystem.CivilianVehicles)
-                            {
-                                if (item.Plate.ToLower() == plate_input.ToLower())
-                                {
-                                    civVeh = item;
-                                    break;
-                                }
-                            }
+                            StorableValue<Tuple<string>> plate_input = new StorableValue<Tuple<string>>(buffer);
+                            CivilianVeh civVeh = DispatchSystem.GetCivilianVehByPlate(plate_input.Value.Item1);
                             if (civVeh != null)
                             {
 #if DEBUG
@@ -159,7 +140,7 @@ namespace DispatchSystem.sv.External
 #else
                                 Log.WriteLineSilent("Sending Civilian Veh information to Client");
 #endif
-                                socket.Send(new byte[] { 1 }.Concat(civVeh.ToBytes()).ToArray());
+                                socket.Send(new byte[] { 1 }.Concat(new StorableValue<CivilianVeh>(civVeh).Bytes).ToArray());
                             }
                             else
                             {
@@ -181,29 +162,17 @@ namespace DispatchSystem.sv.External
 #else
                             Log.WriteLineSilent("Bolos list Request Recieved");
 #endif
-
-                            string outstring = string.Empty;
-                            if (DispatchSystem.ActiveBolos.Count > 0)
-                                for (int i = 0; i < DispatchSystem.ActiveBolos.Count; i++)
-                                {
-                                    var item = DispatchSystem.ActiveBolos[i];
-
-                                    if (i != 0)
-                                        outstring += '|';
-
-                                    outstring += $"{i}\\{item.Item1}:{item.Item2}";
-                                }
-                            else
-                                outstring = "?";
-                            outstring += "^";
-
 #if DEBUG
                             Log.WriteLine("Sending back BOLO information");
-                            socket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
+
+                            Log.WriteLine("Creating storage");
+                            StorableValue<List<Bolo>> storage = new StorableValue<List<Bolo>>(DispatchSystem.ActiveBolos);
+                            Log.WriteLine("Sending Bytes");
+                            socket.Send(new byte[] { 1 }.Concat(storage.Bytes).ToArray());
                             Log.WriteLine("Information Sent");
 #else
                             Log.WriteLineSilent("Sending back BOLO information");
-                            socket.Send(new byte[] { 1 }.Concat(Encoding.UTF8.GetBytes(outstring)).ToArray());
+                            socket.Send(new byte[] { 1 }.Concat(new StorableValue<List<Bolo>>(DispatchSystem.ActiveBolos).Bytes).ToArray());
                             Log.WriteLineSilent("Information Sent");
 #endif
 
@@ -214,11 +183,11 @@ namespace DispatchSystem.sv.External
                         {
                             Log.WriteLine("Remove Bolo from List Request Recieved");
 
-                            string instring = Encoding.UTF8.GetString(buffer).Split('^')[0];
+                            string instring = new StorableValue<Tuple<string>>(buffer).Value.Item1;
                             int parse = int.Parse(instring);
 
                             try { DispatchSystem.ActiveBolos.RemoveAt(parse); Log.WriteLine("Removed Active BOLO from the List"); }
-                            catch { Log.WriteLine("Index for BOLO not found, not removing..."); }
+                            catch (ArgumentOutOfRangeException) { Log.WriteLine("Index for BOLO not found, not removing..."); }
 
                             break;
                         }
@@ -227,11 +196,10 @@ namespace DispatchSystem.sv.External
                         {
                             Log.WriteLine("Add Bolo from List Request Recieved");
 
-                            string anInstring = Encoding.UTF8.GetString(buffer).Split('^')[0];
-                            string[] main = anInstring.Split('|');
+                            string[] main = new StorableValue<string[]>(buffer).Value;
 
                             Log.WriteLineSilent($"Adding new Bolo for \"{main[1]}\"");
-                            DispatchSystem.ActiveBolos.Add((main[0], main[1]));
+                            DispatchSystem.ActiveBolos.Add(new Bolo(main[0], main[1]));
 
                             break;
                         }
@@ -240,10 +208,9 @@ namespace DispatchSystem.sv.External
                         {
                             Log.WriteLine("Add Civilian note Request Recieved");
 
-                            string input = Encoding.UTF8.GetString(buffer).Split('^')[0];
-                            string[] main = input.Split('|');
-                            string[] name = main[0].Split(',');
-                            string note = main[1];
+                            string[] main = new StorableValue<string[]>(buffer).Value;
+                            string[] name = new[] { main[0], main[1] };
+                            string note = main[2];
 
                             Civilian civ = DispatchSystem.GetCivilianByName(name[0], name[1]);
 

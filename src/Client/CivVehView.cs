@@ -14,59 +14,32 @@ using MaterialSkin.Controls;
 using System.Net.Sockets;
 using System.Net;
 
+using DispatchSystem.Common.DataHolders;
+
 namespace Client
 {
     public partial class CivVehView : MaterialForm, ISyncable
     {
-        string plate;
-        string firstName;
-        string lastName;
-        bool stolen;
-        bool registered;
-        bool insured;
+        CivilianVeh data;
 
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
-        public CivVehView(string civVehData)
+        public CivVehView(CivilianVeh civVehData)
         {
             InitializeComponent();
-
-            ParseCivilian(civVehData);
+            this.data = civVehData;
             UpdateCurrentInfromation();
         }
 
         public void UpdateCurrentInfromation()
         {
-            this.plateView.Text = plate;
-            this.firstNameView.Text = firstName;
-            this.lastNameView.Text = lastName;
-            this.stolenView.Checked = stolen;
-            this.registrationView.Checked = registered;
-            this.insuranceView.Checked = insured;
-        }
-
-        private void ParseCivilian(string data)
-        {
-            string[] main = data.Split('|');
-            string plate = main[0].ToUpper();
-            string[] name = main[1].Split(',');
-            bool stolen = bool.Parse(main[2]);
-            bool registered = bool.Parse(main[3]);
-            bool insured = bool.Parse(main[4]);
-
-            this.plate = plate;
-            this.firstName = name[0];
-            this.lastName = name[1];
-            this.stolen = stolen;
-            this.registered = registered;
-            this.insured = insured;
-
-            if (!this.registered)
-            {
-                firstName = "None";
-                lastName = "None";
-            }
+            this.plateView.Text = data.Plate.ToUpper();
+            this.firstNameView.Text = data.Owner.First;
+            this.lastNameView.Text = data.Owner.Last;
+            this.stolenView.Checked = data.StolenStatus;
+            this.registrationView.Checked = data.Registered;
+            this.insuranceView.Checked = data.Insured;
         }
 
         public async Task Resync()
@@ -82,31 +55,27 @@ namespace Client
 
             Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); IsCurrentlySyncing = false; return; }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            if (!string.IsNullOrWhiteSpace(plate))
+            usrSocket.Send(new byte[] { 2 }.Concat(new StorableValue<Tuple<string>>(new Tuple<string>(data.Plate)).Bytes).ToArray());
+            byte[] incoming = new byte[5001];
+            usrSocket.Receive(incoming);
+            byte tag = incoming[0];
+            incoming = incoming.Skip(1).ToArray();
+
+            if (tag == 1)
             {
-                usrSocket.Send(new byte[] { 2 }.Concat(Encoding.UTF8.GetBytes($"{plate}!")).ToArray());
-                byte[] incoming = new byte[5001];
-                usrSocket.Receive(incoming);
-                byte tag = incoming[0];
-                incoming = incoming.Skip(1).ToArray();
-
-                if (tag == 3)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
-
-                        ParseCivilian(data);
-                        UpdateCurrentInfromation();
-                    });
-                }
-                else if (tag == 4)
-                {
-                    MessageBox.Show("That is an Invalid plate!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                    StorableValue<CivilianVeh> item = new StorableValue<CivilianVeh>(incoming);
+                    data = item.Value;
+                    UpdateCurrentInfromation();
+                });
             }
+            else if (tag == 2)
+                MessageBox.Show("That is an Invalid plate!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            else if (tag == 3)
+                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
 
             usrSocket.Disconnect(false);
             IsCurrentlySyncing = false;

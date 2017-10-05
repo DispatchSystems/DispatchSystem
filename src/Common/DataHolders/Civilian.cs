@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using CitizenFX.Core;
-
-namespace DispatchSystem.sv.Storage
+namespace DispatchSystem.Common.DataHolders
 {
+    [Serializable]
     public class Civilian : CivilianBase
     {
         public String First { get; set; }
@@ -15,26 +14,19 @@ namespace DispatchSystem.sv.Storage
         public Boolean WarrantStatus { get; set; }
         public Int32 CitationCount { get; set; }
         public List<string> Notes { get; set; }
-        public List<(string, float)> Tickets { get; set; }
+        public List<Tuple<string, float>> Tickets { get; set; }
 
-        public Civilian(Player source) : base(source)
-        {
-            Notes = new List<string>();
-            Tickets = new List<(string, float)>();
-            WarrantStatus = false;
-            CitationCount = 0;
-        }
         public Civilian(string ip) : base(ip)
         {
             Notes = new List<string>();
-            Tickets = new List<(string, float)>();
+            Tickets = new List<Tuple<string, float>>();
             WarrantStatus = false;
             CitationCount = 0;
         }
 
         public override string ToString()
         {
-            string[] strOut = new string[5];
+            string[] strOut = new string[6];
             strOut[0] = string.IsNullOrWhiteSpace(First) || string.IsNullOrWhiteSpace(Last) ? "?,?" : $"{First},{Last}";
             strOut[1] = WarrantStatus.ToString();
             strOut[2] = CitationCount.ToString();
@@ -49,7 +41,8 @@ namespace DispatchSystem.sv.Storage
 
                 strOut[4] = string.Join("\\", x.ToArray());
             }
-            strOut[4] += "^";
+            strOut[5] = SourceIP;
+            strOut[5] += "^";
 
             return string.Join("|", strOut);
         }

@@ -32,7 +32,7 @@ using CitizenFX.Core.Native;
 using Config.Reader;
 
 using DispatchSystem.sv.External;
-using DispatchSystem.sv.Storage;
+using DispatchSystem.Common.DataHolders;
 
 namespace DispatchSystem.sv
 {
@@ -49,12 +49,12 @@ namespace DispatchSystem.sv
         protected static Permissions perms;
         private static Server server;
 
-        internal static List<(string, string)> bolos;
+        internal static List<Bolo> bolos;
         internal static StorageManager<Civilian> civs;
         internal static StorageManager<CivilianVeh> civVehs;
         public static ReadOnlyCollection<Civilian> Civilians => new ReadOnlyCollection<Civilian>(civs);
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
-        public static List<(string, string)> ActiveBolos => bolos;
+        public static List<Bolo> ActiveBolos => bolos;
 
         private Dictionary<string, (Command, CommandType)> commands;
 
@@ -247,17 +247,48 @@ namespace DispatchSystem.sv
                     return;
                 }
 
-                bolos.Add((p.Name, string.Join(" ", args)));
+                bolos.Add(new Bolo(p.Name, string.Join(" ", args)));
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"BOLO for \"{string.Join(" ", args)}\" added");
             }, CommandType.Leo));
             commands.Add("/bolos", ((p, args) =>
             {
                 if (bolos.Count > 0)
-                    bolos.ForEach(x => SendMessage(p, "", new[] { 0, 0, 0 }, $"^8{x.Item1}^7: ^3{x.Item2}"));
+                    bolos.ForEach(x => SendMessage(p, "", new[] { 0, 0, 0 }, $"^8{x.Player}^7: ^3{x.Reason}"));
                 else
                     SendMessage(p, "", new[] { 0, 0, 0 }, "^7None");
             }, CommandType.Leo));
             #endregion
+
+#if DEBUG
+            #region Debug Commands
+            // Lower 2 commands will throw errors if the names do not exist
+            commands.Add("/ipof", ((p, args) =>
+            {
+                if (args.Count() < 2)
+                {
+                    SendUsage(p, "/ipof {first} {last}");
+                    return;
+                }
+
+                Civilian x = GetCivilianByName(args[0], args[1]);
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, x.SourceIP);
+            }
+            , CommandType.Leo));
+            commands.Add("/hexof", ((p, args) => 
+            {
+                if (args.Count() < 2)
+                {
+                    SendUsage(p, "/hexof {first} {last}");
+                    return;
+                }
+
+                Civilian x = GetCivilianByName(args[0], args[1]);
+                string hex = GetPlayerByIp(x.SourceIP).Identifiers["steam"];
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, hex);
+            }
+            , CommandType.Leo));
+            #endregion
+#endif
         }
         private void InitializeComponents()
         {
@@ -275,7 +306,7 @@ namespace DispatchSystem.sv
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
             commands = new Dictionary<string, (Command, CommandType)>();
-            bolos = new List<(string, string)>();
+            bolos = new List<Bolo>();
         }
 
         #region Event Methods
@@ -284,7 +315,7 @@ namespace DispatchSystem.sv
             Player p = GetPlayerByHandle(handle);
             if (p == null) return;
 
-            if (GetCivilianByName(first, last) != null && GetCivilian(handle).Player() != p)
+            if (GetCivilianByName(first, last) != null && GetPlayerByIp(GetCivilianVeh(handle).SourceIP) != p)
             {
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"That name already exists in the system!");
                 return;
@@ -294,13 +325,13 @@ namespace DispatchSystem.sv
             {
                 int index = civs.IndexOf(GetCivilian(handle));
 
-                civs[index] = new Civilian(p) { First = first, Last = last };
+                civs[index] = new Civilian(p.Identifiers["ip"]) { First = first, Last = last };
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New name set to: {civs[index].First} {civs[index].Last}");
             }
             else
             {
-                civs.Add(new Civilian(p) { First = first, Last = last });
+                civs.Add(new Civilian(p.Identifiers["ip"]) { First = first, Last = last });
                 int index = civs.IndexOf(GetCivilian(handle));
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New name set to: {civs[index].First} {civs[index].Last}");
@@ -312,7 +343,7 @@ namespace DispatchSystem.sv
             {
                 int index = civVehs.IndexOf(GetCivilianVeh(handle));
 
-                civVehs[index] = new CivilianVeh(p);
+                civVehs[index] = new CivilianVeh(p.Identifiers["ip"]);
             }
         }
         public static void ToggleWarrant(string handle)
@@ -352,7 +383,7 @@ namespace DispatchSystem.sv
                 return;
             }
 
-            if (GetCivilianVehByPlate(plate) != null && GetCivilianVeh(handle).Player() != p)
+            if (GetCivilianVehByPlate(plate) != null && GetPlayerByIp(GetCivilianVeh(handle).SourceIP) != p)
             {
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"That vehicle already exists in the system!");
                 return;
@@ -362,13 +393,13 @@ namespace DispatchSystem.sv
             {
                 Int32 index = civVehs.IndexOf(GetCivilianVeh(handle));
 
-                civVehs[index] = new CivilianVeh(p) { Plate = plate.ToUpper(), Owner = GetCivilian(handle) };
+                civVehs[index] = new CivilianVeh(p.Identifiers["ip"]) { Plate = plate.ToUpper(), Owner = GetCivilian(handle) };
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
             else
             {
-                civVehs.Add(new CivilianVeh(p) { Plate = plate.ToLower(), Owner = GetCivilian(handle) });
+                civVehs.Add(new CivilianVeh(p.Identifiers["ip"]) { Plate = plate.ToLower(), Owner = GetCivilian(handle) });
 
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
             }
@@ -503,9 +534,9 @@ namespace DispatchSystem.sv
             if (civ != null)
             {
                 int index = civs.IndexOf(civ);
-                Player p = civs[index].Player();
+                Player p = GetPlayerByIp(civs[index].SourceIP);
                 civs[index].CitationCount++;
-                civs[index].Tickets.Add((reason, amount));
+                civs[index].Tickets.Add(new Tuple<string, float>(reason, amount));
                 if (p != null)
                     SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
@@ -592,8 +623,8 @@ namespace DispatchSystem.sv
         {
             foreach (var item in civs)
             {
-                if (item.Player() != null)
-                    if (item.Player().Handle == pHandle)
+                if (GetPlayerByIp(item.SourceIP) != null)
+                    if (GetPlayerByIp(item.SourceIP).Handle == pHandle)
                         return item;
             }
 
@@ -613,8 +644,8 @@ namespace DispatchSystem.sv
         {
             foreach (var item in civVehs)
             {
-                if (item.Player() != null)
-                    if (item.Player().Handle == pHandle)
+                if (GetPlayerByIp(item.SourceIP) != null)
+                    if (GetPlayerByIp(item.SourceIP).Handle == pHandle)
                         return item;
             }
 
@@ -635,6 +666,14 @@ namespace DispatchSystem.sv
         {
             foreach (var plr in new PlayerList())
                 if (plr.Handle == handle) return plr;
+
+            return null;
+        }
+        
+        private static Player GetPlayerByIp(string ip)
+        {
+            foreach (var plr in new PlayerList())
+                if (plr.Identifiers["ip"] == ip) return plr;
 
             return null;
         }

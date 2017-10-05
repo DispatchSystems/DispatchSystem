@@ -14,24 +14,26 @@ using MaterialSkin.Controls;
 using System.Net;
 using System.Net.Sockets;
 
+using DispatchSystem.Common.DataHolders;
+
 namespace Client
 {
     public partial class BoloView : MaterialForm, ISyncable
     {
-        Dictionary<int, (string, string)> bolos = new Dictionary<int, (string, string)>();
+        List<Bolo> bolos = new List<Bolo>();
 
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
-        public BoloView(string data)
+        public BoloView(List<Bolo> data)
         {
             InitializeComponent();
+            bolos = data;
 
-            ParseInformation(data);
-            UpdateInformation();
+            UpdateCurrentInformation();
         }
 
-        void UpdateInformation()
+        void UpdateCurrentInformation()
         {
             List<ListViewItem> lvis = new List<ListViewItem>();
 
@@ -39,36 +41,15 @@ namespace Client
             {
                 bolosView.Items.Clear();
 
-                foreach (var item in bolos)
+                for (int i = 0; i < bolos.Count; i++)
                 {
-                    ListViewItem lvi = new ListViewItem(item.Key.ToString());
-                    lvi.SubItems.Add(item.Value.Item1.ToString());
-                    lvi.SubItems.Add(item.Value.Item2.ToString());
+                    ListViewItem lvi = new ListViewItem(i.ToString());
+                    lvi.SubItems.Add(bolos[i].Player);
+                    lvi.SubItems.Add(bolos[i].Reason);
                     lvis.Add(lvi);
                 }
 
                 bolosView.Items.AddRange(lvis.ToArray());
-            }
-        }
-
-        void ParseInformation(string data)
-        {
-            string[] main = data.Split('|');
-
-            if (main[0] == "?")
-                return;
-
-            bolos.Clear();
-            foreach (var item in main)
-            {
-                string[] other = item.Split('\\');
-
-                int index = int.Parse(other[0]) + 1;
-                string[] other2 = other[1].Split(':');
-                string name = other2[0];
-                string desc = other2[1];
-
-                bolos.Add(index, (name, desc));
             }
         }
 
@@ -85,7 +66,7 @@ namespace Client
 
             Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             usrSocket.Send(new byte[] { 3 });
             byte[] incoming = new byte[5001];
@@ -93,16 +74,16 @@ namespace Client
             byte tag = incoming[0];
             incoming = incoming.Skip(1).ToArray();
 
-            if (tag == 5)
+            if (tag == 1)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    string data = Encoding.UTF8.GetString(incoming).Split('^')[0];
-
-                    ParseInformation(data);
-                    UpdateInformation();
+                    bolos = new StorableValue<List<Bolo>>(incoming).Value;
+                    UpdateCurrentInformation();
                 });
             }
+            if (tag == 3)
+                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
 
             usrSocket.Disconnect(false);
             IsCurrentlySyncing = false;

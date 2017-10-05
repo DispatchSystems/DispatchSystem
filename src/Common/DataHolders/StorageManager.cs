@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DispatchSystem.sv.Storage
+namespace DispatchSystem.Common.DataHolders
 {
+    [Serializable]
     public class StorageManager<T> : IEnumerable<T>, ICollection<T>, ICollection, IList<T>, IEquatable<StorageManager<T>>, IEquatable<IEnumerable<T>> where T : CivilianBase
     {
         #region Fields and Properties
