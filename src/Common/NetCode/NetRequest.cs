@@ -2,7 +2,7 @@
 
 namespace DispatchSystem.Common.NetCode
 {
-    public enum NetRequestMetadata { Invocation, ValueRequest, ValueReturn }
+    public enum NetRequestMetadata { Invocation, ValueRequest, ValueReturn, FunctionRequest, FunctionReturn }
 
     public class NetRequest
     {
@@ -13,15 +13,6 @@ namespace DispatchSystem.Common.NetCode
         {
             this.Metadata = Metadata;
             this.Data = new StorableValue<object[]>(Data);
-
-        }
-
-        public NetRequest(byte[] Bytes)
-        {
-            NetRequest convertedRequest = new StorableValue<NetRequest>(Bytes).Value;
-
-            Metadata = convertedRequest.Metadata;
-            Data = convertedRequest.Data;
         }
     }
 }
