@@ -11,14 +11,17 @@ namespace DispatchSystem.Common.DataHolders
     {
         string _player;
         string _reason;
+        DateTime _creation;
 
         public string Player => _player;
         public string Reason => _reason;
+        public DateTime CreationData => _creation;
 
         public Bolo(string player, string reason)
         {
             _player = player;
             _reason = reason;
+            _creation = DateTime.Now;
         }
     }
 }
