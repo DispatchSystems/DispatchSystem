@@ -23,7 +23,7 @@ using DispatchSystem.Common;
 
 namespace DispatchSystem.sv.External
 {
-    internal class Server
+    public class Server
     {
         TcpListener tcp;
         iniconfig cfg;
@@ -31,7 +31,7 @@ namespace DispatchSystem.sv.External
         int port;
         int Port => port;
 
-        public Server(iniconfig cfg)
+        internal Server(iniconfig cfg)
         {
             this.cfg = cfg;
             perms = Permissions.Get;
