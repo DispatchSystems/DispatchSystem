@@ -26,6 +26,7 @@ namespace Client
 
         public DispatchMain()
         {
+            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
             SkinManager.Theme = MaterialSkinManager.Themes.LIGHT;

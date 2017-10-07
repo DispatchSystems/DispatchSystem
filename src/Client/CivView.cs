@@ -27,7 +27,10 @@ namespace Client
 
         public CivView(Civilian civData)
         {
+            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
+
+
             this.data = civData;
 
             UpdateCurrentInfromation();

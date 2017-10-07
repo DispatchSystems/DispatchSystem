@@ -27,7 +27,9 @@ namespace Client
 
         public CivVehView(CivilianVeh civVehData)
         {
+            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
+
             this.data = civVehData;
             UpdateCurrentInfromation();
         }

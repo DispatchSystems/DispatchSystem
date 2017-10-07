@@ -33,6 +33,7 @@ namespace Client
 
         public AddRemoveView(Type formType, params object[] args)
         {
+            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
             FormType = formType;

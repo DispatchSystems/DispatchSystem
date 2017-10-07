@@ -27,6 +27,7 @@ namespace Client
 
         public BoloView(List<Bolo> data)
         {
+            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
             bolos = data;
 
