@@ -78,7 +78,7 @@ namespace Client
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 2 }.Concat(new StorableValue<Tuple<string>>(new Tuple<string>(plate.Text)).Bytes).ToArray());
+            usrSocket.Send(new byte[] { 2 }.Concat(new StorableValue<CivilianVehRequest>(new CivilianVehRequest(plate.Text)).Bytes).ToArray());
             byte[] incoming = new byte[5001];
             usrSocket.Receive(incoming);
             byte tag = incoming[0];
