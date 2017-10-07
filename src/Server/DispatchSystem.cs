@@ -629,6 +629,8 @@ namespace DispatchSystem.sv
             }
 
             return null;
+            // return civs.ToList().Find(x => GetPlayerByIp(x.SourceIP) != null && GetPlayerByIp(x.SourceIP).Handle == pHandle);
+            // TODO: Implement and fix Linq methods
         }
         public static Civilian GetCivilianByName(string first, string last)
         {
@@ -639,6 +641,8 @@ namespace DispatchSystem.sv
             }
 
             return null;
+            // return civs.ToList().Find(x => x.First.ToLower() == first.ToLower() && x.Last.ToLower() == last.ToLower());
+            // TODO: Implement and fix Linq methods
         }
         public static CivilianVeh GetCivilianVeh(string pHandle)
         {
@@ -650,6 +654,8 @@ namespace DispatchSystem.sv
             }
 
             return null;
+            // return civVehs.ToList().Find(x => GetPlayerByIp(x.SourceIP) != null && GetPlayerByIp(x.SourceIP).Handle == pHandle);
+            // TODO: Implement and fix Linq methods
         }
         public static CivilianVeh GetCivilianVehByPlate(string plate)
         {
@@ -660,6 +666,8 @@ namespace DispatchSystem.sv
             }
 
             return null;
+            // return civVehs.ToList().Find(x => x.Plate.ToLower() == plate.ToLower());
+            // TODO: Implement and fix Linq methods
         }
 
         private static Player GetPlayerByHandle(string handle)
@@ -668,14 +676,18 @@ namespace DispatchSystem.sv
                 if (plr.Handle == handle) return plr;
 
             return null;
+            // return new PlayerList().ToList().Find(x => x.Handle == handle);
+            // TODO: Implement and fix Linq methods
         }
-        
+
         private static Player GetPlayerByIp(string ip)
         {
             foreach (var plr in new PlayerList())
                 if (plr.Identifiers["ip"] == ip) return plr;
 
             return null;
+            // return new PlayerList().ToList().Find(x => x.Identifiers["ip"] == ip);
+            // TODO: Implement and fix Linq methods
         }
 
 
