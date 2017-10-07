@@ -32,7 +32,7 @@ namespace Client
             InitializeComponent();
 
             SkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
-            SkinManager.ColorScheme = new ColorScheme(Primary.Blue700, Primary.Blue900, Primary.Blue400, Accent.Blue700, TextShade.WHITE);
+            SkinManager.ColorScheme = new ColorScheme(Primary.DeepPurple500, Primary.DeepPurple700, Primary.DeepPurple300, Accent.Purple100, TextShade.WHITE);
         }
 
         public void OnViewCivClick(object sender, EventArgs e)
