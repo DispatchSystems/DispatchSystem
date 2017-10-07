@@ -72,6 +72,7 @@
             this.firstName.TabIndex = 1;
             this.firstName.TabStop = false;
             this.firstName.UseSystemPasswordChar = false;
+            this.firstName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnFirstNameKeyPress);
             // 
             // lastName
             // 
@@ -90,6 +91,7 @@
             this.lastName.TabIndex = 2;
             this.lastName.TabStop = false;
             this.lastName.UseSystemPasswordChar = false;
+            this.lastName.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnLastNameKeyPress);
             // 
             // btnViewCiv
             // 
@@ -125,7 +127,7 @@
             this.plate.Depth = 0;
             this.plate.Hint = "License Plate";
             this.plate.Location = new System.Drawing.Point(314, 108);
-            this.plate.MaxLength = 32767;
+            this.plate.MaxLength = 37282;
             this.plate.MouseState = MaterialSkin.MouseState.HOVER;
             this.plate.Name = "plate";
             this.plate.PasswordChar = '\0';
@@ -137,6 +139,7 @@
             this.plate.TabIndex = 5;
             this.plate.TabStop = false;
             this.plate.UseSystemPasswordChar = false;
+            this.plate.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnPlateKeyPress);
             // 
             // btnViewCivVeh
             // 

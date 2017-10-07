@@ -140,5 +140,32 @@ namespace Client
                 new AddRemoveView(AddRemoveView.Type.AddBolo).Show();
             });
         }
+
+        private void OnFirstNameKeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
+                e.Handled = true;
+            if (char.IsLetter(e.KeyChar))
+                e.KeyChar = e.KeyChar.ToString().ToUpper()[0];
+        }
+
+        private void OnLastNameKeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
+                e.Handled = true;
+            if (char.IsLetter(e.KeyChar))
+                e.KeyChar = e.KeyChar.ToString().ToUpper()[0];
+        }
+
+        private void OnPlateKeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((!char.IsControl(e.KeyChar) && !char.IsLetterOrDigit(e.KeyChar)) || (plate.Text.Length >= 8 && !e.KeyChar.Equals('\b')))
+            {
+                e.Handled = true;
+                
+            }
+            if (char.IsLetter(e.KeyChar))
+                e.KeyChar = e.KeyChar.ToString().ToUpper()[0];
+        }
     }
 }
