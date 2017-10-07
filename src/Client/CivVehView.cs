@@ -15,6 +15,7 @@ using System.Net.Sockets;
 using System.Net;
 
 using DispatchSystem.Common.DataHolders;
+using DispatchSystem.Common.DataHolders.Storage;
 
 namespace Client
 {

@@ -17,6 +17,8 @@ using System.Net;
 using System.Runtime.InteropServices;
 
 using DispatchSystem.Common.DataHolders;
+using DispatchSystem.Common.DataHolders.Storage;
+using DispatchSystem.Common.DataHolders.Requesting;
 
 namespace Client
 {
@@ -42,7 +44,7 @@ namespace Client
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 1 }.Concat(new StorableValue<Tuple<string, string>>(new Tuple<string, string>(firstName.Text, lastName.Text)).Bytes).ToArray());
+            usrSocket.Send(new byte[] { 1 }.Concat(new StorableValue<CivilianRequest>(new CivilianRequest(firstName.Text, lastName.Text)).Bytes).ToArray());
             byte[] incoming = new byte[5001];
             usrSocket.Receive(incoming);
             byte tag = incoming[0];

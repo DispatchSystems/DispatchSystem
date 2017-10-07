@@ -4,22 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DispatchSystem.Common.DataHolders
+namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public class CivilianVeh : CivilianBase
+    public class CivilianVeh : CivilianBase, IDataHolder
     {
         public Civilian Owner { get; set; }
         public String Plate { get; set; }
         public Boolean StolenStatus { get; set; }
         public Boolean Registered { get; set; }
         public Boolean Insured { get; set; }
+        public override DateTime Creation { get; }
 
         public CivilianVeh(string ip) : base(ip)
         {
             StolenStatus = false;
             Registered = true;
             Insured = true;
+            Creation = DateTime.Now;
         }
 
         public override string ToString()
@@ -34,6 +36,11 @@ namespace DispatchSystem.Common.DataHolders
             strOut[5] += "^";
 
             return string.Join("|", strOut);
+        }
+
+        public override object[] ToObjectArray()
+        {
+            return new[] { (object)Owner, (object)Plate, (object)StolenStatus, (object)Registered, (object)Insured };
         }
     }
 }

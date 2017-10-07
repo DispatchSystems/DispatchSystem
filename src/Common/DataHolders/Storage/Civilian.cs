@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DispatchSystem.Common.DataHolders
+namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public class Civilian : CivilianBase
+    public class Civilian : CivilianBase, IDataHolder
     {
         public String First { get; set; }
         public String Last { get; set; }
@@ -15,6 +15,7 @@ namespace DispatchSystem.Common.DataHolders
         public Int32 CitationCount { get; set; }
         public List<string> Notes { get; set; }
         public List<Tuple<string, float>> Tickets { get; set; }
+        public override DateTime Creation { get; }
 
         public Civilian(string ip) : base(ip)
         {
@@ -22,6 +23,7 @@ namespace DispatchSystem.Common.DataHolders
             Tickets = new List<Tuple<string, float>>();
             WarrantStatus = false;
             CitationCount = 0;
+            Creation = DateTime.Now;
         }
 
         public override string ToString()
@@ -99,6 +101,11 @@ namespace DispatchSystem.Common.DataHolders
                 Last = name[1],
                 CitationCount = rnd.Next(0, 11)
             };
+        }
+
+        public override object[] ToObjectArray()
+        {
+            return new[] { (object)First, (object)Last, (object)WarrantStatus, (object)CitationCount, (object)Notes, (object)Tickets };
         }
     }
 }

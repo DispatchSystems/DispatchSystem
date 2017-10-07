@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DispatchSystem.Common.DataHolders
+namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public abstract class CivilianBase
+    public abstract class CivilianBase : IDataHolder
     {
         public virtual string SourceIP { get; protected set; }
+        public abstract DateTime Creation { get; }
 
         public CivilianBase(string ip)
         {
@@ -18,6 +19,8 @@ namespace DispatchSystem.Common.DataHolders
 
         public abstract override string ToString();
         public virtual byte[] ToBytes() => Encoding.UTF8.GetBytes(ToString());
+
+        public abstract object[] ToObjectArray();
 
         public override int GetHashCode() => SourceIP.GetHashCode();
     }

@@ -40,11 +40,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataHolders\Bolo.cs" />
-    <Compile Include="DataHolders\Civilian.cs" />
-    <Compile Include="DataHolders\CivilianBase.cs" />
-    <Compile Include="DataHolders\CivilianVeh.cs" />
-    <Compile Include="DataHolders\StorageManager.cs" />
+    <Compile Include="DataHolders\Requesting\CivilianRequest.cs" />
+    <Compile Include="DataHolders\Requesting\CivilianVehRequest.cs" />
+    <Compile Include="DataHolders\Requesting\DataRequest.cs" />
+    <Compile Include="DataHolders\IDataHolder.cs" />
+    <Compile Include="DataHolders\Storage\Bolo.cs" />
+    <Compile Include="DataHolders\Storage\Civilian.cs" />
+    <Compile Include="DataHolders\Storage\CivilianBase.cs" />
+    <Compile Include="DataHolders\Storage\CivilianVeh.cs" />
+    <Compile Include="DataHolders\Storage\StorageManager.cs" />
     <Compile Include="DataHolders\StorageVariable.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="NetCode\NetEvent.cs" />

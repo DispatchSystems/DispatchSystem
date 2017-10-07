@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DispatchSystem.Common.DataHolders
+namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
     public class StorageManager<T> : IEnumerable<T>, ICollection<T>, ICollection, IList<T>, IEquatable<StorageManager<T>>, IEquatable<IEnumerable<T>> where T : CivilianBase

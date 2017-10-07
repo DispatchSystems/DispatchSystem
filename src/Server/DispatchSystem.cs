@@ -32,7 +32,7 @@ using CitizenFX.Core.Native;
 using Config.Reader;
 
 using DispatchSystem.sv.External;
-using DispatchSystem.Common.DataHolders;
+using DispatchSystem.Common.DataHolders.Storage;
 
 namespace DispatchSystem.sv
 {

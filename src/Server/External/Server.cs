@@ -18,6 +18,8 @@ using CitizenFX.Core;
 using CitizenFX.Core.Native;
 
 using DispatchSystem.Common.DataHolders;
+using DispatchSystem.Common.DataHolders.Storage;
+using DispatchSystem.Common.DataHolders.Requesting;
 using DispatchSystem.Common.NetCode;
 using DispatchSystem.Common;
 
@@ -99,8 +101,8 @@ namespace DispatchSystem.sv.External
                             Log.WriteLineSilent("Civilian Request Recieved");
 #endif
 
-                            StorableValue<Tuple<string, string>> item = new StorableValue<Tuple<string, string>>(buffer);
-                            Civilian civ = DispatchSystem.GetCivilianByName(item.Value.Item1, item.Value.Item2);
+                            StorableValue<CivilianRequest> item = new StorableValue<CivilianRequest>(buffer);
+                            Civilian civ = DispatchSystem.GetCivilianByName(item.Value.First, item.Value.Last);
                             if (civ != null)
                             {
 #if DEBUG
@@ -131,8 +133,8 @@ namespace DispatchSystem.sv.External
                             Log.WriteLineSilent("Civilian Veh Request Recieved");
 #endif
 
-                            StorableValue<Tuple<string>> plate_input = new StorableValue<Tuple<string>>(buffer);
-                            CivilianVeh civVeh = DispatchSystem.GetCivilianVehByPlate(plate_input.Value.Item1);
+                            StorableValue<CivilianVehRequest> plate_input = new StorableValue<CivilianVehRequest>(buffer);
+                            CivilianVeh civVeh = DispatchSystem.GetCivilianVehByPlate(plate_input.Value.Plate);
                             if (civVeh != null)
                             {
 #if DEBUG
@@ -183,7 +185,7 @@ namespace DispatchSystem.sv.External
                         {
                             Log.WriteLine("Remove Bolo from List Request Recieved");
 
-                            string instring = new StorableValue<Tuple<string>>(buffer).Value.Item1;
+                            string instring = (string)new StorableValue<DataRequest>(buffer).Value.Data[0];
                             int parse = int.Parse(instring);
 
                             try { DispatchSystem.ActiveBolos.RemoveAt(parse); Log.WriteLine("Removed Active BOLO from the List"); }
@@ -196,10 +198,10 @@ namespace DispatchSystem.sv.External
                         {
                             Log.WriteLine("Add Bolo from List Request Recieved");
 
-                            string[] main = new StorableValue<string[]>(buffer).Value;
+                            object[] main = new StorableValue<DataRequest>(buffer).Value.Data;
 
                             Log.WriteLineSilent($"Adding new Bolo for \"{main[1]}\"");
-                            DispatchSystem.ActiveBolos.Add(new Bolo(main[0], main[1]));
+                            DispatchSystem.ActiveBolos.Add(new Bolo((string)main[0], (string)main[1]));
 
                             break;
                         }
@@ -208,9 +210,9 @@ namespace DispatchSystem.sv.External
                         {
                             Log.WriteLine("Add Civilian note Request Recieved");
 
-                            string[] main = new StorableValue<string[]>(buffer).Value;
-                            string[] name = new[] { main[0], main[1] };
-                            string note = main[2];
+                            object[] main = new StorableValue<DataRequest>(buffer).Value.Data;
+                            string[] name = new[] { (string)main[0], (string)main[1] };
+                            string note = (string)main[2];
 
                             Civilian civ = DispatchSystem.GetCivilianByName(name[0], name[1]);
 

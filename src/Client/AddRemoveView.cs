@@ -14,6 +14,7 @@ using MaterialSkin.Controls;
 using System.Net;
 using System.Net.Sockets;
 using DispatchSystem.Common.DataHolders;
+using DispatchSystem.Common.DataHolders.Requesting;
 
 namespace Client
 {
@@ -72,7 +73,7 @@ namespace Client
                 case Type.AddBolo:
                     {
                         if (!(string.IsNullOrWhiteSpace(line1.Text) || string.IsNullOrWhiteSpace(line2.Text)))
-                            usrSocket.Send(new byte[] { 5 }.Concat(new StorableValue<string[]>(new[] { line1.Text, line2.Text }).Bytes).ToArray());
+                            usrSocket.Send(new byte[] { 5 }.Concat(new StorableValue<DataRequest>(new DataRequest(new[] { (object)line2.Text, (object)line1.Text })).Bytes).ToArray());
                         line1.ResetText();
                         line2.ResetText();
                         break;
@@ -80,14 +81,14 @@ namespace Client
                 case Type.RemoveBolo:
                     {
                         if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
-                        usrSocket.Send(new byte[] { 4 }.Concat(new StorableValue<Tuple<string>>(new Tuple<string>(line1.Text)).Bytes).ToArray());
+                        usrSocket.Send(new byte[] { 4 }.Concat(new StorableValue<DataRequest>(new DataRequest(new[] { result.ToString() })).Bytes).ToArray());
                         line1.ResetText();
                         break;
                     }
                 case Type.AddNote:
                     {
                         if (!string.IsNullOrEmpty(line1.Text))
-                            usrSocket.Send(new byte[] { 6 }.Concat(new StorableValue<string[]>(new[] { (string)arguments[0], (string)arguments[1], line1.Text }).Bytes).ToArray());
+                            usrSocket.Send(new byte[] { 6 }.Concat(new StorableValue<DataRequest>(new DataRequest(new[] { arguments[0], arguments[1], (object)line1.Text })).Bytes).ToArray());
                         line1.ResetText();
                         break;
                     }
