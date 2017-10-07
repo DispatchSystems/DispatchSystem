@@ -9,10 +9,42 @@ namespace DispatchSystem.Common.DataHolders.Storage
     [Serializable]
     public class Civilian : CivilianBase, IDataHolder
     {
-        public String First { get; set; }
-        public String Last { get; set; }
-        public Boolean WarrantStatus { get; set; }
-        public Int32 CitationCount { get; set; }
+        protected string _first;
+        public string First
+        {
+            get
+            {
+                char[] str = _first.ToCharArray();
+                for (int i = 0; i < str.Length; i++)
+                {
+                    if (i == 0)
+                        str[i] = char.ToUpper(str[i]);
+                    else
+                        str[i] = char.ToLower(str[i]);
+                }
+                return new string(str);
+            }
+            set => _first = value;
+        }
+        protected string _last;
+        public string Last
+        {
+            get
+            {
+                char[] str = _last.ToCharArray();
+                for (int i = 0; i < str.Length; i++)
+                {
+                    if (i == 0)
+                        str[i] = char.ToUpper(str[i]);
+                    else
+                        str[i] = char.ToLower(str[i]);
+                }
+                return new string(str);
+            }
+            set => _last = value;
+        }
+        public bool WarrantStatus { get; set; }
+        public int CitationCount { get; set; }
         public List<string> Notes { get; set; }
         public List<Tuple<string, float>> Tickets { get; set; }
         public override DateTime Creation { get; }

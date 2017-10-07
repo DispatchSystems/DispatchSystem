@@ -10,10 +10,11 @@ namespace DispatchSystem.Common.DataHolders.Storage
     public class CivilianVeh : CivilianBase, IDataHolder
     {
         public Civilian Owner { get; set; }
-        public String Plate { get; set; }
-        public Boolean StolenStatus { get; set; }
-        public Boolean Registered { get; set; }
-        public Boolean Insured { get; set; }
+        protected string _plate;
+        public string Plate { get => _plate.ToUpper(); set => _plate = value; }
+        public bool StolenStatus { get; set; }
+        public bool Registered { get; set; }
+        public bool Insured { get; set; }
         public override DateTime Creation { get; }
 
         public CivilianVeh(string ip) : base(ip)

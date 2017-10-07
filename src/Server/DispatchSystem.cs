@@ -393,15 +393,16 @@ namespace DispatchSystem.sv
             {
                 Int32 index = civVehs.IndexOf(GetCivilianVeh(handle));
 
-                civVehs[index] = new CivilianVeh(p.Identifiers["ip"]) { Plate = plate.ToUpper(), Owner = GetCivilian(handle) };
+                civVehs[index] = new CivilianVeh(p.Identifiers["ip"]) { Plate = plate, Owner = GetCivilian(handle) };
 
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {civVehs[index].Plate}");
             }
             else
             {
-                civVehs.Add(new CivilianVeh(p.Identifiers["ip"]) { Plate = plate.ToLower(), Owner = GetCivilian(handle) });
+                civVehs.Add(new CivilianVeh(p.Identifiers["ip"]) { Plate = plate, Owner = GetCivilian(handle) });
 
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {plate.ToUpper()}");
+                Int32 index = civVehs.IndexOf(GetCivilianVeh(handle));
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"New vehicle set to {civVehs[index].Plate}");
             }
         }
         public static void ToggleVehicleStolen(string handle)

@@ -37,7 +37,7 @@ namespace Client
 
         public void UpdateCurrentInfromation()
         {
-            this.plateView.Text = data.Plate.ToUpper();
+            this.plateView.Text = data.Plate;
             this.firstNameView.Text = data.Owner.First;
             this.lastNameView.Text = data.Owner.Last;
             this.stolenView.Checked = data.StolenStatus;
