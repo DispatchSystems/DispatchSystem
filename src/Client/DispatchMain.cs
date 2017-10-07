@@ -148,7 +148,7 @@ namespace Client
             if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
                 e.Handled = true;
             if (char.IsLetter(e.KeyChar))
-                e.KeyChar = e.KeyChar.ToString().ToUpper()[0];
+                e.KeyChar = char.ToUpper(e.KeyChar);
         }
 
         private void OnLastNameKeyPress(object sender, KeyPressEventArgs e)
@@ -156,7 +156,7 @@ namespace Client
             if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
                 e.Handled = true;
             if (char.IsLetter(e.KeyChar))
-                e.KeyChar = e.KeyChar.ToString().ToUpper()[0];
+                e.KeyChar = char.ToUpper(e.KeyChar);
         }
 
         private void OnPlateKeyPress(object sender, KeyPressEventArgs e)
@@ -167,7 +167,7 @@ namespace Client
                 
             }
             if (char.IsLetter(e.KeyChar))
-                e.KeyChar = e.KeyChar.ToString().ToUpper()[0];
+                e.KeyChar = char.ToUpper(e.KeyChar);
         }
     }
 }
