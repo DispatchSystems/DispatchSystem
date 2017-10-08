@@ -7,37 +7,32 @@ namespace DispatchSystem.Common.NetCode
 {
     public class NetEvent
     {
-        private readonly List<Delegate> callback;
+        private readonly List<Func<NetRequestHandler, object[], Task>> Callback;
 
         public NetEvent() =>
-            callback = new List<Delegate>();
+            Callback = new List<Func<NetRequestHandler, object[], Task>>();
 
-        public NetEvent(params Action[] Actions) =>
-            callback = new List<Delegate>(Actions);
+        public NetEvent(params Func<NetRequestHandler, object[], Task>[] funcs) =>
+            Callback = new List<Func<NetRequestHandler, object[], Task>>(funcs);
 
-        public static NetEvent operator +(NetEvent NetEvent, Delegate Delegate)
+        public static NetEvent operator +(NetEvent netEvent, Func<NetRequestHandler, object[], Task> func)
         {
-            NetEvent.callback.Add(Delegate);
-            return NetEvent;
+            netEvent.Callback.Add(func);
+            return netEvent;
         }
 
-        public static NetEvent operator -(NetEvent NetEvent, Delegate Delegate)
+        public static NetEvent operator -(NetEvent netEvent, Func<NetRequestHandler, object[], Task> func)
         {
-            NetEvent.callback.Remove(Delegate);
-            return NetEvent;
+            netEvent.Callback.Remove(func);
+            return netEvent;
         }
 
-        public async Task Invoke(object[] args)
+        public async Task Invoke(NetRequestHandler handler, object[] args)
         {
-            IEnumerable<object> callbackObjs = callback.Select(x => x.DynamicInvoke(args));
+            IEnumerable<object> callbackObjs = Callback.Select(x => x.Invoke(handler, args));
 
-            foreach (object callbackObj in callbackObjs)
-            {
-                if (callbackObj == null)
-                    continue;
-
-                await (Task)callbackObj;
-            }
+            foreach (Task callbackObj in callbackObjs)
+                await callbackObj;
         }
     }
 }

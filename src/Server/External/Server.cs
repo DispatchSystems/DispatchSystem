@@ -39,14 +39,18 @@ namespace DispatchSystem.sv.External
             perms = Permissions.Get;
             port = this.cfg.GetIntValue("server", "port", 33333);
             Log.WriteLine("Setting port to " + port.ToString());
+            Start();
+        }
 
+        public void Start()
+        {
             Log.WriteLine("Creating TCP Host");
             tcp = new TcpListener(IPAddress.Parse(cfg.GetStringValue("server", "ip", "0.0.0.0")), port);
             Log.WriteLine("Setting TCP connection IP to " + tcp.LocalEndpoint.ToString().Split(':')[0]);
 
             Log.WriteLine("TCP Created, Attempting to start");
             try { tcp.Start(); }
-            catch
+            catch (SocketException)
             {
                 Log.WriteLine("The specified port (" + port + ") is already in use.");
                 return;
@@ -54,34 +58,33 @@ namespace DispatchSystem.sv.External
             Log.WriteLine("TCP Started, Listening for connections...");
 
             while (true)
-            {
-                ThreadPool.QueueUserWorkItem(x => { try { Connect(x); } catch (Exception e)
+                ThreadPool.QueueUserWorkItem(x => {
+                    try { Connect(x); }
+                    catch (Exception e)
                     {
                         Log.WriteLineSilent(e.ToString());
-                    } }, tcp.AcceptSocket());
-            }
+                    }
+                }, tcp.AcceptSocket());
         }
-
         private void Connect(object socket0)
         {
-            Socket socket = (Socket)socket0;
-            string ip = socket.RemoteEndPoint.ToString().Split(':')[0];
 #if DEBUG
             Log.WriteLine($"New connection from ip");
 #else
             Log.WriteLineSilent($"New connection from ip");
 #endif
+            NetRequestHandler handle = new NetRequestHandler((Socket)socket0, false);
 
-            Action<string> cancelInteraction = new Action<string>(msg =>
-            {
-                socket.Send(new byte[] { 3 });
-                socket.Disconnect(false);
-                Log.WriteLine(msg);
-            });
+            handle.NetFunctions.Add("GetCivilian", new NetFunction(GetCivilian));
+            handle.NetFunctions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
+            handle.NetFunctions.Add("GetBolos", new NetFunction(GetBolos));
+            handle.NetEvents.Add("AddBolo", new NetEvent(AddBolo));
+            handle.NetEvents.Add("RemoveBolo", new NetEvent(RemoveBolo));
+            handle.NetEvents.Add("AddNote", new NetEvent(AddNote));
 
-            if (perms.DispatchPermission == Permission.Specific) { if (!perms.DispatchContains(IPAddress.Parse(ip))) { cancelInteraction($"[{ip}] NOT ENOUGH DISPATCH PERMISSIONS"); return; } }
-            else if (perms.DispatchPermission == Permission.None) { cancelInteraction($"[{ip}] NOT ENOUGH DISPATCH PERMISSIONS"); return; }
+            handle.Receive();
 
+            /*
             while (socket.Connected)
             {
                 byte[] buffer = new byte[1001];
@@ -227,11 +230,134 @@ namespace DispatchSystem.sv.External
                         }
                 }
             }
+            */
 #if DEBUG
             Log.WriteLine($"Connection from ip broken");
 #else
             Log.WriteLineSilent($"Connection from ip broken");
 #endif
+        }
+
+        private async Task<object> GetCivilian(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+            Log.WriteLine("Get civilian Request Recieved");
+
+            string first = (string)args[0];
+            string last = (string)args[1];
+            Log.WriteLine($"{first}, {last}");
+
+            Civilian civ = DispatchSystem.GetCivilianByName(first, last);
+            if (civ != null)
+            {
+#if DEBUG
+                Log.WriteLine("Sending Civilian information to Client");
+#else
+                Log.WriteLineSilent("Sending Civilian information to Client");
+#endif
+                return civ;
+            }
+            else
+            {
+#if DEBUG
+                Log.WriteLine("Civilian not found, sending null");
+#else
+                Log.WriteLineSilent("Civilian not found, sending null");
+#endif
+                return null;
+            }
+        }
+        private async Task<object> GetCivilianVeh(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+            Log.WriteLine("Get civilian veh Request Recieved");
+
+            string plate = (string)args[0];
+
+            CivilianVeh civVeh = DispatchSystem.GetCivilianVehByPlate(plate);
+            if (civVeh != null)
+            {
+#if DEBUG
+                Log.WriteLine("Sending Civilian Veh information to Client");
+#else
+                Log.WriteLineSilent("Sending Civilian Veh information to Client");
+#endif
+                return civVeh;
+            }
+            else
+            {
+#if DEBUG
+                Log.WriteLine("Civilian Veh not found, sending null");
+#else
+                Log.WriteLineSilent("Civilian Veh not found, sending null");
+#endif
+                return null;
+            }
+        }
+        private async Task<object> GetBolos(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+            Log.WriteLine("Get bolos Request Recieved");
+
+            return DispatchSystem.ActiveBolos;
+        }
+        private async Task AddBolo(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+            Log.WriteLine("Add bolo Request Recieved");
+
+            string player = (string)args[0];
+            string bolo = (string)args[1];
+
+            Log.WriteLineSilent($"Adding new Bolo for \"{bolo}\"");
+            DispatchSystem.ActiveBolos.Add(new Bolo(player, bolo));
+        }
+        private async Task RemoveBolo(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+            Log.WriteLine("Remove bolo Request Recieved");
+
+            int parse = (int)args[0];
+
+            try { DispatchSystem.ActiveBolos.RemoveAt(parse); Log.WriteLine("Removed Active BOLO from the List"); }
+            catch (ArgumentOutOfRangeException) { Log.WriteLine("Index for BOLO not found, not removing..."); }
+        }
+        private async Task AddNote(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+            Log.WriteLine("Add Civilian note Request Recieved");
+
+            string[] name = new[] { (string)args[0], (string)args[1] };
+            string note = (string)args[2];
+
+            Civilian civ = DispatchSystem.GetCivilianByName(name[0], name[1]);
+
+            if (civ != null)
+            {
+                Log.WriteLine($"Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
+                civ.Notes.Add(note);
+            }
+            else
+                Log.WriteLine("Civilian not found, not adding note...");
+        }
+
+        private bool CheckAndDispose(NetRequestHandler sender)
+        {
+            if (perms.DispatchPermission == Permission.Specific) { if (!perms.DispatchContains(IPAddress.Parse(sender.IP))) { Log.WriteLine($"[{sender.IP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; } }
+            else if (perms.DispatchPermission == Permission.None) { Log.WriteLine($"[{sender.IP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; }
+            return false;
         }
     }
 }

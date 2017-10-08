@@ -16,6 +16,7 @@ using System.Net.Sockets;
 
 using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
+using DispatchSystem.Common.NetCode;
 
 namespace Client
 {
@@ -35,7 +36,7 @@ namespace Client
             UpdateCurrentInformation();
         }
 
-        void UpdateCurrentInformation()
+        public void UpdateCurrentInformation()
         {
             List<ListViewItem> lvis = new List<ListViewItem>();
 
@@ -66,30 +67,29 @@ namespace Client
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 3 });
-            byte[] incoming = new byte[5001];
-            usrSocket.Receive(incoming);
-            byte tag = incoming[0];
-            incoming = incoming.Skip(1).ToArray();
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
 
-            if (tag == 1)
+            Tuple<NetRequestResult, List<Bolo>> result = await handle.TryTriggerNetFunction<List<Bolo>>("GetBolos");
+
+            if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    bolos = new StorableValue<List<Bolo>>(incoming).Value;
+                    bolos = result.Item2;
                     UpdateCurrentInformation();
                 });
             }
-            if (tag == 3)
-                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-            usrSocket.Disconnect(false);
+            usrSocket.Disconnect(true);
             IsCurrentlySyncing = false;
-            await this.Delay(0);
         }
 
         private void OnReyncClick(object sender, EventArgs e) => new Task(async () => await Resync()).Start();

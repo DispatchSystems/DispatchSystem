@@ -19,6 +19,7 @@ using System.Runtime.InteropServices;
 using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
 using DispatchSystem.Common.DataHolders.Requesting;
+using DispatchSystem.Common.NetCode;
 
 namespace Client
 {
@@ -32,99 +33,87 @@ namespace Client
             InitializeComponent();
 
             SkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
-            SkinManager.ColorScheme = new ColorScheme(Primary.DeepPurple500, Primary.DeepPurple700, Primary.DeepPurple300, Accent.Purple100, TextShade.WHITE);
+            SkinManager.ColorScheme = new ColorScheme(Primary.DeepPurple500, Primary.DeepPurple700, Primary.DeepPurple400, Accent.DeepPurple400, TextShade.WHITE);
         }
 
-        public void OnViewCivClick(object sender, EventArgs e)
+        public async void OnViewCivClick(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text))
                 return;
 
-            usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 1 }.Concat(new StorableValue<CivilianRequest>(new CivilianRequest(firstName.Text, lastName.Text)).Bytes).ToArray());
-            byte[] incoming = new byte[5001];
-            usrSocket.Receive(incoming);
-            byte tag = incoming[0];
-            incoming = incoming.Skip(1).ToArray();
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
-            if (tag == 1)
+            Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    StorableValue<Civilian> item = new StorableValue<Civilian>(incoming);
-                    new CivView(item.Value).Show();
+                    new CivView(result.Item2).Show();
                 });
             }
-            else if (tag == 2)
-                MessageBox.Show("That is an Invalid name!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (tag == 3)
-                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            else
+                MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             firstName.ResetText();
             lastName.ResetText();
-
-            usrSocket.Disconnect(false);
         }
 
-        private void OnViewCivVehClick(object sender, EventArgs e)
+        private async void OnViewCivVehClick(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(plate.Text))
                 return;
 
-            usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 2 }.Concat(new StorableValue<CivilianVehRequest>(new CivilianVehRequest(plate.Text)).Bytes).ToArray());
-            byte[] incoming = new byte[5001];
-            usrSocket.Receive(incoming);
-            byte tag = incoming[0];
-            incoming = incoming.Skip(1).ToArray();
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
-            if (tag == 1)
+            Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    StorableValue<CivilianVeh> item = new StorableValue<CivilianVeh>(incoming);
-                    new CivVehView(item.Value).Show();
+                    new CivVehView(result.Item2).Show();
                 });
             }
-            else if (tag == 2)
-                MessageBox.Show("That is an Invalid plate!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (tag == 3)
-                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            else
+                MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             plate.ResetText();
-
-            usrSocket.Disconnect(false);
         }
 
-        private void OnViewBolosClick(object sender, EventArgs e)
+        private async void OnViewBolosClick(object sender, EventArgs e)
         {
-            usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 3 });
-            byte[] incoming = new byte[5001];
-            usrSocket.Receive(incoming);
-            byte tag = incoming[0];
-            incoming = incoming.Skip(1).ToArray();
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
-            if (tag == 1)
+            Tuple<NetRequestResult, List<Bolo>> result = await handle.TryTriggerNetFunction<List<Bolo>>("GetBolos");
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    new BoloView(new StorableValue<List<Bolo>>(incoming).Value).Show();
+                    new BoloView(result.Item2).Show();
                 });
             }
-            if (tag == 3)
-                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-
-            usrSocket.Disconnect(false);
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void OnRemoveBoloClick(object sender, EventArgs e)

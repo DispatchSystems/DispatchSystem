@@ -12,5 +12,6 @@ namespace Client
         bool IsCurrentlySyncing { get; }
         DateTime LastSyncTime { get; }
         Task Resync();
+        void UpdateCurrentInformation();
     }
 }

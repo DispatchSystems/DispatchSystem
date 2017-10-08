@@ -1,18 +1,25 @@
-﻿using DispatchSystem.Common.DataHolders;
+﻿using System;
+using System.Runtime.Serialization;
+using DispatchSystem.Common.DataHolders;
 
 namespace DispatchSystem.Common.NetCode
 {
-    public enum NetRequestMetadata { Invocation, ValueRequest, ValueReturn, FunctionRequest, FunctionReturn }
+    [Serializable]
+    public enum NetRequestMetadata { InvocationRequest, InvocationReturn, ValueRequest, ValueReturn, FunctionRequest, FunctionReturn }
 
+    [Serializable]
+    public enum NetRequestResult { Invalid, Incompleted, Completed }
+
+    [Serializable]
     public class NetRequest
     {
         public StorableValue<object[]> Data { get; }
         public NetRequestMetadata Metadata { get; set; }
 
-        public NetRequest(NetRequestMetadata Metadata, params object[] Data)
+        public NetRequest(NetRequestMetadata metadata, params object[] data)
         {
-            this.Metadata = Metadata;
-            this.Data = new StorableValue<object[]>(Data);
+            Metadata = metadata;
+            Data = new StorableValue<object[]>(data);
         }
     }
 }

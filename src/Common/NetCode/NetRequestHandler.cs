@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,100 +11,177 @@ namespace DispatchSystem.Common.NetCode
 {
     public class NetRequestHandler
     {
-        private readonly Socket s;
+        private readonly Socket S;
         private readonly Thread listenThread;
-        private readonly Dictionary<string, object> cachedNetFunctions;
-        private readonly Dictionary<string, object> cachedNetValues;
+        private readonly Dictionary<string, NetRequestResult> CachedNetEvents;
+        private readonly Dictionary<string, Tuple<NetRequestResult, object>> CachedNetFunctions;
+        private readonly Dictionary<string, Tuple<bool, object>> CachedNetValues;
+        private readonly Dictionary<int, Thread> Threads;
 
-        public Dictionary<string, NetEvent> NetEvents { get; }
-        public Dictionary<string, NetFunction<object>> NetFunctions { get; }
-        public Dictionary<string, object> NetValues { get; }
+        public Dictionary<string, NetEvent> NetEvents { get; set; }
+        public Dictionary<string, NetFunction> NetFunctions { get; set; }
+        public Dictionary<string, object> NetValues { get; set; }
+        public string IP { get; }
+        public int Port { get; }
 
-        public NetRequestHandler(Socket Socket)
+        public NetRequestHandler(Socket socket, bool autostart = true)
         {
+            string[] vals = socket.RemoteEndPoint.ToString().Split(':');
+            IP = vals[0];
+            Port = int.Parse(vals[1]);
+
             NetEvents = new Dictionary<string, NetEvent>();
-            NetFunctions = new Dictionary<string, NetFunction<object>>();
+            NetFunctions = new Dictionary<string, NetFunction>();
             NetValues = new Dictionary<string, object>();
 
-            cachedNetValues = new Dictionary<string, object>();
-            cachedNetFunctions = new Dictionary<string, object>();
+            CachedNetValues = new Dictionary<string, Tuple<bool, object>>();
+            CachedNetFunctions = new Dictionary<string, Tuple<NetRequestResult, object>>();
+            CachedNetEvents = new Dictionary<string, NetRequestResult>();
 
-            s = Socket;
-            listenThread = new Thread(Listener);
-            listenThread.Start();
+            S = socket;
+            Threads = new Dictionary<int, Thread>();
+            listenThread = new Thread(Receiver);
+
+            if (autostart)
+                listenThread.Start();
         }
 
-        private void Listener()
+        public void Receive()
         {
-            while (s.Connected)
+            if (!listenThread.IsAlive)
+                listenThread.Start();
+        }
+
+        private void Receiver()
+        {
+            byte[] buffer = new byte[5000];
+            int end;
+            try
             {
-                byte[] buffer = new byte[5000];
-                int end;
-                try
-                {
-                    end = s.Receive(buffer);
-                }
-                catch (SocketException)
-                {
+                end = S.Receive(buffer);
+            }
+            catch (SocketException)
+            {
+                return;
+            }
+            buffer = buffer.Take(end).ToArray();
+
+            if (buffer.Length == 0)
+                return;
+
+            NetRequest netRequest = new StorableValue<NetRequest>(buffer).Value;
+
+            switch (netRequest.Metadata)
+            {
+#pragma warning disable 4014
+                case NetRequestMetadata.InvocationRequest:
+                    try
+                    {
+                        HandleInvocationRequest(netRequest).GetAwaiter().GetResult();
+                    }
+                    catch
+                    {
+                        StorableValue<NetRequest> returnNetRequest = new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.InvocationReturn, netRequest.Data.Value[1], NetRequestResult.Incompleted));
+                        S.Send(returnNetRequest.Bytes);
+                    }
                     break;
-                }
-                buffer = buffer.Take(end).ToArray();
-                NetRequest netRequest = new StorableValue<NetRequest>(buffer).Value;
 
-                switch (netRequest.Metadata)
-                {
-                    case NetRequestMetadata.Invocation:
-                        HandleInvocation(netRequest).Wait();
-                        break;
+                case NetRequestMetadata.InvocationReturn:
+                    HandleInvocationReturn(netRequest).GetAwaiter().GetResult();
+                    break;
 
-                    case NetRequestMetadata.ValueRequest:
-                        HandleValueRequest(netRequest).Wait();
-                        break;
+                case NetRequestMetadata.ValueRequest:
+                    HandleValueRequest(netRequest).GetAwaiter().GetResult();
+                    break;
 
-                    case NetRequestMetadata.ValueReturn:
-                        HandleValueReturned(netRequest).Wait();
-                        break;
+                case NetRequestMetadata.ValueReturn:
+                    HandleValueReturn(netRequest).GetAwaiter().GetResult();
+                    break;
 
-                    case NetRequestMetadata.FunctionRequest:
-                        HandleFunctionRequest(netRequest).Wait();
-                        break;
+                case NetRequestMetadata.FunctionRequest:
+                    try
+                    {
+                        HandleFunctionRequest(netRequest).GetAwaiter().GetResult();
+                    }
+                    catch
+                    {
+                        StorableValue<NetRequest> returnNetRequest = new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.FunctionReturn, netRequest.Data.Value[1], NetRequestResult.Incompleted));
+                        S.Send(returnNetRequest.Bytes);
+                    }
+                    break;
 
-                    case NetRequestMetadata.FunctionReturn:
-                        HandleFunctionReturn(netRequest).Wait();
-                        break;
-                }
+                case NetRequestMetadata.FunctionReturn:
+                    HandleFunctionReturn(netRequest).GetAwaiter().GetResult();
+                    break;
+#pragma warning restore 4014
             }
         }
 
         #region handlers
-        private async Task<bool> HandleInvocation(NetRequest Request)
+
+        private async Task<bool> HandleInvocationRequest(NetRequest request)
         {
-            if (Request.Metadata != NetRequestMetadata.Invocation)
+            if (request.Metadata != NetRequestMetadata.InvocationRequest)
                 return false;
 
-            string netEvent = (string)Request.Data.Value[0];
-            object[] parameters = Request.Data.Value.Skip(1).ToArray();
+            string netEvent = (string)request.Data.Value[0];
 
             if (!NetEvents.ContainsKey(netEvent))
+            {
+                try
+                {
+                    S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.InvocationReturn, netEvent, NetRequestResult.Incompleted)).Bytes);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            object[] parameters = (object[])request.Data.Value[1];
+
+            await NetEvents[netEvent].Invoke(this, parameters);
+
+            try
+            {
+                S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.InvocationReturn, netEvent, NetRequestResult.Completed)).Bytes);
+            }
+            catch (SocketException)
+            {
                 return false;
+            }
 
-            await NetEvents[netEvent].Invoke(parameters);
-
+            await Task.FromResult(0);
             return true;
         }
 
-        private async Task<bool> HandleValueRequest(NetRequest Request)
+        private async Task<bool> HandleInvocationReturn(NetRequest request)
         {
-            if (Request.Metadata != NetRequestMetadata.ValueRequest)
+            if (request.Metadata != NetRequestMetadata.InvocationReturn)
                 return false;
 
-            string valueName = (string)Request.Data.Value[0];
+            string valueName = (string)request.Data.Value[0];
+            NetRequestResult result = (NetRequestResult)request.Data.Value[1];
+
+            CachedNetEvents.Add(valueName, result);
+
+            await Task.FromResult(0);
+            return true;
+        }
+
+        private async Task<bool> HandleValueRequest(NetRequest request)
+        {
+            if (request.Metadata != NetRequestMetadata.ValueRequest)
+                return false;
+
+            string valueName = (string)request.Data.Value[0];
 
             if (!NetValues.ContainsKey(valueName))
             {
                 try
                 {
-                    s.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueReturn, valueName, false)).Bytes);
+                    S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueReturn, valueName,
+                        false)).Bytes);
                 }
                 catch (SocketException)
                 {
@@ -115,7 +193,7 @@ namespace DispatchSystem.Common.NetCode
 
             try
             {
-                s.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueReturn, valueName, true,
+                S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueReturn, valueName, true,
                     NetValues[valueName])).Bytes);
             }
             catch (SocketException)
@@ -127,37 +205,41 @@ namespace DispatchSystem.Common.NetCode
             return true;
         }
 
-        private async Task<bool> HandleValueReturned(NetRequest Request)
+        private async Task<bool> HandleValueReturn(NetRequest request)
         {
-            if (Request.Metadata != NetRequestMetadata.ValueReturn)
+            if (request.Metadata != NetRequestMetadata.ValueReturn)
                 return false;
 
-            string valueName = (string)Request.Data.Value[0];
-            bool existed = (bool)Request.Data.Value[1];
+            string valueName = (string)request.Data.Value[0];
+            bool result = (bool)request.Data.Value[1];
 
-            if (!existed)
+            if (!result)
+            {
+                CachedNetValues.Add(valueName, new Tuple<bool, object>(false, null));
                 return true;
+            }
 
-            cachedNetValues.Add(valueName, Request.Data.Value[2]);
+            CachedNetValues.Add(valueName, new Tuple<bool, object>(true, request.Data.Value[2]));
 
             await Task.FromResult(0);
             return true;
         }
 
-        private async Task<bool> HandleFunctionRequest(NetRequest Request)
+        private async Task<bool> HandleFunctionRequest(NetRequest request)
         {
-            if (Request.Metadata != NetRequestMetadata.FunctionRequest)
+            if (request.Metadata != NetRequestMetadata.FunctionRequest)
                 return false;
 
-            string valueName = (string)Request.Data.Value[0];
-            object[] parameters = Request.Data.Value.Skip(1).ToArray();
+            string functionName = (string)request.Data.Value[0];
+            object[] parameters = (object[])request.Data.Value[1];
 
-            if (!NetFunctions.ContainsKey(valueName))
+            if (!NetFunctions.ContainsKey(functionName))
             {
                 try
                 {
-                    s.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.FunctionReturn, valueName, false
-                        )).Bytes);
+                    S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.FunctionReturn, functionName,
+                        NetRequestResult.Invalid
+                    )).Bytes);
                 }
                 catch (SocketException)
                 {
@@ -169,8 +251,8 @@ namespace DispatchSystem.Common.NetCode
 
             try
             {
-                s.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.FunctionReturn, valueName, true,
-                    NetFunctions[valueName].Invoke(parameters))).Bytes);
+                S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.FunctionReturn, functionName, NetRequestResult.Completed,
+                    NetFunctions[functionName].Invoke(this, parameters).GetAwaiter().GetResult())).Bytes);
             }
             catch (SocketException)
             {
@@ -181,73 +263,124 @@ namespace DispatchSystem.Common.NetCode
             return true;
         }
 
-        private async Task<bool> HandleFunctionReturn(NetRequest Request)
+        private async Task<bool> HandleFunctionReturn(NetRequest request)
         {
-            if (Request.Metadata != NetRequestMetadata.FunctionReturn)
+            if (request.Metadata != NetRequestMetadata.FunctionReturn)
                 return false;
 
-            string valueName = (string)Request.Data.Value[0];
-            bool existed = (bool)Request.Data.Value[1];
+            string functionName = (string)request.Data.Value[0];
+            NetRequestResult result = (NetRequestResult)request.Data.Value[1];
 
-            if (!existed)
+            if (result != NetRequestResult.Completed)
+            {
+                CachedNetFunctions.Add(functionName, new Tuple<NetRequestResult, object>(result, null));
                 return true;
+            }
 
-            cachedNetFunctions.Add(valueName, Request.Data.Value[2]);
+            CachedNetFunctions.Add(functionName, new Tuple<NetRequestResult, object>(result, request.Data.Value[2]));
 
             await Task.FromResult(0);
             return true;
         }
+
         #endregion
 
-        public async Task<bool> TriggetNetEvent(string NetEventName, params object[] Parameters)
+        public async Task TriggerNetEvent(string netEventName, params object[] parameters)
         {
-            try
+            S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.InvocationRequest, netEventName,
+                parameters)).Bytes);
+
+            while (!CachedNetEvents.ContainsKey(netEventName))
+                await Task.Delay(10);
+
+            switch (CachedNetEvents[netEventName])
             {
-                s.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.Invocation, NetEventName, Parameters)).Bytes);
-            }
-            catch (SocketException)
-            {
-                return false;
+                case NetRequestResult.Invalid:
+                    throw new InvalidOperationException("NetEvent does not exist!");
+                case NetRequestResult.Incompleted:
+                    throw new InvalidOperationException("NetEvent was not completed!");
             }
 
-            await Task.FromResult(0);
-            return true;
+            CachedNetFunctions.Remove(netEventName);
         }
 
-        public async Task<T> GetNetValue<T>(string NetValueName)
+        public async Task<NetRequestResult> TryTriggerNetEvent(string netEventName, params object[] parameters)
         {
-            try
-            {
-                s.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueRequest, NetValueName)).Bytes);
-            }
-            catch (SocketException)
-            {
+            S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.InvocationRequest, netEventName,
+                parameters)).Bytes);
+
+            while (!CachedNetEvents.ContainsKey(netEventName))
+                await Task.Delay(10);
+
+            NetRequestResult result = CachedNetEvents[netEventName];
+            CachedNetFunctions.Remove(netEventName);
+
+            return result;
+        }
+
+        public async Task<T> GetNetValue<T>(string netValueName)
+        {
+            S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueRequest, netValueName))
+                .Bytes);
+
+            while (!CachedNetValues.ContainsKey(netValueName))
+                await Task.Delay(10);
+
+            Tuple<bool, T> tuple = new Tuple<bool, T>(CachedNetValues[netValueName].Item1, (T)CachedNetValues[netValueName].Item2);
+            CachedNetFunctions.Remove(netValueName);
+
+            if (!tuple.Item1)
                 throw new InvalidOperationException("NetValue does not exist!");
-            }
 
-            while (!cachedNetValues.ContainsKey(NetValueName))
-                await Task.Delay(10);
-
-            return (T)cachedNetValues[NetValueName];
+            return tuple.Item2;
         }
 
-        public async Task<Tuple<bool, T>> TryGetNetValue<T>(string NetValueName)
+        public async Task<Tuple<bool, T>> TryGetNetValue<T>(string netValueName)
         {
-            try
-            {
-                s.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueRequest, NetValueName)).Bytes);
-            }
-            catch (SocketException)
-            {
-                return new Tuple<bool, T>(false, (T)new object());
-            }
+            S.Send(new StorableValue<NetRequest>(new NetRequest(NetRequestMetadata.ValueRequest, netValueName))
+                .Bytes);
 
-            while (!cachedNetValues.ContainsKey(NetValueName))
+            while (!CachedNetValues.ContainsKey(netValueName))
                 await Task.Delay(10);
 
-            return new Tuple<bool, T>(true, (T)cachedNetValues[NetValueName]);
+            Tuple<bool, T> tuple = new Tuple<bool, T>(CachedNetValues[netValueName].Item1, (T)CachedNetValues[netValueName].Item2);
+            CachedNetValues.Remove(netValueName);
+            return tuple;
         }
 
-        //TODO: add getnetfunction and getnetvalue
+        public async Task<T> TriggerNetFunction<T>(string netFunctionName, params object[] parameters)
+        {
+            S.Send(new StorableValue<NetRequest>(
+                new NetRequest(NetRequestMetadata.FunctionRequest, netFunctionName, parameters)).Bytes);
+
+            while (!CachedNetFunctions.ContainsKey(netFunctionName))
+                await Task.Delay(10);
+
+            Tuple<NetRequestResult, T> tuple = new Tuple<NetRequestResult, T>(CachedNetFunctions[netFunctionName].Item1, (T)CachedNetValues[netFunctionName].Item2);
+            CachedNetFunctions.Remove(netFunctionName);
+
+            switch (tuple.Item1)
+            {
+                case NetRequestResult.Invalid:
+                    throw new InvalidOperationException("NetFunction does not exist!");
+                case NetRequestResult.Incompleted:
+                    throw new InvalidOperationException("NetFunction was not completed!");
+            }
+
+            return tuple.Item2;
+        }
+
+        public async Task<Tuple<NetRequestResult, T>> TryTriggerNetFunction<T>(string netFunctionName, params object[] parameters)
+        {
+            S.Send(new StorableValue<NetRequest>(
+                new NetRequest(NetRequestMetadata.FunctionRequest, netFunctionName, parameters)).Bytes);
+
+            while (!CachedNetFunctions.ContainsKey(netFunctionName))
+                await Task.Delay(10);
+
+            Tuple<NetRequestResult, T> tuple = new Tuple<NetRequestResult, T>(CachedNetFunctions[netFunctionName].Item1, (T)CachedNetFunctions[netFunctionName].Item2);
+            CachedNetFunctions.Remove(netFunctionName);
+            return tuple;
+        }
     }
 }

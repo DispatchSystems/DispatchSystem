@@ -16,6 +16,7 @@ using System.Net;
 
 using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
+using DispatchSystem.Common.NetCode;
 
 namespace Client
 {
@@ -32,10 +33,10 @@ namespace Client
             InitializeComponent();
 
             this.data = civVehData;
-            UpdateCurrentInfromation();
+            UpdateCurrentInformation();
         }
 
-        public void UpdateCurrentInfromation()
+        public void UpdateCurrentInformation()
         {
             this.plateView.Text = data.Plate;
             this.firstNameView.Text = data.Owner.First;
@@ -56,33 +57,27 @@ namespace Client
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Socket usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            if (string.IsNullOrWhiteSpace(plateView.Text))
+                return;
+
+            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Send(new byte[] { 2 }.Concat(new StorableValue<Tuple<string>>(new Tuple<string>(data.Plate)).Bytes).ToArray());
-            byte[] incoming = new byte[5001];
-            usrSocket.Receive(incoming);
-            byte tag = incoming[0];
-            incoming = incoming.Skip(1).ToArray();
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
-            if (tag == 1)
+            Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", data.Plate);
+
+            if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    StorableValue<CivilianVeh> item = new StorableValue<CivilianVeh>(incoming);
-                    data = item.Value;
-                    UpdateCurrentInfromation();
+                    data = result.Item2;
+                    UpdateCurrentInformation();
                 });
             }
-            else if (tag == 2)
-                MessageBox.Show("That is an Invalid plate!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            else if (tag == 3)
-                MessageBox.Show("Socket not accepted by the server\nChange the permissions on the server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-
-            usrSocket.Disconnect(false);
-            IsCurrentlySyncing = false;
-            await this.Delay(0);
+            else
+                MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
 
         private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync()).Start();

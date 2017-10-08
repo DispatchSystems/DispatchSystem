@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DispatchSystem.Common.DataHolders
 {
+    [Serializable]
     public class StorableValue<T>
     {
         private T value;

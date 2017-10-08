@@ -15,6 +15,7 @@ using System.Net;
 using System.Net.Sockets;
 using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Requesting;
+using DispatchSystem.Common.NetCode;
 
 namespace Client
 {
@@ -62,18 +63,20 @@ namespace Client
             }
         }
 
-        private void OnBtnClick(object sender, EventArgs e)
+        private async void OnBtnClick(object sender, EventArgs e)
         {
-            usrSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
             switch (FormType)
             {
                 case Type.AddBolo:
                     {
                         if (!(string.IsNullOrWhiteSpace(line1.Text) || string.IsNullOrWhiteSpace(line2.Text)))
-                            usrSocket.Send(new byte[] { 5 }.Concat(new StorableValue<DataRequest>(new DataRequest(new[] { (object)line2.Text, (object)line1.Text })).Bytes).ToArray());
+                            await handle.TryTriggerNetEvent("AddBolo", line2.Text, line1.Text);
                         line1.ResetText();
                         line2.ResetText();
                         break;
@@ -81,14 +84,14 @@ namespace Client
                 case Type.RemoveBolo:
                     {
                         if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
-                        usrSocket.Send(new byte[] { 4 }.Concat(new StorableValue<DataRequest>(new DataRequest(new[] { result.ToString() })).Bytes).ToArray());
+                        await handle.TryTriggerNetEvent("RemoveBolo", result);
                         line1.ResetText();
                         break;
                     }
                 case Type.AddNote:
                     {
                         if (!string.IsNullOrEmpty(line1.Text))
-                            usrSocket.Send(new byte[] { 6 }.Concat(new StorableValue<DataRequest>(new DataRequest(new[] { arguments[0], arguments[1], (object)line1.Text })).Bytes).ToArray());
+                            await handle.TryTriggerNetEvent("AddNote", arguments[0], arguments[1], line1.Text);
                         line1.ResetText();
                         break;
                     }
@@ -96,7 +99,7 @@ namespace Client
 
             this.Hide();
             this.OperationDone = true;
-            usrSocket.Disconnect(false);
+            usrSocket.Disconnect(true);
         }
     }
 }
