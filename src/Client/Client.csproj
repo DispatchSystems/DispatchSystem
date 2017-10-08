@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{660385A1-F53D-4B13-97FD-C8E9EC8D9FA0}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>Client</RootNamespace>
-    <AssemblyName>Client</AssemblyName>
+    <RootNamespace>DispatchSystem.cl</RootNamespace>
+    <AssemblyName>DispatchSystem</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -58,54 +58,53 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddRemoveView.cs">
+    <Compile Include="Windows\AddRemoveView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AddRemoveView.Designer.cs">
+    <Compile Include="Windows\AddRemoveView.Designer.cs">
       <DependentUpon>AddRemoveView.cs</DependentUpon>
     </Compile>
-    <Compile Include="BoloView.cs">
+    <Compile Include="Windows\BoloView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BoloView.Designer.cs">
+    <Compile Include="Windows\BoloView.Designer.cs">
       <DependentUpon>BoloView.cs</DependentUpon>
     </Compile>
-    <Compile Include="CivVehView.cs">
+    <Compile Include="Windows\CivVehView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CivVehView.Designer.cs">
+    <Compile Include="Windows\CivVehView.Designer.cs">
       <DependentUpon>CivVehView.cs</DependentUpon>
     </Compile>
-    <Compile Include="CivView.cs">
+    <Compile Include="Windows\CivView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CivView.Designer.cs">
+    <Compile Include="Windows\CivView.Designer.cs">
       <DependentUpon>CivView.cs</DependentUpon>
     </Compile>
     <Compile Include="Config.cs" />
-    <Compile Include="DispatchMain.cs">
+    <Compile Include="Windows\DispatchMain.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DispatchMain.Designer.cs">
+    <Compile Include="Windows\DispatchMain.Designer.cs">
       <DependentUpon>DispatchMain.cs</DependentUpon>
     </Compile>
-    <Compile Include="Extension.cs" />
     <Compile Include="ISyncable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AddRemoveView.resx">
+    <EmbeddedResource Include="Windows\AddRemoveView.resx">
       <DependentUpon>AddRemoveView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="BoloView.resx">
+    <EmbeddedResource Include="Windows\BoloView.resx">
       <DependentUpon>BoloView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CivVehView.resx">
+    <EmbeddedResource Include="Windows\CivVehView.resx">
       <DependentUpon>CivVehView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CivView.resx">
+    <EmbeddedResource Include="Windows\CivView.resx">
       <DependentUpon>CivView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DispatchMain.resx">
+    <EmbeddedResource Include="Windows\DispatchMain.resx">
       <DependentUpon>DispatchMain.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -116,6 +115,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

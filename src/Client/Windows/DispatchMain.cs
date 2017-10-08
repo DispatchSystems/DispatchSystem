@@ -21,7 +21,7 @@ using DispatchSystem.Common.DataHolders.Storage;
 using DispatchSystem.Common.DataHolders.Requesting;
 using DispatchSystem.Common.NetCode;
 
-namespace Client
+namespace DispatchSystem.cl.Windows
 {
     public partial class DispatchMain : MaterialForm
     {

@@ -17,7 +17,7 @@ using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Requesting;
 using DispatchSystem.Common.NetCode;
 
-namespace Client
+namespace DispatchSystem.cl.Windows
 {
     public partial class AddRemoveView : MaterialForm
     {

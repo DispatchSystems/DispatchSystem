@@ -1,4 +1,4 @@
-﻿namespace Client
+﻿namespace DispatchSystem.cl.Windows
 {
     partial class CivView
     {
