@@ -11,7 +11,7 @@ namespace DispatchSystem.cl
     {
         bool IsCurrentlySyncing { get; }
         DateTime LastSyncTime { get; }
-        Task Resync();
+        Task Resync(bool skipTime);
         void UpdateCurrentInformation();
     }
 }

@@ -37,8 +37,6 @@
             this.btnViewCivVeh = new MaterialSkin.Controls.MaterialRaisedButton();
             this.materialDivider1 = new MaterialSkin.Controls.MaterialDivider();
             this.btnViewBolos = new MaterialSkin.Controls.MaterialRaisedButton();
-            this.btnRemoveBolo = new MaterialSkin.Controls.MaterialRaisedButton();
-            this.btnAddBolo = new MaterialSkin.Controls.MaterialRaisedButton();
             this.boloLabel = new MaterialSkin.Controls.MaterialLabel();
             this.SuspendLayout();
             // 
@@ -174,7 +172,7 @@
             this.btnViewBolos.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnViewBolos.Depth = 0;
             this.btnViewBolos.Icon = null;
-            this.btnViewBolos.Location = new System.Drawing.Point(16, 330);
+            this.btnViewBolos.Location = new System.Drawing.Point(16, 334);
             this.btnViewBolos.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnViewBolos.Name = "btnViewBolos";
             this.btnViewBolos.Primary = true;
@@ -183,38 +181,6 @@
             this.btnViewBolos.Text = "View Bolos";
             this.btnViewBolos.UseVisualStyleBackColor = true;
             this.btnViewBolos.Click += new System.EventHandler(this.OnViewBolosClick);
-            // 
-            // btnRemoveBolo
-            // 
-            this.btnRemoveBolo.AutoSize = true;
-            this.btnRemoveBolo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnRemoveBolo.Depth = 0;
-            this.btnRemoveBolo.Icon = null;
-            this.btnRemoveBolo.Location = new System.Drawing.Point(206, 330);
-            this.btnRemoveBolo.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnRemoveBolo.Name = "btnRemoveBolo";
-            this.btnRemoveBolo.Primary = true;
-            this.btnRemoveBolo.Size = new System.Drawing.Size(114, 36);
-            this.btnRemoveBolo.TabIndex = 9;
-            this.btnRemoveBolo.Text = "Remove BOLO";
-            this.btnRemoveBolo.UseVisualStyleBackColor = true;
-            this.btnRemoveBolo.Click += new System.EventHandler(this.OnRemoveBoloClick);
-            // 
-            // btnAddBolo
-            // 
-            this.btnAddBolo.AutoSize = true;
-            this.btnAddBolo.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnAddBolo.Depth = 0;
-            this.btnAddBolo.Icon = null;
-            this.btnAddBolo.Location = new System.Drawing.Point(399, 330);
-            this.btnAddBolo.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnAddBolo.Name = "btnAddBolo";
-            this.btnAddBolo.Primary = true;
-            this.btnAddBolo.Size = new System.Drawing.Size(86, 36);
-            this.btnAddBolo.TabIndex = 10;
-            this.btnAddBolo.Text = "Add BOLO";
-            this.btnAddBolo.UseVisualStyleBackColor = true;
-            this.btnAddBolo.Click += new System.EventHandler(this.OnAddBoloClick);
             // 
             // boloLabel
             // 
@@ -237,8 +203,6 @@
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(505, 382);
             this.Controls.Add(this.boloLabel);
-            this.Controls.Add(this.btnAddBolo);
-            this.Controls.Add(this.btnRemoveBolo);
             this.Controls.Add(this.btnViewBolos);
             this.Controls.Add(this.materialDivider1);
             this.Controls.Add(this.btnViewCivVeh);
@@ -269,8 +233,6 @@
         private MaterialSkin.Controls.MaterialRaisedButton btnViewCivVeh;
         private MaterialSkin.Controls.MaterialDivider materialDivider1;
         private MaterialSkin.Controls.MaterialRaisedButton btnViewBolos;
-        private MaterialSkin.Controls.MaterialRaisedButton btnRemoveBolo;
-        private MaterialSkin.Controls.MaterialRaisedButton btnAddBolo;
         private MaterialSkin.Controls.MaterialLabel boloLabel;
     }
 }

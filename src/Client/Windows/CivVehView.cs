@@ -46,9 +46,9 @@ namespace DispatchSystem.cl.Windows
             this.insuranceView.Checked = data.Insured;
         }
 
-        public async Task Resync()
+        public async Task Resync(bool skipTime)
         {
-            if ((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing)
+            if (((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing) && !skipTime)
             {
                 MessageBox.Show($"You must wait 15 seconds before the last sync time \nSeconds to wait: {15 - (DateTime.Now - LastSyncTime).Seconds}", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -65,8 +65,9 @@ namespace DispatchSystem.cl.Windows
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
             Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", data.Plate);
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
 
             if (result.Item2 != null)
             {
@@ -78,8 +79,10 @@ namespace DispatchSystem.cl.Windows
             }
             else
                 MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
+            IsCurrentlySyncing = false;
         }
 
-        private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync()).Start();
+        private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync(false)).Start();
     }
 }

@@ -56,9 +56,9 @@ namespace DispatchSystem.cl.Windows
             }
         }
 
-        public async Task Resync()
+        public async Task Resync(bool skipTime)
         {
-            if ((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing)
+            if (((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing) && !skipTime)
             {
                 MessageBox.Show($"You must wait 15 seconds before the last sync time \nSeconds to wait: {15 - (DateTime.Now - LastSyncTime).Seconds}", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -72,10 +72,9 @@ namespace DispatchSystem.cl.Windows
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             NetRequestHandler handle = new NetRequestHandler(usrSocket);
+            Tuple<NetRequestResult, List<Bolo>> result = await handle.TryTriggerNetFunction<List<Bolo>>("GetBolos");
             usrSocket.Shutdown(SocketShutdown.Both);
             usrSocket.Close();
-
-            Tuple<NetRequestResult, List<Bolo>> result = await handle.TryTriggerNetFunction<List<Bolo>>("GetBolos");
 
             if (result.Item2 != null)
             {
@@ -88,10 +87,59 @@ namespace DispatchSystem.cl.Windows
             else
                 MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-            usrSocket.Disconnect(true);
             IsCurrentlySyncing = false;
         }
 
-        private void OnReyncClick(object sender, EventArgs e) => new Task(async () => await Resync()).Start();
+        private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync(false)).Start();
+
+        private void OnAddBoloClick(object sender, EventArgs e)
+        {
+            new Task(async () =>
+            {
+                AddRemoveView window = null;
+
+                Invoke((MethodInvoker)delegate
+                {
+                    (window = new AddRemoveView(AddRemoveView.Type.AddBolo)).Show();
+                });
+
+                while (!window.OperationDone)
+                    System.Threading.Thread.Sleep(1000);
+
+                await Resync(true);
+            }).Start();
+        }
+
+        private async void OnRemoveSelectedClick(object sender, EventArgs e)
+        {
+            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(Config.IP, Config.Port); }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+
+            if (bolosView.SelectedItems.Count > 0)
+            {
+                await handle.TryTriggerNetEvent("RemoveBolo", int.Parse(bolosView.SelectedItems[0].SubItems[0].Text));
+            }
+            else
+                MessageBox.Show("You don't have any selected items!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            await Resync(true);
+        }
+
+        private void OnMouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (bolosView.FocusedItem.Bounds.Contains(e.Location) == true)
+                {
+                    rightClickMenu.Show(Cursor.Position);
+                }
+            }
+        }
     }
 }

@@ -38,7 +38,7 @@
             this.plateLabel = new MaterialSkin.Controls.MaterialLabel();
             this.registrationView = new MaterialSkin.Controls.MaterialCheckBox();
             this.insuranceView = new MaterialSkin.Controls.MaterialCheckBox();
-            this.btnResync = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.btnResync = new MaterialSkin.Controls.MaterialFlatButton();
             this.SuspendLayout();
             // 
             // nameLabel
@@ -202,7 +202,8 @@
             this.btnResync.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnResync.Depth = 0;
             this.btnResync.Icon = null;
-            this.btnResync.Location = new System.Drawing.Point(12, 278);
+            this.btnResync.Location = new System.Drawing.Point(292, 277);
+            this.btnResync.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.btnResync.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnResync.Name = "btnResync";
             this.btnResync.Primary = true;
@@ -251,6 +252,6 @@
         private MaterialSkin.Controls.MaterialLabel plateLabel;
         private MaterialSkin.Controls.MaterialCheckBox registrationView;
         private MaterialSkin.Controls.MaterialCheckBox insuranceView;
-        private MaterialSkin.Controls.MaterialRaisedButton btnResync;
+        private MaterialSkin.Controls.MaterialFlatButton btnResync;
     }
 }

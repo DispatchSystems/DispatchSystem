@@ -46,7 +46,7 @@
             this.descColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ticketsLabel = new MaterialSkin.Controls.MaterialLabel();
             this.btnAddNote = new MaterialSkin.Controls.MaterialRaisedButton();
-            this.btnResync = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.btnResync = new MaterialSkin.Controls.MaterialFlatButton();
             noteColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
@@ -277,7 +277,7 @@
             this.btnAddNote.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnAddNote.Depth = 0;
             this.btnAddNote.Icon = null;
-            this.btnAddNote.Location = new System.Drawing.Point(105, 514);
+            this.btnAddNote.Location = new System.Drawing.Point(13, 514);
             this.btnAddNote.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnAddNote.Name = "btnAddNote";
             this.btnAddNote.Primary = true;
@@ -293,7 +293,8 @@
             this.btnResync.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnResync.Depth = 0;
             this.btnResync.Icon = null;
-            this.btnResync.Location = new System.Drawing.Point(12, 514);
+            this.btnResync.Location = new System.Drawing.Point(372, 514);
+            this.btnResync.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
             this.btnResync.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnResync.Name = "btnResync";
             this.btnResync.Primary = true;
@@ -354,6 +355,6 @@
         private System.Windows.Forms.ColumnHeader amountColumn;
         private System.Windows.Forms.ColumnHeader descColumn;
         private MaterialSkin.Controls.MaterialRaisedButton btnAddNote;
-        private MaterialSkin.Controls.MaterialRaisedButton btnResync;
+        private MaterialSkin.Controls.MaterialFlatButton btnResync;
     }
 }

@@ -99,7 +99,9 @@ namespace DispatchSystem.cl.Windows
 
             this.Hide();
             this.OperationDone = true;
-            usrSocket.Disconnect(true);
+
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
         }
     }
 }
