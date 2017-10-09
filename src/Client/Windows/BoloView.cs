@@ -90,11 +90,11 @@ namespace DispatchSystem.cl.Windows
             IsCurrentlySyncing = false;
         }
 
-        private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync(false)).Start();
+        private void OnResyncClick(object sender, EventArgs e) => new Task(async delegate { await Resync(false); }).Start();
 
         private void OnAddBoloClick(object sender, EventArgs e)
         {
-            new Task(async () =>
+            new Task(delegate
             {
                 AddRemoveView window = null;
 
@@ -102,11 +102,10 @@ namespace DispatchSystem.cl.Windows
                 {
                     (window = new AddRemoveView(AddRemoveView.Type.AddBolo)).Show();
                 });
-
-                while (!window.OperationDone)
-                    System.Threading.Thread.Sleep(1000);
-
-                await Resync(true);
+                window.FormClosed += async delegate
+                {
+                    await Resync(true);
+                };
             }).Start();
         }
 
