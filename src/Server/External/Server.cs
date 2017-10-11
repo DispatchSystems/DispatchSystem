@@ -96,11 +96,14 @@ namespace DispatchSystem.sv.External
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
                 return null;
+#if DEBUG
             Log.WriteLine("Get civilian Request Recieved");
+#else
+            Log.WriteLineSilent("Get civilian Request Recieved");
+#endif
 
             string first = (string)args[0];
             string last = (string)args[1];
-            Log.WriteLine($"{first}, {last}");
 
             Civilian civ = DispatchSystem.GetCivilianByName(first, last);
             if (civ != null)
@@ -127,7 +130,11 @@ namespace DispatchSystem.sv.External
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
                 return null;
+#if DEBUG
             Log.WriteLine("Get civilian veh Request Recieved");
+#else
+            Log.WriteLineSilent("Get civilian veh Request Recieved");
+#endif
 
             string plate = (string)args[0];
 
@@ -156,7 +163,11 @@ namespace DispatchSystem.sv.External
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
                 return null;
+#if DEBUG
             Log.WriteLine("Get bolos Request Recieved");
+#else
+            Log.WriteLineSilent("Get bolos Request Recieved");
+#endif
 
             return DispatchSystem.ActiveBolos;
         }
@@ -165,12 +176,20 @@ namespace DispatchSystem.sv.External
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
                 return;
+#if DEBUG
             Log.WriteLine("Add bolo Request Recieved");
+#else
+            Log.WriteLineSilent("Add bolo Request Recieved");
+#endif
 
             string player = (string)args[0];
             string bolo = (string)args[1];
 
+#if DEBUG
+            Log.WriteLine($"Adding new Bolo for \"{bolo}\"");
+#else
             Log.WriteLineSilent($"Adding new Bolo for \"{bolo}\"");
+#endif
             DispatchSystem.ActiveBolos.Add(new Bolo(player, string.Empty, bolo));
         }
         private async Task RemoveBolo(NetRequestHandler sender, object[] args)
@@ -178,19 +197,42 @@ namespace DispatchSystem.sv.External
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
                 return;
+#if DEBUG
             Log.WriteLine("Remove bolo Request Recieved");
+#else
+            Log.WriteLineSilent("Remove bolo Request Recieved");
+#endif
 
             int parse = (int)args[0];
 
-            try { DispatchSystem.ActiveBolos.RemoveAt(parse); Log.WriteLine("Removed Active BOLO from the List"); }
-            catch (ArgumentOutOfRangeException) { Log.WriteLine("Index for BOLO not found, not removing..."); }
+            try
+            {
+                DispatchSystem.ActiveBolos.RemoveAt(parse);
+#if DEBUG
+                Log.WriteLine("Removed Active BOLO from the List");
+#else
+                Log.WriteLineSilent("Removed Active BOLO from the List");
+#endif
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+#if DEBUG
+                Log.WriteLine("Index for BOLO not found, not removing...");
+#else
+                Log.WriteLineSilent("Index for BOLO not found, not removing...");
+#endif
+            }
         }
         private async Task AddNote(NetRequestHandler sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
                 return;
+#if DEBUG
             Log.WriteLine("Add Civilian note Request Recieved");
+#else
+            Log.WriteLineSilent("Add Civilian note Request Recieved");
+#endif
 
             string[] name = new[] { (string)args[0], (string)args[1] };
             string note = (string)args[2];
@@ -199,11 +241,19 @@ namespace DispatchSystem.sv.External
 
             if (civ != null)
             {
+#if DEBUG
                 Log.WriteLine($"Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
+#else
+                Log.WriteLineSilent($"Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
+#endif
                 civ.Notes.Add(note);
             }
             else
+#if DEBUG
                 Log.WriteLine("Civilian not found, not adding note...");
+#else
+                Log.WriteLineSilent("Civilian not found, not adding note...");
+#endif
         }
 
         private bool CheckAndDispose(NetRequestHandler sender)
