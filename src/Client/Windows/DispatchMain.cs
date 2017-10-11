@@ -159,7 +159,7 @@ namespace DispatchSystem.cl.Windows
 
         private void OnPlateKeyPress(object sender, KeyPressEventArgs e)
         {
-            if ((!char.IsControl(e.KeyChar) && !char.IsLetterOrDigit(e.KeyChar)) || (plate.Text.Length >= 8 && !e.KeyChar.Equals('\b')))
+            if ((!char.IsControl(e.KeyChar) && !char.IsLetterOrDigit(e.KeyChar) && e.KeyChar != ' ') || (plate.Text.Length >= 8 && !e.KeyChar.Equals('\b')))
             {
                 e.Handled = true;
                 
