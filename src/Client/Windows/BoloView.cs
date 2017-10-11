@@ -46,8 +46,7 @@ namespace DispatchSystem.cl.Windows
 
                 for (int i = 0; i < bolos.Count; i++)
                 {
-                    ListViewItem lvi = new ListViewItem(i.ToString());
-                    lvi.SubItems.Add(bolos[i].Player);
+                    ListViewItem lvi = new ListViewItem(bolos[i].Player);
                     lvi.SubItems.Add(bolos[i].Reason);
                     lvis.Add(lvi);
                 }

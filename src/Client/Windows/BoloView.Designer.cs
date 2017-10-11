@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.bolosView = new MaterialSkin.Controls.MaterialListView();
-            this.index = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.author = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.bolo = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.btnResync = new MaterialSkin.Controls.MaterialFlatButton();
@@ -43,7 +42,6 @@
             // 
             this.bolosView.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.bolosView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.index,
             this.author,
             this.bolo});
             this.bolosView.Depth = 0;
@@ -60,11 +58,6 @@
             this.bolosView.UseCompatibleStateImageBehavior = false;
             this.bolosView.View = System.Windows.Forms.View.Details;
             this.bolosView.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OnMouseClick);
-            // 
-            // index
-            // 
-            this.index.Text = "Index";
-            this.index.Width = 100;
             // 
             // author
             // 
@@ -117,12 +110,12 @@
             this.btnRemoveSelected});
             this.rightClickMenu.MouseState = MaterialSkin.MouseState.HOVER;
             this.rightClickMenu.Name = "rightClickMenu";
-            this.rightClickMenu.Size = new System.Drawing.Size(153, 48);
+            this.rightClickMenu.Size = new System.Drawing.Size(118, 26);
             // 
             // btnRemoveSelected
             // 
             this.btnRemoveSelected.Name = "btnRemoveSelected";
-            this.btnRemoveSelected.Size = new System.Drawing.Size(152, 22);
+            this.btnRemoveSelected.Size = new System.Drawing.Size(117, 22);
             this.btnRemoveSelected.Text = "Remove";
             this.btnRemoveSelected.Click += new System.EventHandler(this.OnRemoveSelectedClick);
             // 
@@ -147,7 +140,6 @@
         #endregion
 
         private MaterialSkin.Controls.MaterialListView bolosView;
-        private System.Windows.Forms.ColumnHeader index;
         private System.Windows.Forms.ColumnHeader author;
         private System.Windows.Forms.ColumnHeader bolo;
         private MaterialSkin.Controls.MaterialFlatButton btnResync;
