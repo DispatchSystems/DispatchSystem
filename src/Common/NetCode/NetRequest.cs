@@ -5,10 +5,10 @@ using DispatchSystem.Common.DataHolders;
 namespace DispatchSystem.Common.NetCode
 {
     [Serializable]
-    public enum NetRequestMetadata { InvocationRequest, InvocationReturn, ValueRequest, ValueReturn, FunctionRequest, FunctionReturn }
+    public enum NetRequestMetadata { InvocationRequest, InvocationReturn, ValueRequest, ValueReturn, FunctionRequest, FunctionReturn, PropertyRequest, PropertyReturn }
 
     [Serializable]
-    public enum NetRequestResult { Invalid, Incompleted, Completed }
+    public enum NetRequestResult { Invalid, Incompleted, Completed, Disconnected }
 
     [Serializable]
     public class NetRequest

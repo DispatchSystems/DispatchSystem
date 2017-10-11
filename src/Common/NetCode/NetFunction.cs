@@ -15,7 +15,7 @@ namespace DispatchSystem.Common.NetCode
 
         public static NetFunction operator +(NetFunction netProperty, Func<NetRequestHandler, object[], Task<object>> functionCallback)
         {
-            netProperty.Callback = (functionCallback);
+            netProperty.Callback = functionCallback;
             return netProperty;
         }
 
