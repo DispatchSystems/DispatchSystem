@@ -1,26 +1,13 @@
-﻿#define DEBUG
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using System.Threading.Tasks;
 
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-using System.IO;
 
 using Config.Reader;
-using CitizenFX.Core;
-using CitizenFX.Core.Native;
-
-using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
 using DispatchSystem.Common.NetCode;
-using DispatchSystem.Common;
 
 namespace DispatchSystem.sv.External
 {
@@ -104,7 +91,7 @@ namespace DispatchSystem.sv.External
             string first = (string)args[0];
             string last = (string)args[1];
 
-            Civilian civ = DispatchSystem.GetCivilianByName(first, last);
+            Civilian civ = Common.GetCivilianByName(first, last);
             if (civ != null)
             {
 #if DEBUG
@@ -137,7 +124,7 @@ namespace DispatchSystem.sv.External
 
             string plate = (string)args[0];
 
-            CivilianVeh civVeh = DispatchSystem.GetCivilianVehByPlate(plate);
+            CivilianVeh civVeh = Common.GetCivilianVehByPlate(plate);
             if (civVeh != null)
             {
 #if DEBUG
@@ -236,7 +223,7 @@ namespace DispatchSystem.sv.External
             string[] name = new[] { (string)args[0], (string)args[1] };
             string note = (string)args[2];
 
-            Civilian civ = DispatchSystem.GetCivilianByName(name[0], name[1]);
+            Civilian civ = Common.GetCivilianByName(name[0], name[1]);
 
             if (civ != null)
             {
