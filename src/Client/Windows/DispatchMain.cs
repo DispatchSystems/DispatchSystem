@@ -27,6 +27,8 @@ namespace DispatchSystem.cl.Windows
     {
         Socket usrSocket;
 
+        BoloView boloWindow = null;
+
         public DispatchMain()
         {
             this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
@@ -95,6 +97,12 @@ namespace DispatchSystem.cl.Windows
 
         private async void OnViewBolosClick(object sender, EventArgs e)
         {
+            if (boloWindow != null)
+            {
+                MessageBox.Show("You cannot have 2 instances of the Bolos window open at the same time!\nTry pressing the Resync button inside your bolo window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+
             usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
@@ -109,7 +117,8 @@ namespace DispatchSystem.cl.Windows
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    new BoloView(result.Item2).Show();
+                    (boloWindow = new BoloView(result.Item2)).Show();
+                    boloWindow.FormClosed += delegate { boloWindow = null; };
                 });
             }
             else
