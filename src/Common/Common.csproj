@@ -41,9 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataHolders\IOwnable.cs" />
-    <Compile Include="DataHolders\Requesting\CivilianRequest.cs" />
-    <Compile Include="DataHolders\Requesting\CivilianVehRequest.cs" />
-    <Compile Include="DataHolders\Requesting\DataRequest.cs" />
     <Compile Include="DataHolders\IDataHolder.cs" />
     <Compile Include="DataHolders\Storage\Bolo.cs" />
     <Compile Include="DataHolders\Storage\Civilian.cs" />
