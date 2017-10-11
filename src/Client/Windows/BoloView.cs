@@ -118,7 +118,7 @@ namespace DispatchSystem.cl.Windows
 
             if (bolosView.SelectedItems.Count > 0)
             {
-                await handle.TryTriggerNetEvent("RemoveBolo", int.Parse(bolosView.SelectedItems[0].SubItems[0].Text));
+                await handle.TryTriggerNetEvent("RemoveBolo", 0);
             }
             else
                 MessageBox.Show("You don't have any selected items!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
