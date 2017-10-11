@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataHolders\IOwnable.cs" />
     <Compile Include="DataHolders\Requesting\CivilianRequest.cs" />
     <Compile Include="DataHolders\Requesting\CivilianVehRequest.cs" />
     <Compile Include="DataHolders\Requesting\DataRequest.cs" />

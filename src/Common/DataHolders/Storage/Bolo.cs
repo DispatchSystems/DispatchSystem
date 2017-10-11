@@ -7,19 +7,21 @@ using System.Threading.Tasks;
 namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public class Bolo : IDataHolder
+    public class Bolo : IDataHolder, IOwnable
     {
         string _player;
         string _reason;
         DateTime _creation;
 
+        public string SourceIP { get; }
         public string Player => _player;
         public string Reason => _reason;
         public DateTime Creation => _creation;
 
-        public Bolo(string player, string reason)
+        public Bolo(string playerName, string createrIp, string reason)
         {
-            _player = player;
+            _player = playerName;
+            SourceIP = string.IsNullOrWhiteSpace(createrIp) ? string.Empty : createrIp;
             _reason = reason;
             _creation = DateTime.Now;
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public class CivilianVeh : CivilianBase, IDataHolder
+    public class CivilianVeh : CivilianBase, IDataHolder, IOwnable
     {
         public Civilian Owner { get; set; }
         protected string _plate;

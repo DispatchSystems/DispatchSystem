@@ -49,12 +49,12 @@ namespace DispatchSystem.sv
         protected static Permissions perms;
         private static Server server;
 
-        internal static List<Bolo> bolos;
+        internal static StorageManager<Bolo> bolos;
         internal static StorageManager<Civilian> civs;
         internal static StorageManager<CivilianVeh> civVehs;
         public static ReadOnlyCollection<Civilian> Civilians => new ReadOnlyCollection<Civilian>(civs);
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
-        public static List<Bolo> ActiveBolos => bolos;
+        public static StorageManager<Bolo> ActiveBolos => bolos;
 
         private Dictionary<string, (Command, CommandType)> commands;
 
@@ -247,13 +247,13 @@ namespace DispatchSystem.sv
                     return;
                 }
 
-                bolos.Add(new Bolo(p.Name, string.Join(" ", args)));
+                bolos.Add(new Bolo(p.Name, p.Identifiers["ip"], string.Join(" ", args)));
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"BOLO for \"{string.Join(" ", args)}\" added");
             }, CommandType.Leo));
             commands.Add("/bolos", ((p, args) =>
             {
                 if (bolos.Count > 0)
-                    bolos.ForEach(x => SendMessage(p, "", new[] { 0, 0, 0 }, $"^8{x.Player}^7: ^3{x.Reason}"));
+                    bolos.ToList().ForEach(x => SendMessage(p, "", new[] { 0, 0, 0 }, $"^8{x.Player}^7: ^3{x.Reason}"));
                 else
                     SendMessage(p, "", new[] { 0, 0, 0 }, "^7None");
             }, CommandType.Leo));
@@ -306,7 +306,7 @@ namespace DispatchSystem.sv
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
             commands = new Dictionary<string, (Command, CommandType)>();
-            bolos = new List<Bolo>();
+            bolos = new StorageManager<Bolo>();
         }
 
         #region Event Methods

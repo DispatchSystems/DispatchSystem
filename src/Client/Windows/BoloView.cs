@@ -22,12 +22,12 @@ namespace DispatchSystem.cl.Windows
 {
     public partial class BoloView : MaterialForm, ISyncable
     {
-        List<Bolo> bolos = new List<Bolo>();
+        StorageManager<Bolo> bolos = new StorageManager<Bolo>();
 
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
-        public BoloView(List<Bolo> data)
+        public BoloView(StorageManager<Bolo> data)
         {
             this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
@@ -72,7 +72,7 @@ namespace DispatchSystem.cl.Windows
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             NetRequestHandler handle = new NetRequestHandler(usrSocket);
-            Tuple<NetRequestResult, List<Bolo>> result = await handle.TryTriggerNetFunction<List<Bolo>>("GetBolos");
+            Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
             usrSocket.Shutdown(SocketShutdown.Both);
             usrSocket.Close();
 

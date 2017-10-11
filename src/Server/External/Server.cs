@@ -318,7 +318,7 @@ namespace DispatchSystem.sv.External
             string bolo = (string)args[1];
 
             Log.WriteLineSilent($"Adding new Bolo for \"{bolo}\"");
-            DispatchSystem.ActiveBolos.Add(new Bolo(player, bolo));
+            DispatchSystem.ActiveBolos.Add(new Bolo(player, string.Empty, bolo));
         }
         private async Task RemoveBolo(NetRequestHandler sender, object[] args)
         {

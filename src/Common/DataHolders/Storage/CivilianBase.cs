@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public abstract class CivilianBase : IDataHolder
+    public abstract class CivilianBase : IDataHolder, IOwnable
     {
         public virtual string SourceIP { get; protected set; }
         public abstract DateTime Creation { get; }

@@ -101,7 +101,7 @@ namespace DispatchSystem.cl.Windows
 
             NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
-            Tuple<NetRequestResult, List<Bolo>> result = await handle.TryTriggerNetFunction<List<Bolo>>("GetBolos");
+            Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
             usrSocket.Shutdown(SocketShutdown.Both);
             usrSocket.Close();
 
