@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="DispatchSystem\Events.cs" />
     <Compile Include="DispatchSystem\Init.cs" />

@@ -282,7 +282,7 @@ namespace DispatchSystem.sv
         }
         #endregion
 
-        private void OnChatMessage(int source, string n, string msg)
+        private async void OnChatMessage(int source, string n, string msg)
         {
             Player p = this.Players[source];
             var args = msg.Split(' ').ToList();
@@ -292,31 +292,31 @@ namespace DispatchSystem.sv
             if (commands.ContainsKey(cmd))
             {
                 CancelEvent();
-                if (commands[cmd].Item2 == CommandType.Civilian)
+                if (commands[cmd].Type == CommandType.Civilian)
                 {
                     if (perms.CivilianPermission == Permission.Specific)
                     {
                         if (perms.CivContains(IPAddress.Parse(p.Identifiers["ip"])))
-                            commands[cmd].Item1.Invoke(p, args.ToArray());
+                            await commands[cmd].Callback(p, args.ToArray());
                         else
                             SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
                     }
                     else if (perms.CivilianPermission == Permission.Everyone)
-                        commands[cmd].Item1.Invoke(p, args.ToArray());
+                        await commands[cmd].Callback(p, args.ToArray());
                     else
                         SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
                 }
-                else if (commands[cmd].Item2 == CommandType.Leo)
+                else if (commands[cmd].Type == CommandType.Leo)
                 {
                     if (perms.LeoPermission == Permission.Specific)
                     {
                         if (perms.LeoContains(IPAddress.Parse(p.Identifiers["ip"])))
-                            commands[cmd].Item1.Invoke(p, args.ToArray());
+                            await commands[cmd].Callback(p, args.ToArray());
                         else
                             SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
                     }
                     else if (perms.LeoPermission == Permission.Everyone)
-                        commands[cmd].Item1.Invoke(p, args.ToArray());
+                        await commands[cmd].Callback(p, args.ToArray());
                     else
                         SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
                 }

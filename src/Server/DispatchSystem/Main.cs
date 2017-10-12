@@ -33,13 +33,6 @@ using static DispatchSystem.sv.Common;
 
 namespace DispatchSystem.sv
 {
-    internal delegate void Command(Player player, string[] args);
-    internal enum CommandType
-    {
-        Leo,
-        Civilian
-    }
-
     public partial class DispatchSystem : BaseScript
     {
         public DispatchSystem()
