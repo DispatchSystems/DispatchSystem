@@ -54,13 +54,18 @@ namespace DispatchSystem.cl.Windows
 
             if (result.Item2 != null)
             {
-                Invoke((MethodInvoker)delegate
+                if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
                 {
-                    new CivView(result.Item2).Show();
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        new CivView(result.Item2).Show();
+                    });
+                }
+                else
+                    MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
-                MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             firstName.ResetText();
             lastName.ResetText();
@@ -83,13 +88,18 @@ namespace DispatchSystem.cl.Windows
 
             if (result.Item2 != null)
             {
-                Invoke((MethodInvoker)delegate
+                if (!(string.IsNullOrEmpty(result.Item2.Plate)))
                 {
-                    new CivVehView(result.Item2).Show();
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        new CivVehView(result.Item2).Show();
+                    });
+                }
+                else
+                    MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
             else
-                MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Invalid Request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             plate.ResetText();
         }

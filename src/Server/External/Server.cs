@@ -108,7 +108,7 @@ namespace DispatchSystem.sv.External
 #else
                 Log.WriteLineSilent("Civilian not found, sending null");
 #endif
-                return null;
+                return Civilian.Empty;
             }
         }
         private async Task<object> GetCivilianVeh(NetRequestHandler sender, object[] args)
@@ -141,7 +141,7 @@ namespace DispatchSystem.sv.External
 #else
                 Log.WriteLineSilent("Civilian Veh not found, sending null");
 #endif
-                return null;
+                return CivilianVeh.Empty;
             }
         }
         private async Task<object> GetBolos(NetRequestHandler sender, object[] args)

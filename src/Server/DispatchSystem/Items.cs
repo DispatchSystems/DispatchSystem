@@ -16,7 +16,7 @@ namespace DispatchSystem.sv
     {
         protected static iniconfig cfg;
         protected static Permissions perms;
-        private static Server server;
+        protected static Server server;
 
         internal static StorageManager<Bolo> bolos;
         internal static StorageManager<Civilian> civs;
@@ -25,6 +25,6 @@ namespace DispatchSystem.sv
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
         public static StorageManager<Bolo> ActiveBolos => bolos;
 
-        private Dictionary<string, (Command, CommandType)> commands;
+        private Dictionary<string, Command> commands;
     }
 }

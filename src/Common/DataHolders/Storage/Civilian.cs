@@ -14,6 +14,8 @@ namespace DispatchSystem.Common.DataHolders.Storage
         {
             get
             {
+                if (string.IsNullOrWhiteSpace(_first))
+                    return string.Empty;
                 char[] str = _first.ToCharArray();
                 for (int i = 0; i < str.Length; i++)
                 {
@@ -31,6 +33,8 @@ namespace DispatchSystem.Common.DataHolders.Storage
         {
             get
             {
+                if (string.IsNullOrWhiteSpace(_last))
+                    return string.Empty;
                 char[] str = _last.ToCharArray();
                 for (int i = 0; i < str.Length; i++)
                 {
@@ -139,5 +143,11 @@ namespace DispatchSystem.Common.DataHolders.Storage
         {
             return new[] { (object)First, (object)Last, (object)WarrantStatus, (object)CitationCount, (object)Notes, (object)Tickets };
         }
+
+        // Below is for communcation reasons between server and client
+        // [NonSerialized]
+        public static readonly Civilian Empty = new Civilian(null);
+        // [NonSerialized]
+        public static readonly Civilian Null = null;
     }
 }

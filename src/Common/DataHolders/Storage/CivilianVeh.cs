@@ -11,7 +11,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
     {
         public Civilian Owner { get; set; }
         protected string _plate;
-        public string Plate { get => _plate.ToUpper(); set => _plate = value; }
+        public string Plate { get => string.IsNullOrEmpty(_plate) ? string.Empty : _plate.ToUpper(); set => _plate = value; }
         public bool StolenStatus { get; set; }
         public bool Registered { get; set; }
         public bool Insured { get; set; }
@@ -43,5 +43,11 @@ namespace DispatchSystem.Common.DataHolders.Storage
         {
             return new[] { (object)Owner, (object)Plate, (object)StolenStatus, (object)Registered, (object)Insured };
         }
+
+        // Below is for communcation reasons between server and client
+        [NonSerialized]
+        public static readonly CivilianVeh Empty = new CivilianVeh(null);
+        [NonSerialized]
+        public static readonly CivilianVeh Null = null;
     }
 }
