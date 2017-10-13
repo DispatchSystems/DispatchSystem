@@ -27,6 +27,7 @@ namespace DispatchSystem.cl.Windows
         Socket usrSocket;
 
         BoloView boloWindow = null;
+        MultiOfficerView officersWindow = null;
 
         public DispatchMain()
         {
@@ -108,7 +109,8 @@ namespace DispatchSystem.cl.Windows
         {
             if (boloWindow != null)
             {
-                MessageBox.Show("You cannot have 2 instances of the Bolos window open at the same time!\nTry pressing the Resync button inside your bolo window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                MessageBox.Show("You cannot have 2 instances of the Bolos window open at the same time!\n" +
+                    "Try pressing the Resync button inside your bolo window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return;
             }
 
@@ -133,21 +135,35 @@ namespace DispatchSystem.cl.Windows
             else
                 MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-
-        private void OnRemoveBoloClick(object sender, EventArgs e)
+        private async void OnViewOfficersClick(object sender, EventArgs e)
         {
-            Invoke((MethodInvoker)delegate
+            if (officersWindow != null)
             {
-                new AddRemoveView(AddRemoveView.Type.RemoveBolo).Show();
-            });
-        }
+                MessageBox.Show("You cannot have 2 instances of the Officers window open at the same time!\n" +
+                    "Try pressing the Resync button inside your officers window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
 
-        private void OnAddBoloClick(object sender, EventArgs e)
-        {
-            Invoke((MethodInvoker)delegate
+            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(Config.IP, Config.Port); }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+
+            Tuple<NetRequestResult, StorageManager<Officer>> result = await handle.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            if (result.Item2 != null)
             {
-                new AddRemoveView(AddRemoveView.Type.AddBolo).Show();
-            });
+                Invoke((MethodInvoker)delegate
+                {
+                    (officersWindow = new MultiOfficerView(result.Item2)).Show();
+                    officersWindow.FormClosed += delegate { officersWindow = null; };
+                });
+            }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void OnFirstNameKeyPress(object sender, KeyPressEventArgs e)

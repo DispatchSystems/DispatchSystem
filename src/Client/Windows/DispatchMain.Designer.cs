@@ -38,6 +38,9 @@
             this.materialDivider1 = new MaterialSkin.Controls.MaterialDivider();
             this.btnViewBolos = new MaterialSkin.Controls.MaterialRaisedButton();
             this.boloLabel = new MaterialSkin.Controls.MaterialLabel();
+            this.materialDivider2 = new MaterialSkin.Controls.MaterialDivider();
+            this.cadLabel = new MaterialSkin.Controls.MaterialLabel();
+            this.viewOfficers = new MaterialSkin.Controls.MaterialRaisedButton();
             this.SuspendLayout();
             // 
             // civLabel
@@ -195,6 +198,46 @@
             this.boloLabel.TabIndex = 11;
             this.boloLabel.Text = "BOLO Options:";
             // 
+            // materialDivider2
+            // 
+            this.materialDivider2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialDivider2.Depth = 0;
+            this.materialDivider2.Location = new System.Drawing.Point(173, 297);
+            this.materialDivider2.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialDivider2.Name = "materialDivider2";
+            this.materialDivider2.Size = new System.Drawing.Size(17, 73);
+            this.materialDivider2.TabIndex = 12;
+            this.materialDivider2.Text = "materialDivider2";
+            // 
+            // cadLabel
+            // 
+            this.cadLabel.AutoSize = true;
+            this.cadLabel.Depth = 0;
+            this.cadLabel.Font = new System.Drawing.Font("Roboto", 11F);
+            this.cadLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.cadLabel.Location = new System.Drawing.Point(216, 297);
+            this.cadLabel.MouseState = MaterialSkin.MouseState.HOVER;
+            this.cadLabel.Name = "cadLabel";
+            this.cadLabel.Size = new System.Drawing.Size(99, 19);
+            this.cadLabel.TabIndex = 14;
+            this.cadLabel.Text = "CAD Options:";
+            // 
+            // viewOfficers
+            // 
+            this.viewOfficers.AutoSize = true;
+            this.viewOfficers.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.viewOfficers.Depth = 0;
+            this.viewOfficers.Icon = null;
+            this.viewOfficers.Location = new System.Drawing.Point(220, 334);
+            this.viewOfficers.MouseState = MaterialSkin.MouseState.HOVER;
+            this.viewOfficers.Name = "viewOfficers";
+            this.viewOfficers.Primary = true;
+            this.viewOfficers.Size = new System.Drawing.Size(119, 36);
+            this.viewOfficers.TabIndex = 13;
+            this.viewOfficers.Text = "View Officers";
+            this.viewOfficers.UseVisualStyleBackColor = true;
+            this.viewOfficers.Click += new System.EventHandler(this.OnViewOfficersClick);
+            // 
             // DispatchMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -202,6 +245,9 @@
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(505, 382);
+            this.Controls.Add(this.cadLabel);
+            this.Controls.Add(this.viewOfficers);
+            this.Controls.Add(this.materialDivider2);
             this.Controls.Add(this.boloLabel);
             this.Controls.Add(this.btnViewBolos);
             this.Controls.Add(this.materialDivider1);
@@ -234,5 +280,8 @@
         private MaterialSkin.Controls.MaterialDivider materialDivider1;
         private MaterialSkin.Controls.MaterialRaisedButton btnViewBolos;
         private MaterialSkin.Controls.MaterialLabel boloLabel;
+        private MaterialSkin.Controls.MaterialDivider materialDivider2;
+        private MaterialSkin.Controls.MaterialLabel cadLabel;
+        private MaterialSkin.Controls.MaterialRaisedButton viewOfficers;
     }
 }

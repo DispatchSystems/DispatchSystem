@@ -7,12 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net.Sockets;
 
 using MaterialSkin;
 using MaterialSkin.Controls;
-
-using System.Net;
-using System.Net.Sockets;
 
 using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
@@ -20,61 +18,36 @@ using DispatchSystem.Common.NetCode;
 
 namespace DispatchSystem.cl.Windows
 {
-    public partial class CivView : MaterialForm, ISyncable
+    public partial class MultiOfficerView : MaterialForm, ISyncable
     {
-        public bool IsCurrentlySyncing { get; private set; }
-        public DateTime LastSyncTime { get; private set; } = DateTime.Now;
+        StorageManager<Officer> data;
 
-        Civilian data;
-
-        public CivView(Civilian civData)
+        public MultiOfficerView(StorageManager<Officer> input)
         {
             this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
-
-            this.data = civData;
-
+            data = input;
             UpdateCurrentInformation();
         }
 
+        public bool IsCurrentlySyncing { get; private set; }
+        public DateTime LastSyncTime { get; private set; } = DateTime.Now;
+
         public void UpdateCurrentInformation()
         {
-            firstNameView.ResetText();
-            lastNameView.ResetText();
-            citationsView.ResetText();
-            if (notesView.Items.Count != data.Notes.Count())
-                notesView.Items.Clear();
-            if (ticketsView.Items.Count != data.Tickets.Count())
-                ticketsView.Items.Clear();
+            List<ListViewItem> lvis = new List<ListViewItem>();
 
-            firstNameView.Text = data.First;
-            lastNameView.Text = data.Last;
-            wantedView.Checked = data.WarrantStatus;
-            citationsView.Text = data.CitationCount.ToString();
+            officers.Items.Clear();
 
-            if (data.Notes.Count != 0 && notesView.Items.Count != data.Notes.Count)
+            for (int i = 0; i < data.Count; i++)
             {
-                data.Notes.ToList().ForEach(x => notesView.Items.Add(x));
+                ListViewItem lvi = new ListViewItem(data[i].PlayerName);
+                lvi.SubItems.Add(data[i].Status == OfficerStatus.OffDuty ? "Off Duty" : data[i].Status == OfficerStatus.OnDuty ? "On Duty" : "Busy");
+                lvis.Add(lvi);
             }
 
-            if (data.Tickets.Count != 0 && ticketsView.Items.Count != data.Tickets.Count())
-            {
-                foreach (var item in data.Tickets)
-                {
-                    ListViewItem li = new ListViewItem($"${item.Item2.ToString()}");
-                    li.SubItems.Add(item.Item1);
-                    ticketsView.Items.Add(li);
-                }
-            }
-        }
-
-        private void OnAddNoteClick(object sender, EventArgs e)
-        {
-            Invoke((MethodInvoker)delegate
-            {
-                new AddRemoveView(AddRemoveView.Type.AddNote, data.First, data.Last).Show();
-            });
+            officers.Items.AddRange(lvis.ToArray());
         }
 
         public async Task Resync(bool skipTime)
@@ -88,15 +61,13 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            if (string.IsNullOrWhiteSpace(firstNameView.Text) || string.IsNullOrWhiteSpace(lastNameView.Text))
-                return;
-
             Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
             NetRequestHandler handle = new NetRequestHandler(usrSocket);
-            Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
+
+            Tuple<NetRequestResult, StorageManager<Officer>> result = await handle.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
             usrSocket.Shutdown(SocketShutdown.Both);
             usrSocket.Close();
 
@@ -109,7 +80,7 @@ namespace DispatchSystem.cl.Windows
                 });
             }
             else
-                MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -118,7 +89,7 @@ namespace DispatchSystem.cl.Windows
 #if DEBUG
             await Resync(true);
 #else
-            await Resync(true);
+            await Resync(false);
 #endif
     }
 }

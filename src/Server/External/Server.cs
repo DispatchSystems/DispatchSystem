@@ -64,6 +64,8 @@ namespace DispatchSystem.sv.External
             net.Functions.Add("GetCivilian", new NetFunction(GetCivilian));
             net.Functions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
             net.Functions.Add("GetBolos", new NetFunction(GetBolos));
+            net.Functions.Add("GetOfficers", new NetFunction(GetOfficers));
+            net.Events.Add("SetStatus", new NetEvent(ChangeOfficerStatus));
             net.Events.Add("AddBolo", new NetEvent(AddBolo));
             net.Events.Add("RemoveBolo", new NetEvent(RemoveBolo));
             net.Events.Add("AddNote", new NetEvent(AddNote));
@@ -156,6 +158,66 @@ namespace DispatchSystem.sv.External
 #endif
 
             return DispatchSystem.ActiveBolos;
+        }
+        private async Task<object> GetOfficers(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+
+#if DEBUG
+            Log.WriteLine("Get officers Request Received");
+#else
+            Log.WriteLineSilent("Get officers Request Received");
+#endif
+
+            return DispatchSystem.officers;
+        }
+        private async Task ChangeOfficerStatus(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+
+#if DEBUG
+            Log.WriteLine("Change officer status Request Received");
+#else
+            Log.WriteLineSilent("Change officer status Request Received");
+#endif
+
+            int index = 0;
+            Officer ofc = (Officer)args[0];
+            OfficerStatus status = (OfficerStatus)args[1];
+
+            try { index = DispatchSystem.officers.IndexOf(ofc); }
+            catch (IndexOutOfRangeException)
+            {
+#if DEBUG
+                Log.WriteLine("Officer not found, aborting...");
+#else
+                Log.WriteLineSilent("Officer not found, aborting...");
+#endif
+
+                return;
+            }
+
+            if (DispatchSystem.officers[index].Status != status)
+            {
+                DispatchSystem.officers[index].Status = status;
+#if DEBUG
+                Log.WriteLine("Setting officer status to " + status.ToString());
+#else
+                Log.WriteLineSilent("Setting officer status to " + status.ToString());
+#endif
+            }
+            else
+            {
+#if DEBUG
+                Log.WriteLine("Officer status already set to the incoming status");
+#else
+                Log.WriteLineSilent("Officer status already set to the incoming status");
+#endif
+            }
         }
         private async Task AddBolo(NetRequestHandler sender, object[] args)
         {

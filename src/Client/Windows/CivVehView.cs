@@ -83,6 +83,11 @@ namespace DispatchSystem.cl.Windows
             IsCurrentlySyncing = false;
         }
 
-        private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync(false)).Start();
+        private async void OnResyncClick(object sender, EventArgs e) =>
+#if DEBUG
+            await Resync(true);
+#else
+            await Resync(false);
+#endif
     }
 }
