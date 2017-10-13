@@ -62,29 +62,6 @@ namespace DispatchSystem.Common.DataHolders.Storage
             Creation = DateTime.Now;
         }
 
-        public override string ToString()
-        {
-            string[] strOut = new string[6];
-            strOut[0] = string.IsNullOrWhiteSpace(First) || string.IsNullOrWhiteSpace(Last) ? "?,?" : $"{First},{Last}";
-            strOut[1] = WarrantStatus.ToString();
-            strOut[2] = CitationCount.ToString();
-            strOut[3] = Notes.Count == 0 ? "?" : string.Join("\\", Notes.ToArray());
-            strOut[4] = Tickets.Count == 0 ? "?" : string.Empty;
-            if (strOut[4] == string.Empty)
-            {
-                List<string> x = new List<string>();
-
-                foreach (var item in Tickets)
-                    x.Add(string.Join("!", new string[] { item.Item2.ToString(), item.Item1 }));
-
-                strOut[4] = string.Join("\\", x.ToArray());
-            }
-            strOut[5] = SourceIP;
-            strOut[5] += "^";
-
-            return string.Join("|", strOut);
-        }
-
         public static Civilian CreateRandomCivilian()
         {
             #region NamesDic
@@ -137,11 +114,6 @@ namespace DispatchSystem.Common.DataHolders.Storage
                 Last = name[1],
                 CitationCount = rnd.Next(0, 11)
             };
-        }
-
-        public override object[] ToObjectArray()
-        {
-            return new[] { (object)First, (object)Last, (object)WarrantStatus, (object)CitationCount, (object)Notes, (object)Tickets };
         }
 
         // Below is for communcation reasons between server and client
