@@ -91,5 +91,66 @@ namespace DispatchSystem.cl.Windows
 #else
             await Resync(false);
 #endif
+
+        private void OnMouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (officers.FocusedItem.Bounds.Contains(e.Location))
+                {
+                    rightClickMenu.Show(Cursor.Position);
+                }
+            }
+        }
+        private async void OnSelectStatusClick(object sender, EventArgs e)
+        {
+            ListViewItem focusesItem = officers.SelectedItems[0];
+            int index = officers.Items.IndexOf(focusesItem);
+            Officer ofc = data[index];
+
+            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(Config.IP, Config.Port); }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+
+            do
+            {
+                if (sender == (object)statusOnDutyStripItem)
+                {
+                    if (ofc.Status == OfficerStatus.OnDuty)
+                    {
+                        MessageBox.Show("Really? That officer is already on duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        break;
+                    }
+
+                    await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
+                }
+                else if (sender == (object)statusOffDutyStripItem)
+                {
+                    if (ofc.Status == OfficerStatus.OffDuty)
+                    {
+                        MessageBox.Show("Really? That officer is already off duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        break;
+                    }
+
+                    await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OffDuty);
+                }
+                else
+                {
+                    if (ofc.Status == OfficerStatus.Busy)
+                    {
+                        MessageBox.Show("Really? That officer is already busy!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        break;
+                    }
+
+                    await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.Busy);
+                }
+            } while (false);
+
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+            await Resync(true); 
+        }
     }
 }

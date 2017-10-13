@@ -32,6 +32,13 @@
             this.officers = new MaterialSkin.Controls.MaterialListView();
             this.pName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ofcStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.rightClickMenu = new MaterialSkin.Controls.MaterialContextMenuStrip();
+            this.viewStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setStatusStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusOnDutyStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusOffDutyStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.statusBusyStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rightClickMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnResync
@@ -64,12 +71,14 @@
             this.officers.Location = new System.Drawing.Point(13, 74);
             this.officers.MouseLocation = new System.Drawing.Point(-1, -1);
             this.officers.MouseState = MaterialSkin.MouseState.OUT;
+            this.officers.MultiSelect = false;
             this.officers.Name = "officers";
             this.officers.OwnerDraw = true;
             this.officers.Size = new System.Drawing.Size(748, 390);
             this.officers.TabIndex = 1;
             this.officers.UseCompatibleStateImageBehavior = false;
             this.officers.View = System.Windows.Forms.View.Details;
+            this.officers.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OnMouseClick);
             // 
             // pName
             // 
@@ -80,6 +89,54 @@
             // 
             this.ofcStatus.Text = "Status";
             this.ofcStatus.Width = 575;
+            // 
+            // rightClickMenu
+            // 
+            this.rightClickMenu.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.rightClickMenu.Depth = 0;
+            this.rightClickMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.viewStripItem,
+            this.setStatusStripItem});
+            this.rightClickMenu.MouseState = MaterialSkin.MouseState.HOVER;
+            this.rightClickMenu.Name = "rightClickMenu";
+            this.rightClickMenu.Size = new System.Drawing.Size(126, 48);
+            // 
+            // viewStripItem
+            // 
+            this.viewStripItem.Name = "viewStripItem";
+            this.viewStripItem.Size = new System.Drawing.Size(152, 22);
+            this.viewStripItem.Text = "View";
+            // 
+            // setStatusStripItem
+            // 
+            this.setStatusStripItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.statusOnDutyStripItem,
+            this.statusOffDutyStripItem,
+            this.statusBusyStripItem});
+            this.setStatusStripItem.Name = "setStatusStripItem";
+            this.setStatusStripItem.Size = new System.Drawing.Size(152, 22);
+            this.setStatusStripItem.Text = "Set Status";
+            // 
+            // statusOnDutyStripItem
+            // 
+            this.statusOnDutyStripItem.Name = "statusOnDutyStripItem";
+            this.statusOnDutyStripItem.Size = new System.Drawing.Size(152, 22);
+            this.statusOnDutyStripItem.Text = "On Duty";
+            this.statusOnDutyStripItem.Click += new System.EventHandler(this.OnSelectStatusClick);
+            // 
+            // statusOffDutyStripItem
+            // 
+            this.statusOffDutyStripItem.Name = "statusOffDutyStripItem";
+            this.statusOffDutyStripItem.Size = new System.Drawing.Size(152, 22);
+            this.statusOffDutyStripItem.Text = "Off Duty";
+            this.statusOffDutyStripItem.Click += new System.EventHandler(this.OnSelectStatusClick);
+            // 
+            // statusBusyStripItem
+            // 
+            this.statusBusyStripItem.Name = "statusBusyStripItem";
+            this.statusBusyStripItem.Size = new System.Drawing.Size(152, 22);
+            this.statusBusyStripItem.Text = "Busy";
+            this.statusBusyStripItem.Click += new System.EventHandler(this.OnSelectStatusClick);
             // 
             // MultiOfficerView
             // 
@@ -92,6 +149,7 @@
             this.Name = "MultiOfficerView";
             this.Sizable = false;
             this.Text = "View Officers";
+            this.rightClickMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -103,5 +161,11 @@
         private MaterialSkin.Controls.MaterialListView officers;
         private System.Windows.Forms.ColumnHeader pName;
         private System.Windows.Forms.ColumnHeader ofcStatus;
+        private MaterialSkin.Controls.MaterialContextMenuStrip rightClickMenu;
+        private System.Windows.Forms.ToolStripMenuItem viewStripItem;
+        private System.Windows.Forms.ToolStripMenuItem setStatusStripItem;
+        private System.Windows.Forms.ToolStripMenuItem statusOnDutyStripItem;
+        private System.Windows.Forms.ToolStripMenuItem statusOffDutyStripItem;
+        private System.Windows.Forms.ToolStripMenuItem statusBusyStripItem;
     }
 }

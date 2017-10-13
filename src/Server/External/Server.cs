@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using System.Net;
@@ -189,7 +190,13 @@ namespace DispatchSystem.sv.External
             Officer ofc = (Officer)args[0];
             OfficerStatus status = (OfficerStatus)args[1];
 
-            try { index = DispatchSystem.officers.IndexOf(ofc); }
+            try
+            {
+                ofc = DispatchSystem.officers.ToList().Find(x => x.SourceIP == ofc.SourceIP);
+                index = DispatchSystem.officers.IndexOf(ofc);
+                if (index == -1)
+                    throw new IndexOutOfRangeException("The index was out of range!");
+            }
             catch (IndexOutOfRangeException)
             {
 #if DEBUG
@@ -200,10 +207,13 @@ namespace DispatchSystem.sv.External
 
                 return;
             }
+            Log.WriteLine(index.ToString());
 
-            if (DispatchSystem.officers[index].Status != status)
+            Officer ourOfc = DispatchSystem.officers[index];
+
+            if (ourOfc.Status != status)
             {
-                DispatchSystem.officers[index].Status = status;
+                ourOfc.Status = status;
 #if DEBUG
                 Log.WriteLine("Setting officer status to " + status.ToString());
 #else
