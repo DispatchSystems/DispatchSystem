@@ -45,6 +45,33 @@ namespace DispatchSystem.sv
         }
         private void RegisterCommands()
         {
+            // General Purpose
+            commands.Add("/dsreset", new Command(CommandType.Civilian | CommandType.Leo)
+            {
+                Callback = async (p, args) =>
+                {
+                    await Delay(0);
+                    if (GetCivilian(p.Handle) != null)
+                    {
+                        int index = civs.IndexOf(GetCivilian(p.Handle));
+                        civs.RemoveAt(index);
+                    }
+                    if (GetCivilianVeh(p.Handle) != null)
+                    {
+                        int index = civVehs.IndexOf(GetCivilianVeh(p.Handle));
+                        civVehs.RemoveAt(index);
+                    }
+                    if (GetOfficer(p.Handle) != null)
+                    {
+                        int index = officers.IndexOf(GetOfficer(p.Handle));
+                        officers.RemoveAt(index);
+                    }
+
+                    SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "All profiles reset");
+                    return true;
+                }
+            });
+
             #region Player Commands
             commands.Add("/newname", new Command(CommandType.Civilian)
             {
@@ -150,6 +177,15 @@ namespace DispatchSystem.sv
             #endregion
 
             #region Police Commands
+            commands.Add("/newofficer", new Command(CommandType.Leo)
+            {
+                Callback = async (p, args) =>
+                {
+                    await Delay(0);
+                    TriggerEvent("dispatchsystem:initOfficer", p.Handle);
+                    return true;
+                }
+            });
             commands.Add("/2729", new Command(CommandType.Leo)
             {
                 Callback = async (p, args) =>
@@ -355,6 +391,7 @@ namespace DispatchSystem.sv
 
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
+            officers = new StorageManager<Officer>();
             commands = new Dictionary<string, Command>();
             bolos = new StorageManager<Bolo>();
         }

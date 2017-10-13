@@ -66,6 +66,23 @@ namespace DispatchSystem.sv
             // return civVehs.ToList().Find(x => x.Plate.ToLower() == plate.ToLower());
             // TODO: Implement and fix Linq methods
         }
+        public static Officer GetOfficer(string pHandle)
+        {
+            foreach (var item in officers)
+                if (GetPlayerByIp(item.SourceIP) != null)
+                    if (GetPlayerByIp(item.SourceIP).Handle == pHandle)
+                        return item;
+
+            return null;
+        }
+        public static Officer GetOfficerByIp(string ip)
+        {
+            foreach (var item in officers)
+                if (item.SourceIP == ip)
+                    return item;
+
+            return null;
+        }
 
         internal static Player GetPlayerByHandle(string handle)
         {

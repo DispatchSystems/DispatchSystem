@@ -44,8 +44,9 @@
     <Compile Include="DataHolders\IDataHolder.cs" />
     <Compile Include="DataHolders\Storage\Bolo.cs" />
     <Compile Include="DataHolders\Storage\Civilian.cs" />
-    <Compile Include="DataHolders\Storage\CivilianBase.cs" />
+    <Compile Include="DataHolders\Storage\PlayerBase.cs" />
     <Compile Include="DataHolders\Storage\CivilianVeh.cs" />
+    <Compile Include="DataHolders\Storage\Officer.cs" />
     <Compile Include="DataHolders\Storage\StorageManager.cs" />
     <Compile Include="DataHolders\StorageVariable.cs" />
     <Compile Include="Functions.cs" />

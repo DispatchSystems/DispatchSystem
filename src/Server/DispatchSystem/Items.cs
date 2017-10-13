@@ -21,6 +21,7 @@ namespace DispatchSystem.sv
         internal static StorageManager<Bolo> bolos;
         internal static StorageManager<Civilian> civs;
         internal static StorageManager<CivilianVeh> civVehs;
+        internal static StorageManager<Officer> officers;
         public static ReadOnlyCollection<Civilian> Civilians => new ReadOnlyCollection<Civilian>(civs);
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
         public static StorageManager<Bolo> ActiveBolos => bolos;

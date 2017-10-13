@@ -20,6 +20,12 @@ namespace DispatchSystem.sv
             Player p = GetPlayerByHandle(handle);
             if (p == null) return;
 
+            if (GetOfficer(handle) != null)
+            {
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You cannot be an officer and a civilian at the same time!");
+                return;
+            }
+
             if (GetCivilianByName(first, last) != null && GetPlayerByIp(GetCivilianVeh(handle).SourceIP) != p)
             {
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"That name already exists in the system!");
@@ -194,7 +200,19 @@ namespace DispatchSystem.sv
         #region Police Events
         public static void AddOfficer(string handle)
         {
+            Player p = GetPlayerByHandle(handle);
+            
+            if (GetCivilian(handle) != null)
+            {
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You cannot be a officer and a civilian at the same time.");
+                return;
+            }
 
+            officers.Add(new Officer(p.Identifiers["ip"], p.Name));
+            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Created new officer for {p.Name}");
+#if DEBUG
+            SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
+#endif
         }
         public static void RequestCivilian(string handle, string first, string last)
         {
