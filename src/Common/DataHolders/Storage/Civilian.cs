@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public class Civilian : CivilianBase, IDataHolder, IOwnable
+    public class Civilian : PlayerBase, IDataHolder, IOwnable
     {
         protected string _first;
         public string First

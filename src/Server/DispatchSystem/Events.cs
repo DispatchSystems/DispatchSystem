@@ -14,6 +14,7 @@ namespace DispatchSystem.sv
     public partial class DispatchSystem
     {
         #region Custom Events
+        #region Civilian Events
         public static void SetName(string handle, string first, string last)
         {
             Player p = GetPlayerByHandle(handle);
@@ -77,6 +78,9 @@ namespace DispatchSystem.sv
             else
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your citations");
         }
+        #endregion
+
+        #region Vehicle Events
         public static void SetVehicle(string handle, string plate)
         {
             Player p = GetPlayerByHandle(handle);
@@ -185,6 +189,13 @@ namespace DispatchSystem.sv
             else
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your vehicle before you can set your Insurance");
         }
+        #endregion
+
+        #region Police Events
+        public static void AddOfficer(string handle)
+        {
+
+        }
         public static void RequestCivilian(string handle, string first, string last)
         {
             Player invoker = GetPlayerByHandle(handle);
@@ -280,6 +291,7 @@ namespace DispatchSystem.sv
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
         }
+        #endregion
         #endregion
 
         private async void OnChatMessage(int source, string n, string msg)
