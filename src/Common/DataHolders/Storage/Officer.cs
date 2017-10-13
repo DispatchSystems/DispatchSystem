@@ -24,6 +24,8 @@ namespace DispatchSystem.Common.DataHolders.Storage
         {
             Creation = DateTime.Now;
             PlayerName = pName;
+
+            Status = OfficerStatus.OffDuty;
         }
     }
 }

@@ -35,6 +35,9 @@ namespace DispatchSystem.sv
 
             #region Police Commands
             EventHandlers["dispatchsystem:initOfficer"] += new Action<string>(AddOfficer);
+            EventHandlers["dispatchsystem:onDuty"] += new Action<string>(ToggleOnDuty);
+            EventHandlers["dispatchsystem:offDuty"] += new Action<string>(ToggleOffDuty);
+            EventHandlers["dispatchsystem:busy"] += new Action<string>(ToggleBusy);
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
             EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
             EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
@@ -183,6 +186,33 @@ namespace DispatchSystem.sv
                 {
                     await Delay(0);
                     TriggerEvent("dispatchsystem:initOfficer", p.Handle);
+                    return true;
+                }
+            });
+            commands.Add("/onduty", new Command(CommandType.Leo)
+            {
+                Callback = async (p, args) =>
+                {
+                    await Delay(0);
+                    TriggerEvent("dispatchsystem:onDuty", p.Handle);
+                    return true;
+                }
+            });
+            commands.Add("/offduty", new Command(CommandType.Leo)
+            {
+                Callback = async (p, args) =>
+                {
+                    await Delay(0);
+                    TriggerEvent("dispatchsystem:offDuty", p.Handle);
+                    return true;
+                }
+            });
+            commands.Add("/busy", new Command(CommandType.Leo)
+            {
+                Callback = async (p, args) =>
+                {
+                    await Delay(0);
+                    TriggerEvent("dispatchsystem:busy", p.Handle);
                     return true;
                 }
             });

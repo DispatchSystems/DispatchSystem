@@ -214,6 +214,66 @@ namespace DispatchSystem.sv
             SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
 #endif
         }
+        public static void ToggleOnDuty(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetOfficer(handle) != null)
+            {
+                Officer ofc = GetOfficer(handle);
+
+                if (ofc.Status == OfficerStatus.OnDuty)
+                {
+                    SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You are already on duty dummy!");
+                    return;
+                }
+
+                ofc.Status = OfficerStatus.OnDuty;
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "New officer status set to On Duty");
+            }
+            else
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must create an officer first");
+        }
+        public static void ToggleOffDuty(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetOfficer(handle) != null)
+            {
+                Officer ofc = GetOfficer(handle);
+
+                if (ofc.Status == OfficerStatus.OffDuty)
+                {
+                    SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You are already off duty dummy!");
+                    return;
+                }
+
+                ofc.Status = OfficerStatus.OffDuty;
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "New officer status set to Off Duty");
+            }
+            else
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must create an officer first");
+        }
+        public static void ToggleBusy(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetOfficer(handle) != null)
+            {
+                Officer ofc = GetOfficer(handle);
+
+                if (ofc.Status == OfficerStatus.Busy)
+                {
+                    SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You are already busy dummy!");
+                    return;
+                }
+
+                ofc.Status = OfficerStatus.Busy;
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "New officer status set to Busy");
+            }
+            else
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must create an officer first");
+        }
         public static void RequestCivilian(string handle, string first, string last)
         {
             Player invoker = GetPlayerByHandle(handle);
