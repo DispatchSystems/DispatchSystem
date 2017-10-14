@@ -121,7 +121,7 @@ namespace DispatchSystem.sv
                         SendUsage(p, "The amount is not a valid number!");
                         return false;
                     }
-                        
+
                 }
             });
             #endregion
@@ -189,31 +189,36 @@ namespace DispatchSystem.sv
                     return true;
                 }
             });
-            commands.Add("/onduty", new Command(CommandType.Leo)
+            commands.Add("/status", new Command(CommandType.Leo)
             {
                 Callback = async (p, args) =>
                 {
                     await Delay(0);
-                    TriggerEvent("dispatchsystem:onDuty", p.Handle);
-                    return true;
-                }
-            });
-            commands.Add("/offduty", new Command(CommandType.Leo)
-            {
-                Callback = async (p, args) =>
-                {
-                    await Delay(0);
-                    TriggerEvent("dispatchsystem:offDuty", p.Handle);
-                    return true;
-                }
-            });
-            commands.Add("/busy", new Command(CommandType.Leo)
-            {
-                Callback = async (p, args) =>
-                {
-                    await Delay(0);
-                    TriggerEvent("dispatchsystem:busy", p.Handle);
-                    return true;
+                    if (args.Length < 1)
+                    {
+                        SendUsage(p, "/status {on|off|busy}");
+                        return false;
+                    }
+                    if (args[0].ToLower() == "on")
+                    {
+                        TriggerEvent("dispatchsystem:onDuty", p.Handle);
+                        return true;
+                    }
+                    else if (args[0].ToLower() == "off")
+                    {
+                        TriggerEvent("dispatchsystem:offDuty", p.Handle);
+                        return true;
+                    }
+                    else if (args[0].ToLower() == "busy")
+                    {
+                        TriggerEvent("dispatchsystem:busy", p.Handle);
+                        return true;
+                    }
+                    else
+                    {
+                        SendUsage(p, "/status {on|off|busy}");
+                        return false;
+                    }
                 }
             });
             commands.Add("/2729", new Command(CommandType.Leo)
