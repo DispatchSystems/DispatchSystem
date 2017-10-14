@@ -38,6 +38,7 @@
             this.statusOnDutyStripItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusOffDutyStripItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusBusyStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rightClickMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -88,7 +89,7 @@
             // ofcStatus
             // 
             this.ofcStatus.Text = "Status";
-            this.ofcStatus.Width = 575;
+            this.ofcStatus.Width = 574;
             // 
             // rightClickMenu
             // 
@@ -96,16 +97,18 @@
             this.rightClickMenu.Depth = 0;
             this.rightClickMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.viewStripItem,
-            this.setStatusStripItem});
+            this.setStatusStripItem,
+            this.removeToolStripMenuItem});
             this.rightClickMenu.MouseState = MaterialSkin.MouseState.HOVER;
             this.rightClickMenu.Name = "rightClickMenu";
-            this.rightClickMenu.Size = new System.Drawing.Size(126, 48);
+            this.rightClickMenu.Size = new System.Drawing.Size(153, 92);
             // 
             // viewStripItem
             // 
             this.viewStripItem.Name = "viewStripItem";
             this.viewStripItem.Size = new System.Drawing.Size(152, 22);
             this.viewStripItem.Text = "View";
+            this.viewStripItem.Click += new System.EventHandler(this.OnViewCivClick);
             // 
             // setStatusStripItem
             // 
@@ -120,23 +123,30 @@
             // statusOnDutyStripItem
             // 
             this.statusOnDutyStripItem.Name = "statusOnDutyStripItem";
-            this.statusOnDutyStripItem.Size = new System.Drawing.Size(152, 22);
+            this.statusOnDutyStripItem.Size = new System.Drawing.Size(119, 22);
             this.statusOnDutyStripItem.Text = "On Duty";
             this.statusOnDutyStripItem.Click += new System.EventHandler(this.OnSelectStatusClick);
             // 
             // statusOffDutyStripItem
             // 
             this.statusOffDutyStripItem.Name = "statusOffDutyStripItem";
-            this.statusOffDutyStripItem.Size = new System.Drawing.Size(152, 22);
+            this.statusOffDutyStripItem.Size = new System.Drawing.Size(119, 22);
             this.statusOffDutyStripItem.Text = "Off Duty";
             this.statusOffDutyStripItem.Click += new System.EventHandler(this.OnSelectStatusClick);
             // 
             // statusBusyStripItem
             // 
             this.statusBusyStripItem.Name = "statusBusyStripItem";
-            this.statusBusyStripItem.Size = new System.Drawing.Size(152, 22);
+            this.statusBusyStripItem.Size = new System.Drawing.Size(119, 22);
             this.statusBusyStripItem.Text = "Busy";
             this.statusBusyStripItem.Click += new System.EventHandler(this.OnSelectStatusClick);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Text = "Remove";
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.OnRemoveOfficerClick);
             // 
             // MultiOfficerView
             // 
@@ -167,5 +177,6 @@
         private System.Windows.Forms.ToolStripMenuItem statusOnDutyStripItem;
         private System.Windows.Forms.ToolStripMenuItem statusOffDutyStripItem;
         private System.Windows.Forms.ToolStripMenuItem statusBusyStripItem;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
     }
 }

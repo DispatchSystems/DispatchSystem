@@ -10,6 +10,8 @@ using Config.Reader;
 using DispatchSystem.Common.DataHolders.Storage;
 using DispatchSystem.Common.NetCode;
 
+using CitizenFX.Core;
+
 namespace DispatchSystem.sv.External
 {
     public class Server
@@ -66,7 +68,9 @@ namespace DispatchSystem.sv.External
             net.Functions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
             net.Functions.Add("GetBolos", new NetFunction(GetBolos));
             net.Functions.Add("GetOfficers", new NetFunction(GetOfficers));
+            net.Functions.Add("GetOfficer", new NetFunction(GetOfficer));
             net.Events.Add("SetStatus", new NetEvent(ChangeOfficerStatus));
+            net.Events.Add("RemoveOfficer", new NetEvent(RemoveOfficer));
             net.Events.Add("AddBolo", new NetEvent(AddBolo));
             net.Events.Add("RemoveBolo", new NetEvent(RemoveBolo));
             net.Events.Add("AddNote", new NetEvent(AddNote));
@@ -174,6 +178,24 @@ namespace DispatchSystem.sv.External
 
             return DispatchSystem.officers;
         }
+        private async Task<object> GetOfficer(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+
+            string ip = (string)args[0];
+
+#if DEBUG
+            Log.WriteLine("Get officer Request Received");
+#else
+            Log.WriteLineSilent("Get officer Request Received");
+#endif
+
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.SourceIP == ip);
+            ofc = ofc ?? Officer.Empty;
+            return ofc;
+        }
         private async Task ChangeOfficerStatus(NetRequestHandler sender, object[] args)
         {
             await Task.FromResult(0);
@@ -225,6 +247,56 @@ namespace DispatchSystem.sv.External
                 Log.WriteLine("Officer status already set to the incoming status");
 #else
                 Log.WriteLineSilent("Officer status already set to the incoming status");
+#endif
+            }
+        }
+        private async Task RemoveOfficer(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+
+#if DEBUG
+            Log.WriteLine("Remove officer Request Received");
+#else
+            Log.WriteLineSilent("Add bolo Request Received");
+#endif
+
+            Officer ofcGiven = (Officer)args[0];
+
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.SourceIP == ofcGiven.SourceIP);
+            if (ofc != null)
+            {
+                /*
+                try
+                {
+                    Player p = new PlayerList().ToList().Find(x => x.Identifiers["ip"] == ofc.SourceIP); // Crashes at this
+
+                    if (p != null)
+                    {
+                        BaseScript.TriggerClientEvent(p, "chatMessage", "DispatchSystem", new[] { 0,0,0}, "test");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.WriteLine(e.ToString());
+                }
+                */
+
+                DispatchSystem.officers.Remove(ofc);
+
+#if DEBUG
+                Log.WriteLine("Removed the officer from the list of officers");
+#else
+                Log.WriteLineSilent("Removed the officer from the list of officers");
+#endif
+            }
+            else
+            {
+#if DEBUG
+                Log.WriteLine("Officer in list not found, not removing");
+#else
+                Log.WriteLineSilent("Officer in list not found, not removing");
 #endif
             }
         }

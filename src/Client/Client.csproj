@@ -98,6 +98,12 @@
     <Compile Include="Windows\MultiOfficerView.Designer.cs">
       <DependentUpon>MultiOfficerView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Windows\OfficerView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\OfficerView.Designer.cs">
+      <DependentUpon>OfficerView.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Windows\AddRemoveView.resx">
       <DependentUpon>AddRemoveView.cs</DependentUpon>
     </EmbeddedResource>
@@ -125,6 +131,9 @@
     </Compile>
     <EmbeddedResource Include="Windows\MultiOfficerView.resx">
       <DependentUpon>MultiOfficerView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\OfficerView.resx">
+      <DependentUpon>OfficerView.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

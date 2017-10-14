@@ -27,5 +27,8 @@ namespace DispatchSystem.Common.DataHolders.Storage
 
             Status = OfficerStatus.OffDuty;
         }
+
+        // For communicating
+        public static readonly Officer Empty = new Officer(string.Empty, string.Empty);
     }
 }

@@ -12,42 +12,45 @@ using System.Net.Sockets;
 using MaterialSkin;
 using MaterialSkin.Controls;
 
-using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
+using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.NetCode;
 
 namespace DispatchSystem.cl.Windows
 {
-    public partial class MultiOfficerView : MaterialForm, ISyncable
+    public partial class OfficerView : MaterialForm, ISyncable
     {
-        StorageManager<Officer> data;
-
-        public MultiOfficerView(StorageManager<Officer> input)
-        {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
-            InitializeComponent();
-
-            data = input;
-            UpdateCurrentInformation();
-        }
-
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
+        Officer ofc;
+
+        public OfficerView(Officer data)
+        {
+            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+
+            InitializeComponent();
+
+            ofc = data;
+            UpdateCurrentInformation();
+        }
+
         public void UpdateCurrentInformation()
         {
-            List<ListViewItem> lvis = new List<ListViewItem>();
+            this.nameView.Text = ofc.PlayerName;
 
-            officers.Items.Clear();
-
-            for (int i = 0; i < data.Count; i++)
+            switch (ofc.Status)
             {
-                ListViewItem lvi = new ListViewItem(data[i].PlayerName);
-                lvi.SubItems.Add(data[i].Status == OfficerStatus.OffDuty ? "Off Duty" : data[i].Status == OfficerStatus.OnDuty ? "On Duty" : "Busy");
-                lvis.Add(lvi);
+                case OfficerStatus.OnDuty:
+                    radioOnDuty.Checked = true;
+                    break;
+                case OfficerStatus.OffDuty:
+                    radioOffDuty.Checked = true;
+                    break;
+                case OfficerStatus.Busy:
+                    radioBusy.Checked = true;
+                    break;
             }
-
-            officers.Items.AddRange(lvis.ToArray());
         }
 
         public async Task Resync(bool skipTime)
@@ -67,46 +70,30 @@ namespace DispatchSystem.cl.Windows
 
             NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
-            Tuple<NetRequestResult, StorageManager<Officer>> result = await handle.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
+            Tuple<NetRequestResult, Officer> result = await handle.TryTriggerNetFunction<Officer>("GetOfficer", ofc.SourceIP);
             usrSocket.Shutdown(SocketShutdown.Both);
             usrSocket.Close();
 
             if (result.Item2 != null)
             {
-                Invoke((MethodInvoker)delegate
+                if (result.Item2.SourceIP != string.Empty && result.Item2.PlayerName != string.Empty)
                 {
-                    data = result.Item2;
-                    UpdateCurrentInformation();
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        ofc = result.Item2;
+                        UpdateCurrentInformation();
+                    });
+                }
+                else
+                    MessageBox.Show("The officer profile has been deleted!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
             else
                 MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-            IsCurrentlySyncing = false;
         }
 
-        private async void OnResyncClick(object sender, EventArgs e) =>
-#if DEBUG
-            await Resync(true);
-#else
-            await Resync(false);
-#endif
-
-        private void OnMouseClick(object sender, MouseEventArgs e)
+        private async void StatusClick(object sender, EventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
-            {
-                if (officers.FocusedItem.Bounds.Contains(e.Location))
-                {
-                    rightClickMenu.Show(Cursor.Position);
-                }
-            }
-        }
-        private async void OnSelectStatusClick(object sender, EventArgs e)
-        {
-            ListViewItem focusesItem = officers.FocusedItem;
-            int index = officers.Items.IndexOf(focusesItem);
-            Officer ofc = data[index];
+            MaterialRadioButton _sender = (MaterialRadioButton)sender;
 
             Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try { usrSocket.Connect(Config.IP, Config.Port); }
@@ -116,7 +103,7 @@ namespace DispatchSystem.cl.Windows
 
             do
             {
-                if (sender == (object)statusOnDutyStripItem)
+                if (_sender == radioOnDuty)
                 {
                     if (ofc.Status == OfficerStatus.OnDuty)
                     {
@@ -126,7 +113,7 @@ namespace DispatchSystem.cl.Windows
 
                     await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
                 }
-                else if (sender == (object)statusOffDutyStripItem)
+                else if (_sender == radioOffDuty)
                 {
                     if (ofc.Status == OfficerStatus.OffDuty)
                     {
@@ -150,34 +137,16 @@ namespace DispatchSystem.cl.Windows
 
             usrSocket.Shutdown(SocketShutdown.Both);
             usrSocket.Close();
-            await Resync(true); 
-        }
-
-        private void OnViewCivClick(object sender, EventArgs e)
-        {
-            ListViewItem focusesItem = officers.FocusedItem;
-            int index = officers.Items.IndexOf(focusesItem);
-            Officer ofc = data[index];
-
-            new OfficerView(ofc).Show();
-        }
-
-        private async void OnRemoveOfficerClick(object sender, EventArgs e)
-        {
-            ListViewItem focusesItem = officers.FocusedItem;
-            int index = officers.Items.IndexOf(focusesItem);
-            Officer ofc = data[index];
-
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-            await handle.TryTriggerNetEvent("RemoveOfficer", ofc);
-
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
             await Resync(true);
+        }
+
+        private async void OnResyncClick(object sender, EventArgs e)
+        {
+#if DEBUG
+            await Resync(true);
+#else
+            await Resync(false);
+#endif
         }
     }
 }
