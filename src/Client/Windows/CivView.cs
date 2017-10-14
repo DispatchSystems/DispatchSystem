@@ -62,8 +62,8 @@ namespace DispatchSystem.cl.Windows
             {
                 foreach (var item in data.Tickets)
                 {
-                    ListViewItem li = new ListViewItem($"${item.Item2.ToString()}");
-                    li.SubItems.Add(item.Item1);
+                    ListViewItem li = new ListViewItem($"${item.Amount.ToString()}");
+                    li.SubItems.Add(item.Reason);
                     ticketsView.Items.Add(li);
                 }
             }

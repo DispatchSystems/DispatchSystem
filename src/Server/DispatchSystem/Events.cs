@@ -330,7 +330,7 @@ namespace DispatchSystem.sv
                 int index = civs.IndexOf(civ);
                 Player p = GetPlayerByIp(civs[index].SourceIP);
                 civs[index].CitationCount++;
-                civs[index].Tickets.Add(new Tuple<string, float>(reason, amount));
+                civs[index].Tickets.Add(new Ticket(reason, amount));
                 if (p != null)
                     SendMessage(p, "Ticket", new[] { 255, 0, 0 }, $"{invoker.Name} tickets you for ${amount.ToString()} because of {reason}");
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, $"You successfully ticketed {p.Name} for ${amount.ToString()}");
@@ -349,7 +349,7 @@ namespace DispatchSystem.sv
                 if (civs[index].Tickets.Count() == 0)
                     SendMessage(invoker, "", new[] { 0, 0, 0 }, "^7None");
                 else
-                    civs[index].Tickets.ForEach(x => SendMessage(invoker, "", new[] { 0, 0, 0 }, $"^7${x.Item2}: {x.Item1}"));
+                    civs[index].Tickets.ForEach(x => SendMessage(invoker, "", new[] { 0, 0, 0 }, $"^7${x.Amount}: {x.Reason}"));
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");

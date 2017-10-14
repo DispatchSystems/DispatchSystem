@@ -50,13 +50,13 @@ namespace DispatchSystem.Common.DataHolders.Storage
         public bool WarrantStatus { get; set; }
         public int CitationCount { get; set; }
         public List<string> Notes { get; set; }
-        public List<Tuple<string, float>> Tickets { get; set; }
+        public List<Ticket> Tickets { get; set; }
         public override DateTime Creation { get; }
 
         public Civilian(string ip) : base(ip)
         {
             Notes = new List<string>();
-            Tickets = new List<Tuple<string, float>>();
+            Tickets = new List<Ticket>();
             WarrantStatus = false;
             CitationCount = 0;
             Creation = DateTime.Now;
