@@ -422,6 +422,37 @@ namespace DispatchSystem.sv
             }
             else
                 Log.WriteLine("Not starting DISPATCH server");
+            if (cfg.GetIntValue("database", "enable", 0) == 1)
+            {
+                Log.WriteLine("Reading database...");
+                ThreadPool.QueueUserWorkItem(x =>
+                {
+                    data = new Database();
+                    StorageManager<Civilian> civs = data.Read<Civilian>("dsciv.db");
+                    StorageManager<CivilianVeh> civVehs = data.Read<CivilianVeh>("dsveh.db");
+
+                    DispatchSystem.civs = civs;
+                    DispatchSystem.civVehs = civVehs;
+                });
+                Log.WriteLine("Read and set database");
+                ThreadPool.QueueUserWorkItem(async x =>
+                {
+                    await Delay(15000);
+                    while (true)
+                    {
+#if DEBUG
+                        Log.WriteLine("Writing current information to database");
+#else
+                        Log.WriteLineSilent("Writing current information to database");
+#endif
+                        data.Write(civs, "dsciv.db");
+                        data.Write(civVehs, "dsveh.db");
+                        await Delay(60000);
+                    }
+                });
+            }
+            else
+                Log.WriteLine("Not start database");
 
 
             civs = new StorageManager<Civilian>();

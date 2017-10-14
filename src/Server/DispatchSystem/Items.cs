@@ -17,6 +17,7 @@ namespace DispatchSystem.sv
         protected static iniconfig cfg;
         protected static Permissions perms;
         protected static Server server;
+        protected static Database data;
 
         internal static StorageManager<Bolo> bolos;
         internal static StorageManager<Civilian> civs;

@@ -207,7 +207,6 @@ namespace DispatchSystem.sv.External
 
                 return;
             }
-            Log.WriteLine(index.ToString());
 
             Officer ourOfc = DispatchSystem.officers[index];
 

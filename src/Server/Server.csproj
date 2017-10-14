@@ -58,6 +58,7 @@
     <Compile Include="DispatchSystem\Events.cs" />
     <Compile Include="DispatchSystem\Init.cs" />
     <Compile Include="DispatchSystem\Items.cs" />
+    <Compile Include="External\Database.cs" />
     <Compile Include="External\Log.cs" />
     <Compile Include="External\Permissions.cs" />
     <Compile Include="External\Config.cs" />
