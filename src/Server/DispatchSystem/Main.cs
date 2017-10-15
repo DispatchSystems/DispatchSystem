@@ -49,26 +49,11 @@ namespace DispatchSystem.sv
         async Task OnTick()
         {
             // Executing all of the callback methods available
-            for (int i = 0; i < callbacks.Count; i++)
+            while (callbacks.Count > 0)
             {
-                callbacks[i]();
-                callbacks.RemoveAt(i);
+                callbacks[0]();
+                callbacks.RemoveAt(0);
             }
-
-            /*
-            try
-            {
-
-            }
-            catch (InvalidOperationException)
-            {
-#if DEBUG
-                Log.WriteLine("Callback added to list while execution of others were staged");
-#else
-                Log.WriteLineSilent("Callback added to list while execution of others were staged");
-#endif
-            }
-            */
 
             await Delay(0);
         }
