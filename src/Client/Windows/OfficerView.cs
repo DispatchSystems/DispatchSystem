@@ -37,7 +37,7 @@ namespace DispatchSystem.cl.Windows
 
         public void UpdateCurrentInformation()
         {
-            this.nameView.Text = ofc.PlayerName;
+            this.nameView.Text = ofc.Callsign;
 
             switch (ofc.Status)
             {
@@ -76,7 +76,7 @@ namespace DispatchSystem.cl.Windows
 
             if (result.Item2 != null)
             {
-                if (result.Item2.SourceIP != string.Empty && result.Item2.PlayerName != string.Empty)
+                if (result.Item2.SourceIP != string.Empty && result.Item2.Callsign != string.Empty)
                 {
                     Invoke((MethodInvoker)delegate
                     {

@@ -42,7 +42,7 @@ namespace DispatchSystem.cl.Windows
 
             for (int i = 0; i < data.Count; i++)
             {
-                ListViewItem lvi = new ListViewItem(data[i].PlayerName);
+                ListViewItem lvi = new ListViewItem(data[i].Callsign);
                 lvi.SubItems.Add(data[i].Status == OfficerStatus.OffDuty ? "Off Duty" : data[i].Status == OfficerStatus.OnDuty ? "On Duty" : "Busy");
                 lvis.Add(lvi);
             }

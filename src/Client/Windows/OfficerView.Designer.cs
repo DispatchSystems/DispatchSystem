@@ -50,7 +50,7 @@
             // nameView
             // 
             this.nameView.Depth = 0;
-            this.nameView.Hint = "Name";
+            this.nameView.Hint = "Callsign";
             this.nameView.Location = new System.Drawing.Point(12, 111);
             this.nameView.MaxLength = 32767;
             this.nameView.MouseState = MaterialSkin.MouseState.HOVER;
@@ -74,9 +74,9 @@
             this.nameLabel.Location = new System.Drawing.Point(12, 78);
             this.nameLabel.MouseState = MaterialSkin.MouseState.HOVER;
             this.nameLabel.Name = "nameLabel";
-            this.nameLabel.Size = new System.Drawing.Size(53, 19);
+            this.nameLabel.Size = new System.Drawing.Size(67, 19);
             this.nameLabel.TabIndex = 1;
-            this.nameLabel.Text = "Name:";
+            this.nameLabel.Text = "Callsign:";
             // 
             // btnResync
             // 

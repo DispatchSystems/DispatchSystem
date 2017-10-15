@@ -198,7 +198,7 @@ namespace DispatchSystem.sv
         #endregion
 
         #region Police Events
-        public static void AddOfficer(string handle)
+        public static void AddOfficer(string handle, string callsign)
         {
             Player p = GetPlayerByHandle(handle);
             
@@ -208,8 +208,8 @@ namespace DispatchSystem.sv
                 return;
             }
 
-            officers.Add(new Officer(p.Identifiers["ip"], p.Name));
-            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Created new officer for {p.Name}");
+            officers.Add(new Officer(p.Identifiers["ip"], callsign));
+            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Assigning new officer for callsign {callsign}");
 #if DEBUG
             SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
 #endif

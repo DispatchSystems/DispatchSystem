@@ -30,7 +30,7 @@
         {
             this.btnResync = new MaterialSkin.Controls.MaterialFlatButton();
             this.officers = new MaterialSkin.Controls.MaterialListView();
-            this.pName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ofcCallsign = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ofcStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.rightClickMenu = new MaterialSkin.Controls.MaterialContextMenuStrip();
             this.viewStripItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -63,7 +63,7 @@
             // 
             this.officers.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.officers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.pName,
+            this.ofcCallsign,
             this.ofcStatus});
             this.officers.Depth = 0;
             this.officers.Font = new System.Drawing.Font("Roboto", 32F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
@@ -81,10 +81,10 @@
             this.officers.View = System.Windows.Forms.View.Details;
             this.officers.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OnMouseClick);
             // 
-            // pName
+            // ofcCallsign
             // 
-            this.pName.Text = "Name";
-            this.pName.Width = 172;
+            this.ofcCallsign.Text = "Callsign";
+            this.ofcCallsign.Width = 172;
             // 
             // ofcStatus
             // 
@@ -101,12 +101,12 @@
             this.removeToolStripMenuItem});
             this.rightClickMenu.MouseState = MaterialSkin.MouseState.HOVER;
             this.rightClickMenu.Name = "rightClickMenu";
-            this.rightClickMenu.Size = new System.Drawing.Size(153, 92);
+            this.rightClickMenu.Size = new System.Drawing.Size(126, 70);
             // 
             // viewStripItem
             // 
             this.viewStripItem.Name = "viewStripItem";
-            this.viewStripItem.Size = new System.Drawing.Size(152, 22);
+            this.viewStripItem.Size = new System.Drawing.Size(125, 22);
             this.viewStripItem.Text = "View";
             this.viewStripItem.Click += new System.EventHandler(this.OnViewCivClick);
             // 
@@ -117,7 +117,7 @@
             this.statusOffDutyStripItem,
             this.statusBusyStripItem});
             this.setStatusStripItem.Name = "setStatusStripItem";
-            this.setStatusStripItem.Size = new System.Drawing.Size(152, 22);
+            this.setStatusStripItem.Size = new System.Drawing.Size(125, 22);
             this.setStatusStripItem.Text = "Set Status";
             // 
             // statusOnDutyStripItem
@@ -144,7 +144,7 @@
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(125, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.OnRemoveOfficerClick);
             // 
@@ -169,7 +169,7 @@
 
         private MaterialSkin.Controls.MaterialFlatButton btnResync;
         private MaterialSkin.Controls.MaterialListView officers;
-        private System.Windows.Forms.ColumnHeader pName;
+        private System.Windows.Forms.ColumnHeader ofcCallsign;
         private System.Windows.Forms.ColumnHeader ofcStatus;
         private MaterialSkin.Controls.MaterialContextMenuStrip rightClickMenu;
         private System.Windows.Forms.ToolStripMenuItem viewStripItem;

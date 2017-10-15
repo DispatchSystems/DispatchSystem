@@ -34,7 +34,7 @@ namespace DispatchSystem.sv
             #endregion
 
             #region Police Commands
-            EventHandlers["dispatchsystem:initOfficer"] += new Action<string>(AddOfficer);
+            EventHandlers["dispatchsystem:initOfficer"] += new Action<string, string>(AddOfficer);
             EventHandlers["dispatchsystem:onDuty"] += new Action<string>(ToggleOnDuty);
             EventHandlers["dispatchsystem:offDuty"] += new Action<string>(ToggleOffDuty);
             EventHandlers["dispatchsystem:busy"] += new Action<string>(ToggleBusy);
@@ -185,7 +185,12 @@ namespace DispatchSystem.sv
                 Callback = async (p, args) =>
                 {
                     await Delay(0);
-                    TriggerEvent("dispatchsystem:initOfficer", p.Handle);
+                    if (args.Length < 1)
+                    {
+                        SendUsage(p, "/newofficer {callsign}");
+                        return false;
+                    }
+                    TriggerEvent("dispatchsystem:initOfficer", p.Handle, args[0]);
                     return true;
                 }
             });
@@ -447,7 +452,7 @@ namespace DispatchSystem.sv
 #endif
                         data.Write(civs, "dsciv.db");
                         data.Write(civVehs, "dsveh.db");
-                        await Delay(60000);
+                        await Delay(180 * 1000);
                     }
                 });
             }
