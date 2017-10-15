@@ -1,5 +1,7 @@
 # Dispatch Systems
 
+[![Discord](https://discordapp.com/api/guilds/358081805850640384/widget.png)](https://discord.gg/ZcTayce)
+
 > Dispatch Systems is a CAD/MDT system for ingame FiveM use, this is not a permenant solution, but it works for free. This is an open source free project courtesy of BlockBa5her (the coder). It is free for anyone to use, as long as they do not re-distribute the software under their own name. It does not store data in CouchDB and MySQL so EssentialMode is not needed. It stores all of the player's information in the RAM of the computer, so the next restart of the server clears all of the names that it has stored.
 
 ## Uses
@@ -55,7 +57,3 @@
 1. Arrest ability - `/arrest {first} {last}` arrests a ped and show it in the system
 
 2. Warrant Types - `/warrant {type}` have different types of bench warrants and also a toggle for outstanding
-
-3. Database - A civilian database for storing civilians
-
-4. Permissions - Permissions for Civilians, Cops, and Disptachers
