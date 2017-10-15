@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -460,7 +461,7 @@ namespace DispatchSystem.sv
                 Log.WriteLine("Not start database");
 
 
-            callbacks = new List<Action>();
+            callbacks = new ConcurrentQueue<Action>();
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
             officers = new StorageManager<Officer>();

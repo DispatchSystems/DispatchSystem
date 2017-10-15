@@ -16,7 +16,7 @@
 */
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 using CitizenFX.Core;
@@ -45,18 +45,15 @@ namespace DispatchSystem.sv
          * Below is just for executing something on the main thread
         */
 
-        private volatile static List<Action> callbacks;
+        private static volatile ConcurrentQueue<Action> callbacks;
         async Task OnTick()
         {
             // Executing all of the callback methods available
-            while (callbacks.Count > 0)
-            {
-                callbacks[0]();
-                callbacks.RemoveAt(0);
-            }
+            while (callbacks.TryDequeue(out Action queue))
+                queue();
 
             await Delay(0);
         }
-        internal static void Invoke(Action method) => callbacks.Add(method); // Adding method for execution in main thread
+        internal static void Invoke(Action method) => callbacks.Enqueue(method); // Adding method for execution in main thread
     }
 }
