@@ -460,6 +460,7 @@ namespace DispatchSystem.sv
                 Log.WriteLine("Not start database");
 
 
+            callbacks = new List<Action>();
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
             officers = new StorageManager<Officer>();

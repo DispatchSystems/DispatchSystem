@@ -283,6 +283,24 @@ namespace DispatchSystem.sv.External
                 }
                 */
 
+                // Adding a item to execute on the main thread
+                try
+                {
+                    DispatchSystem.Invoke(delegate
+                    {
+                        Player p = Common.GetPlayerByIp(ofc.SourceIP);
+
+                        if (p != null)
+                        {
+                            Common.SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You have been removed from your officer role by a dispatcher");
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    Log.WriteLine(e.ToString());
+                }
+
                 DispatchSystem.officers.Remove(ofc);
 
 #if DEBUG
