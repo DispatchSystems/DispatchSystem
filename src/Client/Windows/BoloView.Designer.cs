@@ -45,7 +45,7 @@
             this.author,
             this.bolo});
             this.bolosView.Depth = 0;
-            this.bolosView.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F);
+            this.bolosView.Font = new System.Drawing.Font("Roboto", 32F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
             this.bolosView.FullRowSelect = true;
             this.bolosView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.bolosView.Location = new System.Drawing.Point(13, 77);
@@ -123,6 +123,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(993, 564);
             this.Controls.Add(this.btnAddBolo);
             this.Controls.Add(this.btnResync);

@@ -44,6 +44,9 @@
             this.createAssignment = new System.Windows.Forms.ToolStripMenuItem();
             this.materialDivider2 = new MaterialSkin.Controls.MaterialDivider();
             this.materialLabel2 = new MaterialSkin.Controls.MaterialLabel();
+            this.materialDivider3 = new MaterialSkin.Controls.MaterialDivider();
+            this.materialLabel3 = new MaterialSkin.Controls.MaterialLabel();
+            this.clockedView = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.assignmentsMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -251,11 +254,57 @@
             this.materialLabel2.TabIndex = 10;
             this.materialLabel2.Text = "Assignments:";
             // 
+            // materialDivider3
+            // 
+            this.materialDivider3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialDivider3.Depth = 0;
+            this.materialDivider3.Location = new System.Drawing.Point(357, 78);
+            this.materialDivider3.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialDivider3.Name = "materialDivider3";
+            this.materialDivider3.Size = new System.Drawing.Size(16, 115);
+            this.materialDivider3.TabIndex = 11;
+            this.materialDivider3.Text = "materialDivider3";
+            // 
+            // materialLabel3
+            // 
+            this.materialLabel3.AutoSize = true;
+            this.materialLabel3.Depth = 0;
+            this.materialLabel3.Font = new System.Drawing.Font("Roboto", 11F);
+            this.materialLabel3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.materialLabel3.Location = new System.Drawing.Point(390, 78);
+            this.materialLabel3.MouseState = MaterialSkin.MouseState.HOVER;
+            this.materialLabel3.Name = "materialLabel3";
+            this.materialLabel3.Size = new System.Drawing.Size(68, 19);
+            this.materialLabel3.TabIndex = 12;
+            this.materialLabel3.Text = "Clocked:";
+            // 
+            // clockedView
+            // 
+            this.clockedView.Depth = 0;
+            this.clockedView.Hint = "Clocked";
+            this.clockedView.Location = new System.Drawing.Point(394, 111);
+            this.clockedView.MaxLength = 32767;
+            this.clockedView.MouseState = MaterialSkin.MouseState.HOVER;
+            this.clockedView.Name = "clockedView";
+            this.clockedView.PasswordChar = '\0';
+            this.clockedView.ReadOnly = true;
+            this.clockedView.SelectedText = "";
+            this.clockedView.SelectionLength = 0;
+            this.clockedView.SelectionStart = 0;
+            this.clockedView.Size = new System.Drawing.Size(140, 23);
+            this.clockedView.TabIndex = 13;
+            this.clockedView.TabStop = false;
+            this.clockedView.UseSystemPasswordChar = false;
+            // 
             // OfficerView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Window;
             this.ClientSize = new System.Drawing.Size(557, 552);
+            this.Controls.Add(this.clockedView);
+            this.Controls.Add(this.materialLabel3);
+            this.Controls.Add(this.materialDivider3);
             this.Controls.Add(this.materialLabel2);
             this.Controls.Add(this.materialDivider2);
             this.Controls.Add(this.materialListView1);
@@ -296,5 +345,8 @@
         private MaterialSkin.Controls.MaterialContextMenuStrip assignmentsMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem addAssignment;
         private System.Windows.Forms.ToolStripMenuItem createAssignment;
+        private MaterialSkin.Controls.MaterialDivider materialDivider3;
+        private MaterialSkin.Controls.MaterialLabel materialLabel3;
+        private MaterialSkin.Controls.MaterialSingleLineTextField clockedView;
     }
 }

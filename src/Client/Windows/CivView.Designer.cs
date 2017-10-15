@@ -204,7 +204,7 @@
             this.notesView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             noteColumn});
             this.notesView.Depth = 0;
-            this.notesView.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F);
+            this.notesView.Font = new System.Drawing.Font("Roboto", 32F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
             this.notesView.FullRowSelect = true;
             this.notesView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.notesView.Location = new System.Drawing.Point(13, 247);
@@ -235,7 +235,7 @@
             this.amountColumn,
             this.descColumn});
             this.ticketsView.Depth = 0;
-            this.ticketsView.Font = new System.Drawing.Font("Microsoft Sans Serif", 24F);
+            this.ticketsView.Font = new System.Drawing.Font("Roboto", 32F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
             this.ticketsView.FullRowSelect = true;
             this.ticketsView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.ticketsView.Location = new System.Drawing.Point(487, 111);

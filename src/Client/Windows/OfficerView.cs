@@ -38,7 +38,7 @@ namespace DispatchSystem.cl.Windows
         public void UpdateCurrentInformation()
         {
             this.nameView.Text = ofc.Callsign;
-
+            this.clockedView.Text = ofc.Creation.ToLocalTime().ToString("H:m:s tt");
             switch (ofc.Status)
             {
                 case OfficerStatus.OnDuty:
