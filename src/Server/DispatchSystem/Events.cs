@@ -214,6 +214,19 @@ namespace DispatchSystem.sv
             SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
 #endif
         }
+        public static void DisplayStatus(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetOfficer(handle) != null)
+            {
+                Officer ofc = GetOfficer(handle);
+
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, string.Format("Your status is: {0}", ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy"));
+            }
+            else
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must create an officer first");
+        }
         public static void ToggleOnDuty(string handle)
         {
             Player p = GetPlayerByHandle(handle);

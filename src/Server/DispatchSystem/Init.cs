@@ -39,6 +39,7 @@ namespace DispatchSystem.sv
             EventHandlers["dispatchsystem:onDuty"] += new Action<string>(ToggleOnDuty);
             EventHandlers["dispatchsystem:offDuty"] += new Action<string>(ToggleOffDuty);
             EventHandlers["dispatchsystem:busy"] += new Action<string>(ToggleBusy);
+            EventHandlers["dispatchsystem:displayStatus"] += new Action<string>(DisplayStatus);
             EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
             EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
             EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
@@ -202,7 +203,7 @@ namespace DispatchSystem.sv
                     await Delay(0);
                     if (args.Length < 1)
                     {
-                        SendUsage(p, "/status {on|off|busy}");
+                        TriggerEvent("dispatchsystem:displayStatus", p.Handle);
                         return false;
                     }
                     if (args[0].ToLower() == "on")
