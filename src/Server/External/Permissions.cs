@@ -44,7 +44,7 @@ namespace DispatchSystem.sv.External
         string fileName;
         string resourceName;
 
-        List<(string, string)> items = new List<(string, string)>();
+        List<Tuple<string, string>> items = new List<Tuple<string, string>>();
 
         public Permission CivilianPermission { get; private set; } = Permission.Specific;
         public Permission LeoPermission { get; private set; } = Permission.Specific;
@@ -120,7 +120,7 @@ namespace DispatchSystem.sv.External
                         DispatchPermission = Permission.None;
                 }
                 else
-                    items.Add((current, line));
+                    items.Add(new Tuple<string, string>(current, line));
             }
 
             Log.WriteLine("Permissions set!");
