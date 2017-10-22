@@ -208,11 +208,20 @@ namespace DispatchSystem.sv
                 return;
             }
 
-            officers.Add(new Officer(p.Identifiers["ip"], callsign));
-            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Assigning new officer for callsign {callsign}");
+            if (GetOfficer(handle) == null)
+            {
+                officers.Add(new Officer(p.Identifiers["ip"], callsign));
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Assigning new officer for callsign {callsign}");
 #if DEBUG
-            SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
+                SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
 #endif
+            }
+            else
+            {
+                int index = officers.IndexOf(GetOfficer(handle));
+                officers[index] = new Officer(p.Identifiers["ip"], callsign);
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Changing your callsign to {callsign}");
+            }
         }
         public static void DisplayStatus(string handle)
         {
