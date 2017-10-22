@@ -153,7 +153,7 @@ namespace DispatchSystem.cl.Windows
             await Resync(true); 
         }
 
-        private void OnViewCivClick(object sender, EventArgs e)
+        private void ViewOfficer(object sender, EventArgs e)
         {
             ListViewItem focusesItem = officers.FocusedItem;
             int index = officers.Items.IndexOf(focusesItem);

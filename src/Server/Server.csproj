@@ -35,9 +35,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ref\cfx_server\CitizenFX.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Dispatch.Common">
-      <HintPath>..\bin\Common\Debug\Dispatch.Common.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -74,6 +71,12 @@
     <None Include="settings.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{98d8a98f-63af-4cc1-9455-07390b2438a4}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

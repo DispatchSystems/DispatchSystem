@@ -79,6 +79,7 @@
             this.officers.TabIndex = 1;
             this.officers.UseCompatibleStateImageBehavior = false;
             this.officers.View = System.Windows.Forms.View.Details;
+            this.officers.DoubleClick += new System.EventHandler(this.ViewOfficer);
             this.officers.MouseClick += new System.Windows.Forms.MouseEventHandler(this.OnMouseClick);
             // 
             // ofcCallsign
@@ -108,7 +109,7 @@
             this.viewStripItem.Name = "viewStripItem";
             this.viewStripItem.Size = new System.Drawing.Size(125, 22);
             this.viewStripItem.Text = "View";
-            this.viewStripItem.Click += new System.EventHandler(this.OnViewCivClick);
+            this.viewStripItem.Click += new System.EventHandler(this.ViewOfficer);
             // 
             // setStatusStripItem
             // 

@@ -465,6 +465,8 @@ namespace DispatchSystem.sv
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
             officers = new StorageManager<Officer>();
+            assignments = new List<Assignment>();
+            ofcAssignments = new Dictionary<Officer, Assignment>();
             commands = new Dictionary<string, Command>();
             bolos = new StorageManager<Bolo>();
         }

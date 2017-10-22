@@ -15,6 +15,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
         public float Amount => _amount;
 
         public DateTime Creation { get; }
+        public Guid Id { get; }
 
         public Ticket(string reason, float amount)
         {
@@ -22,6 +23,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
             _amount = amount;
 
             Creation = DateTime.Now;
+            Id = Guid.NewGuid();
         }
     }
 }

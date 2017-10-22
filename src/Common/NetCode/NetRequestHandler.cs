@@ -252,8 +252,17 @@ namespace DispatchSystem.Common.NetCode
             if (request.Metadata != NetRequestMetadata.FunctionRequest)
                 return false;
 
-            string functionName = (string)request.Data.Value[0];
-            object[] parameters = (object[])request.Data.Value[1];
+            string functionName = null;
+            object[] parameters = null;
+            try
+            {
+                functionName = (string)request.Data.Value[0];
+                parameters = (object[])request.Data.Value[1];
+            }
+            catch (Exception e)
+            {
+                Log.WriteLine(e.ToString());
+            }
 
             if (!Functions.ContainsKey(functionName))
             {

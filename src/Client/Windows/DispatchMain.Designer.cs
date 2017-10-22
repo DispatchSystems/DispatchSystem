@@ -41,6 +41,7 @@
             this.materialDivider2 = new MaterialSkin.Controls.MaterialDivider();
             this.cadLabel = new MaterialSkin.Controls.MaterialLabel();
             this.viewOfficers = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.btnViewAssignments = new MaterialSkin.Controls.MaterialRaisedButton();
             this.SuspendLayout();
             // 
             // civLabel
@@ -238,6 +239,22 @@
             this.viewOfficers.UseVisualStyleBackColor = true;
             this.viewOfficers.Click += new System.EventHandler(this.OnViewOfficersClick);
             // 
+            // btnViewAssignments
+            // 
+            this.btnViewAssignments.AutoSize = true;
+            this.btnViewAssignments.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnViewAssignments.Depth = 0;
+            this.btnViewAssignments.Icon = null;
+            this.btnViewAssignments.Location = new System.Drawing.Point(345, 334);
+            this.btnViewAssignments.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnViewAssignments.Name = "btnViewAssignments";
+            this.btnViewAssignments.Primary = true;
+            this.btnViewAssignments.Size = new System.Drawing.Size(152, 36);
+            this.btnViewAssignments.TabIndex = 15;
+            this.btnViewAssignments.Text = "View Assignments";
+            this.btnViewAssignments.UseVisualStyleBackColor = true;
+            this.btnViewAssignments.Click += new System.EventHandler(this.OnViewAssignmentsClick);
+            // 
             // DispatchMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -245,6 +262,7 @@
             this.BackColor = System.Drawing.SystemColors.Window;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(505, 382);
+            this.Controls.Add(this.btnViewAssignments);
             this.Controls.Add(this.cadLabel);
             this.Controls.Add(this.viewOfficers);
             this.Controls.Add(this.materialDivider2);
@@ -283,5 +301,6 @@
         private MaterialSkin.Controls.MaterialDivider materialDivider2;
         private MaterialSkin.Controls.MaterialLabel cadLabel;
         private MaterialSkin.Controls.MaterialRaisedButton viewOfficers;
+        private MaterialSkin.Controls.MaterialRaisedButton btnViewAssignments;
     }
 }

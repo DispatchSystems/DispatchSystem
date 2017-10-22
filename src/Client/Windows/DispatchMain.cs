@@ -28,6 +28,7 @@ namespace DispatchSystem.cl.Windows
 
         BoloView boloWindow = null;
         MultiOfficerView officersWindow = null;
+        AssignmentsView assignmentsWindow = null;
 
         public DispatchMain()
         {
@@ -160,6 +161,36 @@ namespace DispatchSystem.cl.Windows
                 {
                     (officersWindow = new MultiOfficerView(result.Item2)).Show();
                     officersWindow.FormClosed += delegate { officersWindow = null; };
+                });
+            }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        private async void OnViewAssignmentsClick(object sender, EventArgs e)
+        {
+            if (assignmentsWindow != null)
+            {
+                MessageBox.Show("You cannot have 2 instances of the Assignments window open at the same time!\n" +
+                    "Try pressing the Resync button inside your officers window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+
+            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(Config.IP, Config.Port); }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+
+            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            if (result.Item2 != null)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    (assignmentsWindow = new AssignmentsView(result.Item2)).Show();
+                    assignmentsWindow.FormClosed += delegate { assignmentsWindow = null; };
                 });
             }
             else

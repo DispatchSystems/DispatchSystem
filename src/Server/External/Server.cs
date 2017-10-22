@@ -55,32 +55,39 @@ namespace DispatchSystem.sv.External
                     }
                 }, tcp.AcceptSocket());
         }
-        private async void Connect(object socket0)
+        private void Connect(object socket0)
         {
-#if DEBUG
-            Log.WriteLine($"New connection from ip");
-#else
-            Log.WriteLineSilent($"New connection from ip");
-#endif
             NetRequestHandler net = new NetRequestHandler((Socket)socket0);
+
+#if DEBUG
+            Log.WriteLine($"[{net.IP}] New connection");
+#else
+            Log.WriteLineSilent($"[{net.IP}] New connection");
+#endif
 
             net.Functions.Add("GetCivilian", new NetFunction(GetCivilian));
             net.Functions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
             net.Functions.Add("GetBolos", new NetFunction(GetBolos));
             net.Functions.Add("GetOfficers", new NetFunction(GetOfficers));
             net.Functions.Add("GetOfficer", new NetFunction(GetOfficer));
+            net.Functions.Add("GetAssignments", new NetFunction(GetAssignments));
+            net.Functions.Add("CreateAssignment", new NetFunction(NewAssignment));
+            net.Functions.Add("GetOfficerAssignment", new NetFunction(GetOfcAssignment));
+            net.Events.Add("AddOfficerAssignment", new NetEvent(AddOfcAssignment));
+            net.Events.Add("RemoveAssignment", new NetEvent(RemoveAssignment));
+            net.Events.Add("RemoveOfficerAssignment", new NetEvent(RemoveOfcAssignment));
             net.Events.Add("SetStatus", new NetEvent(ChangeOfficerStatus));
             net.Events.Add("RemoveOfficer", new NetEvent(RemoveOfficer));
             net.Events.Add("AddBolo", new NetEvent(AddBolo));
             net.Events.Add("RemoveBolo", new NetEvent(RemoveBolo));
             net.Events.Add("AddNote", new NetEvent(AddNote));
 
-            await net.Receive();
+            net.Receive().Wait();
 
 #if DEBUG
-            Log.WriteLine($"Connection from ip broken");
+            Log.WriteLine($"[{net.IP}] Connection broken");
 #else
-            Log.WriteLineSilent($"Connection from ip broken");
+            Log.WriteLineSilent($"[{net.IP}] Connection broken");
 #endif
         }
 
@@ -184,7 +191,7 @@ namespace DispatchSystem.sv.External
             if (CheckAndDispose(sender))
                 return null;
 
-            string ip = (string)args[0];
+            Guid id = (Guid)args[0];
 
 #if DEBUG
             Log.WriteLine("Get officer Request Received");
@@ -192,9 +199,135 @@ namespace DispatchSystem.sv.External
             Log.WriteLineSilent("Get officer Request Received");
 #endif
 
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.SourceIP == ip);
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == id);
             ofc = ofc ?? Officer.Empty;
             return ofc;
+        }
+        private async Task<object> GetAssignments(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+
+#if DEBUG
+            Log.WriteLine("Get assignments Request Received");
+#else
+            Log.WriteLineSilent("Get assignments Request Received");
+#endif
+
+            return DispatchSystem.assignments.AsEnumerable();
+        }
+        private async Task<object> GetOfcAssignment(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+
+#if DEBUG
+            Log.WriteLine("Get officer assignments Request Received");
+#else
+            Log.WriteLineSilent("Get officer assignments Request Received");
+#endif
+            Guid id = (Guid)args[0];
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == id);
+
+            return Common.GetOfficerAssignment(ofc);
+        }
+        private async Task AddOfcAssignment(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+
+#if DEBUG
+            Log.WriteLine("Add officer assignment Request Received");
+#else
+            Log.WriteLineSilent("Add officer assignment Request Received");
+#endif
+
+            Guid id = (Guid)args[0];
+            Guid ofcId = (Guid)args[1];
+
+            Assignment assignment = DispatchSystem.assignments.Find(x => x.Id == id);
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcId);
+            if (assignment is null || ofc is null)
+                return;
+            if (DispatchSystem.ofcAssignments.ContainsKey(ofc))
+                return;
+
+            DispatchSystem.ofcAssignments.Add(ofc, assignment);
+
+            ofc.Status = OfficerStatus.OffDuty;
+
+            DispatchSystem.Invoke(() =>
+            {
+                Player p = Common.GetPlayerByIp(ofc.SourceIP);
+                if (p != null)
+                    Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, $"New assignment added: \"{assignment.Summary}\"");
+            });
+        } 
+        private async Task<object> NewAssignment(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return null;
+
+#if DEBUG
+            Log.WriteLine("New assignment Request Received");
+#else
+            Log.WriteLineSilent("New assignment Request Received");
+#endif
+
+            string summary = args[0] as string;
+
+            Assignment assignment = new Assignment(summary);
+            DispatchSystem.assignments.Add(assignment);
+            return assignment.Id;
+        }
+        private async Task RemoveAssignment(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+
+#if DEBUG
+            Log.WriteLine("Remove assignment Request Received");
+#else
+            Log.WriteLineSilent("Remove assignment Request Received");
+#endif
+
+            Assignment item = args[0] as Assignment;
+
+            Assignment item2 = DispatchSystem.assignments.ToList().Find(x => x.Id == item.Id);
+            Common.RemoveAllInstancesOfAssignment(item2);
+        }
+        private async Task RemoveOfcAssignment(NetRequestHandler sender, object[] args)
+        {
+            await Task.FromResult(0);
+            if (CheckAndDispose(sender))
+                return;
+
+#if DEBUG
+            Log.WriteLine("Remove officer assignment Request Received");
+#else
+            Log.WriteLineSilent("Remove officer assignment Request Received");
+#endif
+
+            Guid ofcId = (Guid)args[0];
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcId);
+            if (ofc == null) return;
+
+            if (!DispatchSystem.ofcAssignments.ContainsKey(ofc)) return;
+            DispatchSystem.ofcAssignments.Remove(ofc);
+
+            ofc.Status = OfficerStatus.OnDuty;
+
+            DispatchSystem.Invoke(() =>
+            {
+                Player p = Common.GetPlayerByIp(ofc.SourceIP);
+                if (p != null)
+                    Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "Your assignment has been removed by a dispatcher");
+            });
         }
         private async Task ChangeOfficerStatus(NetRequestHandler sender, object[] args)
         {
@@ -212,23 +345,10 @@ namespace DispatchSystem.sv.External
             Officer ofc = (Officer)args[0];
             OfficerStatus status = (OfficerStatus)args[1];
 
-            try
-            {
-                ofc = DispatchSystem.officers.ToList().Find(x => x.SourceIP == ofc.SourceIP);
-                index = DispatchSystem.officers.IndexOf(ofc);
-                if (index == -1)
-                    throw new IndexOutOfRangeException("The index was out of range!");
-            }
-            catch (IndexOutOfRangeException)
-            {
-#if DEBUG
-                Log.WriteLine("Officer not found, aborting...");
-#else
-                Log.WriteLineSilent("Officer not found, aborting...");
-#endif
-
+            ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofc.Id);
+            index = DispatchSystem.officers.IndexOf(ofc);
+            if (index == -1)
                 return;
-            }
 
             Officer ourOfc = DispatchSystem.officers[index];
 
@@ -240,6 +360,14 @@ namespace DispatchSystem.sv.External
 #else
                 Log.WriteLineSilent("Setting officer status to " + status.ToString());
 #endif
+
+                DispatchSystem.Invoke(() =>
+                {
+                    Player p = Common.GetPlayerByIp(ourOfc.SourceIP);
+                    if (p != null)
+                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, 
+                            string.Format("Dispatcher set status to {0}", ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy"));
+                });
             }
             else
             {
@@ -264,42 +392,16 @@ namespace DispatchSystem.sv.External
 
             Officer ofcGiven = (Officer)args[0];
 
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.SourceIP == ofcGiven.SourceIP);
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcGiven.Id);
             if (ofc != null)
             {
-                /*
-                try
+                DispatchSystem.Invoke(delegate
                 {
-                    Player p = new PlayerList().ToList().Find(x => x.Identifiers["ip"] == ofc.SourceIP); // Crashes at this
+                    Player p = Common.GetPlayerByIp(ofc.SourceIP);
 
                     if (p != null)
-                    {
-                        BaseScript.TriggerClientEvent(p, "chatMessage", "DispatchSystem", new[] { 0,0,0}, "test");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.WriteLine(e.ToString());
-                }
-                */
-
-                // Adding a item to execute on the main thread
-                try
-                {
-                    DispatchSystem.Invoke(delegate
-                    {
-                        Player p = Common.GetPlayerByIp(ofc.SourceIP);
-
-                        if (p != null)
-                        {
-                            Common.SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You have been removed from your officer role by a dispatcher");
-                        }
-                    });
-                }
-                catch (Exception e)
-                {
-                    Log.WriteLine(e.ToString());
-                }
+                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "You have been removed from your officer role by a dispatcher");
+                });
 
                 DispatchSystem.officers.Remove(ofc);
 

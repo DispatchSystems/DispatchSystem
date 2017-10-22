@@ -24,6 +24,9 @@ namespace DispatchSystem.cl.Windows
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
         Officer ofc;
+        Assignment assignment = null;
+        AddRemoveView addBtn = null;
+        AddExistingAssignment addExisting = null;
 
         public OfficerView(Officer data)
         {
@@ -32,13 +35,13 @@ namespace DispatchSystem.cl.Windows
             InitializeComponent();
 
             ofc = data;
-            UpdateCurrentInformation();
+            SetAssignment().Wait();
         }
 
         public void UpdateCurrentInformation()
         {
             this.nameView.Text = ofc.Callsign;
-            this.clockedView.Text = ofc.Creation.ToLocalTime().ToString("H:m:s tt");
+            this.clockedView.Text = ofc.Creation.ToLocalTime().ToString("HH:mm:ss");
             switch (ofc.Status)
             {
                 case OfficerStatus.OnDuty:
@@ -51,8 +54,30 @@ namespace DispatchSystem.cl.Windows
                     radioBusy.Checked = true;
                     break;
             }
+            materialListView1.Items.Clear();
+            if (!(assignment is null))
+            {
+                ListViewItem lvi = new ListViewItem(assignment.Creation.ToString("HH:mm:ss"));
+                lvi.SubItems.Add(assignment.Summary);
+                materialListView1.Items.Add(lvi);
+            }
         }
 
+        public async Task SetAssignment()
+        {
+            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(Config.IP, Config.Port); }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+
+            Tuple<NetRequestResult, Assignment> result = await handle.TryTriggerNetFunction<Assignment>("GetOfficerAssignment", ofc.Id);
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            assignment = result.Item2;
+            UpdateCurrentInformation();
+        }
         public async Task Resync(bool skipTime)
         {
             if (((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing) && !skipTime)
@@ -70,7 +95,7 @@ namespace DispatchSystem.cl.Windows
 
             NetRequestHandler handle = new NetRequestHandler(usrSocket);
 
-            Tuple<NetRequestResult, Officer> result = await handle.TryTriggerNetFunction<Officer>("GetOfficer", ofc.SourceIP);
+            Tuple<NetRequestResult, Officer> result = await handle.TryTriggerNetFunction<Officer>("GetOfficer", ofc.Id);
             usrSocket.Shutdown(SocketShutdown.Both);
             usrSocket.Close();
 
@@ -78,10 +103,10 @@ namespace DispatchSystem.cl.Windows
             {
                 if (result.Item2.SourceIP != string.Empty && result.Item2.Callsign != string.Empty)
                 {
-                    Invoke((MethodInvoker)delegate
+                    Invoke((MethodInvoker)async delegate
                     {
                         ofc = result.Item2;
-                        UpdateCurrentInformation();
+                        await SetAssignment();
                     });
                 }
                 else
@@ -89,6 +114,8 @@ namespace DispatchSystem.cl.Windows
             }
             else
                 MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            IsCurrentlySyncing = false;
         }
 
         private async void StatusClick(object sender, EventArgs e)
@@ -140,6 +167,33 @@ namespace DispatchSystem.cl.Windows
             await Resync(true);
         }
 
+        private void OnCreateNewAssignment(object sender, EventArgs e)
+        {
+            if (addBtn != null)
+            {
+                MessageBox.Show("You cannot have 2 instanced of this window open at the same time!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            Invoke((MethodInvoker)delegate
+            {
+                (addBtn = new AddRemoveView(AddRemoveView.Type.AddAssignment)).Show();
+                addBtn.FormClosed += async delegate
+                {
+                    Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    try { usrSocket.Connect(Config.IP, Config.Port); }
+                    catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                    NetRequestHandler handle = new NetRequestHandler(usrSocket);
+
+                    await handle.TriggerNetEvent("AddOfficerAssignment", addBtn.LastGuid, ofc.Id);
+
+                    addBtn = null;
+                    await Resync(true);
+                };
+            });
+        }
+
         private async void OnResyncClick(object sender, EventArgs e)
         {
 #if DEBUG
@@ -147,6 +201,41 @@ namespace DispatchSystem.cl.Windows
 #else
             await Resync(false);
 #endif
+        }
+
+        private async void OnRemoveSelectedClick(object sender, EventArgs e)
+        {
+            if (materialListView1.FocusedItem == null)
+                return;
+
+            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            try { usrSocket.Connect(Config.IP, Config.Port); }
+            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+
+            await handle.TryTriggerNetEvent("RemoveOfficerAssignment", ofc.Id);
+
+            usrSocket.Shutdown(SocketShutdown.Both);
+            usrSocket.Close();
+
+            await Resync(true);
+        }
+
+        private void OnAddToExistingClick(object sender, EventArgs e)
+        {
+            if (addExisting != null)
+            {
+                MessageBox.Show("You cannot have 2 instances of the same window open", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                return;
+            }
+
+            (addExisting = new AddExistingAssignment(ofc)).Show();
+            addExisting.FormClosed += async delegate
+            {
+                addExisting = null;
+                await Resync(true);
+            };
         }
     }
 }

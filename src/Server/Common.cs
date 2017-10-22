@@ -83,6 +83,23 @@ namespace DispatchSystem.sv
 
             return null;
         }
+        public static Assignment GetOfficerAssignment(Officer ofc)
+        {
+            if (ofcAssignments.ContainsKey(ofc))
+            {
+                return ofcAssignments[ofc];
+            }
+            else
+                return null;
+        }
+        internal static void RemoveAllInstancesOfAssignment(Assignment assignment)
+        {
+            foreach (var item in ofcAssignments)
+                if (item.Value.Id == assignment.Id)
+                    ofcAssignments.Remove(item.Key);
+
+            assignments.Remove(assignment);
+        }
 
         internal static Player GetPlayerByHandle(string handle)
         {

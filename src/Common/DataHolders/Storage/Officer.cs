@@ -18,11 +18,9 @@ namespace DispatchSystem.Common.DataHolders.Storage
     {
         public string Callsign { get; set; }
         public OfficerStatus Status { get; set; }
-        public override DateTime Creation { get; }
 
         public Officer(string ip, string callsign) : base(ip)
         {
-            Creation = DateTime.Now;
             Callsign = callsign;
 
             Status = OfficerStatus.OffDuty;

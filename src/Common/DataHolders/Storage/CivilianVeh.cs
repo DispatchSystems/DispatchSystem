@@ -15,14 +15,12 @@ namespace DispatchSystem.Common.DataHolders.Storage
         public bool StolenStatus { get; set; }
         public bool Registered { get; set; }
         public bool Insured { get; set; }
-        public override DateTime Creation { get; }
 
         public CivilianVeh(string ip) : base(ip)
         {
             StolenStatus = false;
             Registered = true;
             Insured = true;
-            Creation = DateTime.Now;
         }
 
         // Below is for communcation reasons between server and client

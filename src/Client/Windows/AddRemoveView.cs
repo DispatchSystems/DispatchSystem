@@ -1,20 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using MaterialSkin;
-using MaterialSkin.Controls;
-
-using System.Net;
 using System.Net.Sockets;
-using DispatchSystem.Common.DataHolders;
+
 using DispatchSystem.Common.NetCode;
+
+using MaterialSkin.Controls;
 
 namespace DispatchSystem.cl.Windows
 {
@@ -24,10 +15,12 @@ namespace DispatchSystem.cl.Windows
         {
             AddBolo,
             RemoveBolo,
-            AddNote
+            AddNote,
+            AddAssignment
         }
 
         public Type FormType { get; }
+        public Guid LastGuid { get; protected set; }
         public bool OperationDone { get; private set; } = false;
         private object[] arguments;
         Socket usrSocket;
@@ -40,6 +33,13 @@ namespace DispatchSystem.cl.Windows
             FormType = formType;
             arguments = args;
 
+            if (formType == Type.AddAssignment)
+            {
+                this.Text = "Add Assignment";
+                addRemoveBtn.Text = "Add";
+                line1.Hint = "Summary";
+                line2.Visible = false;
+            }
             if (formType == Type.AddBolo)
             {
                 this.Text = "Add BOLO";
@@ -94,9 +94,18 @@ namespace DispatchSystem.cl.Windows
                         line1.ResetText();
                         break;
                     }
+                case Type.AddAssignment:
+                    {
+                        if (!string.IsNullOrEmpty(line1.Text))
+                        {
+                            Tuple<NetRequestResult, Guid> result = await handle.TryTriggerNetFunction<Guid>("CreateAssignment", line1.Text);
+                            LastGuid = result.Item2;
+                        }
+                        break;
+                    }
             }
 
-            this.Hide();
+            this.Close();
             this.OperationDone = true;
 
             usrSocket.Shutdown(SocketShutdown.Both);

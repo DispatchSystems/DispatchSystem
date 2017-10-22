@@ -37,11 +37,12 @@
             this.radioBusy = new MaterialSkin.Controls.MaterialRadioButton();
             this.materialDivider1 = new MaterialSkin.Controls.MaterialDivider();
             this.materialListView1 = new MaterialSkin.Controls.MaterialListView();
-            this.assNum = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.assCreate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.assSummary = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.assignmentsMenuStrip = new MaterialSkin.Controls.MaterialContextMenuStrip();
             this.addAssignment = new System.Windows.Forms.ToolStripMenuItem();
             this.createAssignment = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.materialDivider2 = new MaterialSkin.Controls.MaterialDivider();
             this.materialLabel2 = new MaterialSkin.Controls.MaterialLabel();
             this.materialDivider3 = new MaterialSkin.Controls.MaterialDivider();
@@ -180,7 +181,7 @@
             // 
             this.materialListView1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.materialListView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.assNum,
+            this.assCreate,
             this.assSummary});
             this.materialListView1.ContextMenuStrip = this.assignmentsMenuStrip;
             this.materialListView1.Depth = 0;
@@ -197,10 +198,10 @@
             this.materialListView1.UseCompatibleStateImageBehavior = false;
             this.materialListView1.View = System.Windows.Forms.View.Details;
             // 
-            // assNum
+            // assCreate
             // 
-            this.assNum.Text = "Number";
-            this.assNum.Width = 102;
+            this.assCreate.Text = "Creation";
+            this.assCreate.Width = 102;
             // 
             // assSummary
             // 
@@ -213,22 +214,32 @@
             this.assignmentsMenuStrip.Depth = 0;
             this.assignmentsMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addAssignment,
-            this.createAssignment});
+            this.createAssignment,
+            this.removeSelectedToolStripMenuItem});
             this.assignmentsMenuStrip.MouseState = MaterialSkin.MouseState.HOVER;
             this.assignmentsMenuStrip.Name = "assignmentsMenuStrip";
-            this.assignmentsMenuStrip.Size = new System.Drawing.Size(154, 48);
+            this.assignmentsMenuStrip.Size = new System.Drawing.Size(165, 92);
             // 
             // addAssignment
             // 
             this.addAssignment.Name = "addAssignment";
-            this.addAssignment.Size = new System.Drawing.Size(153, 22);
+            this.addAssignment.Size = new System.Drawing.Size(164, 22);
             this.addAssignment.Text = "Add to Existing";
+            this.addAssignment.Click += new System.EventHandler(this.OnAddToExistingClick);
             // 
             // createAssignment
             // 
             this.createAssignment.Name = "createAssignment";
-            this.createAssignment.Size = new System.Drawing.Size(153, 22);
+            this.createAssignment.Size = new System.Drawing.Size(164, 22);
             this.createAssignment.Text = "Create New";
+            this.createAssignment.Click += new System.EventHandler(this.OnCreateNewAssignment);
+            // 
+            // removeSelectedToolStripMenuItem
+            // 
+            this.removeSelectedToolStripMenuItem.Name = "removeSelectedToolStripMenuItem";
+            this.removeSelectedToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.removeSelectedToolStripMenuItem.Text = "Remove Selected";
+            this.removeSelectedToolStripMenuItem.Click += new System.EventHandler(this.OnRemoveSelectedClick);
             // 
             // materialDivider2
             // 
@@ -250,9 +261,9 @@
             this.materialLabel2.Location = new System.Drawing.Point(8, 245);
             this.materialLabel2.MouseState = MaterialSkin.MouseState.HOVER;
             this.materialLabel2.Name = "materialLabel2";
-            this.materialLabel2.Size = new System.Drawing.Size(101, 19);
+            this.materialLabel2.Size = new System.Drawing.Size(93, 19);
             this.materialLabel2.TabIndex = 10;
-            this.materialLabel2.Text = "Assignments:";
+            this.materialLabel2.Text = "Assignment:";
             // 
             // materialDivider3
             // 
@@ -338,7 +349,7 @@
         private MaterialSkin.Controls.MaterialRadioButton radioBusy;
         private MaterialSkin.Controls.MaterialDivider materialDivider1;
         private MaterialSkin.Controls.MaterialListView materialListView1;
-        private System.Windows.Forms.ColumnHeader assNum;
+        private System.Windows.Forms.ColumnHeader assCreate;
         private System.Windows.Forms.ColumnHeader assSummary;
         private MaterialSkin.Controls.MaterialDivider materialDivider2;
         private MaterialSkin.Controls.MaterialLabel materialLabel2;
@@ -348,5 +359,6 @@
         private MaterialSkin.Controls.MaterialDivider materialDivider3;
         private MaterialSkin.Controls.MaterialLabel materialLabel3;
         private MaterialSkin.Controls.MaterialSingleLineTextField clockedView;
+        private System.Windows.Forms.ToolStripMenuItem removeSelectedToolStripMenuItem;
     }
 }
