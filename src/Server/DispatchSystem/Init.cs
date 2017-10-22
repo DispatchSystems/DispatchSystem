@@ -58,18 +58,15 @@ namespace DispatchSystem.sv
                     await Delay(0);
                     if (GetCivilian(p.Handle) != null)
                     {
-                        int index = civs.IndexOf(GetCivilian(p.Handle));
-                        civs.RemoveAt(index);
+                        civs.Remove(GetCivilian(p.Handle));
                     }
                     if (GetCivilianVeh(p.Handle) != null)
                     {
-                        int index = civVehs.IndexOf(GetCivilianVeh(p.Handle));
-                        civVehs.RemoveAt(index);
+                        civVehs.Remove(GetCivilianVeh(p.Handle));
                     }
                     if (GetOfficer(p.Handle) != null)
                     {
-                        int index = officers.IndexOf(GetOfficer(p.Handle));
-                        officers.RemoveAt(index);
+                        officers.Remove(GetOfficer(p.Handle));
                     }
 
                     SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "All profiles reset");
