@@ -1,0 +1,42 @@
+@import url( 'https://fonts.googleapis.com/css?family=Roboto' );
+
+button.option {
+    background-color: #000000; 
+    border: 1px solid #000000;
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    padding: 10px 24px; 
+    margin: 8px 0px 8px 0px;
+    cursor: pointer; 
+    width: 200px; 
+    display: block;
+}
+button.sub:after {
+    font-weight: bold;
+    float: right;
+    content: ">>";
+}
+button.x:before {
+    font-weight: bold;
+    float: left;
+    color: red;
+    content: "X";
+}
+button.x:after {
+    font-weight: bold;
+    float: right;
+    color: red;
+    content: "X";
+}
+button.back:after {
+    font-weight: bold;
+    float: left;
+    content: "<<";
+}
+
+div {
+    position: fixed; /* or absolute */
+    top: 50%;
+    left: 30%;
+}

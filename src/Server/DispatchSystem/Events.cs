@@ -14,6 +14,26 @@ namespace DispatchSystem.sv
     public partial class DispatchSystem
     {
         #region Custom Events
+        public static void DispatchReset(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetCivilian(p.Handle) != null)
+            {
+                civs.Remove(GetCivilian(p.Handle));
+            }
+            if (GetCivilianVeh(p.Handle) != null)
+            {
+                civVehs.Remove(GetCivilianVeh(p.Handle));
+            }
+            if (GetOfficer(p.Handle) != null)
+            {
+                officers.Remove(GetOfficer(p.Handle));
+            }
+
+            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "All profiles reset");
+        }
+
         #region Civilian Events
         public static void SetName(string handle, string first, string last)
         {
@@ -384,12 +404,26 @@ namespace DispatchSystem.sv
             if (civ != null)
             {
                 if (civ.Notes.Count == 0)
-                    SendMessage(invoker, "", new[] { 0, 0, 0 }, "^9None");
+                    SendMessage(invoker, "", new[] { 0, 0, 0 }, "^7None");
                 else
                     civ.Notes.ForEach(x => SendMessage(invoker, "", new[] { 0, 0, 0 }, x));
             }
             else
                 SendMessage(invoker, "DispatchSystem", new[] { 0, 0, 0 }, "That name doesn't exist in the system");
+        }
+        public static void AddBolo(string handle, string reason)
+        {
+            Player p = GetPlayerByHandle(handle);
+            bolos.Add(new Bolo(p.Name, p.Identifiers["ip"], reason));
+            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"BOLO for \"{reason}\" added");
+        }
+        public static void ViewBolos(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+            if (bolos.Count > 0)
+                bolos.ToList().ForEach(x => SendMessage(p, "", new[] { 0, 0, 0 }, $"^8{x.Player}^7: ^3{x.Reason}"));
+            else
+                SendMessage(p, "", new[] { 0, 0, 0 }, "^7None");
         }
         #endregion
         #endregion

@@ -1,0 +1,29 @@
+// All lines that start with "//" without the quotes will be ignored
+
+// Permission settings:
+// 
+// "everyone" without the quotes means that everyone has the permission
+// EXAMPLE:
+// CIVILIAN:
+// everyone
+//
+// "none" without the quotes means that no one has the permission
+// EXAMPLE:
+// DISPATCHER:
+// none
+//
+// You can supply specific IP address to have the permission
+// EXAMPLE:
+// LEO:
+// 127.0.0.1
+// 192.168.1.2
+// 216.58.194.174
+
+CIVILIAN:
+everyone
+
+LEO:
+everyone
+
+DISPATCHER:
+everyone
