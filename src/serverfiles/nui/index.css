@@ -1,4 +1,4 @@
-@import url( 'https://fonts.googleapis.com/css?family=Roboto' );
+@import url('https://fonts.googleapis.com/css?family=Lato');
 
 button.option {
     background-color: #000000; 
@@ -11,6 +11,12 @@ button.option {
     cursor: pointer; 
     width: 200px; 
     display: block;
+    transition-duration: 0.25s;
+}
+button.option:hover {
+    background-color: lightseagreen;
+    border: 1px solid lightseagreen;
+    color: black;
 }
 button.sub:after {
     font-weight: bold;

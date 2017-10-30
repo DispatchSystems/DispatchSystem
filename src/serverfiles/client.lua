@@ -60,6 +60,26 @@ sendMessage("DispatchSystem", {0,0,0}, "DispatchSystem.Client by BlockBa5her loa
 ]]
 
 -- Civ Transactions
+local civName = nil
+local vehName = nil
+function displayCivilian()
+    Citizen.CreateThread(function()
+        if civName == nil then
+            drawNotification("You must set your name first!")
+            return
+        end
+        TriggerServerEvent("dispatchsystem:getCivilian", getHandle(), civName[1], civName[2])
+    end)
+end
+function displayVeh()
+    Citizen.CreateThread(function()
+        if vehName == nil then
+            drawNotification("You must set your vehicle first!")
+            return
+        end
+        TriggerServerEvent("dispatchsystem:getCivilianVeh", getHandle(), vehName)
+    end)
+end
 function createCivilian()
     Citizen.CreateThread(function()
         exitAllMenus()
@@ -70,10 +90,11 @@ function createCivilian()
         end
         local name = stringsplit(nameNotSplit, ' ')
         if tablelength(name) < 2 then
-            sendMessage("DispatchSystem", {0,0,0}, "You must have a first name and a last name")
+            drawNotification("You must have a first name and a last name")
             turnOnCivMenu()
             return
         end
+        civName = name
         TriggerServerEvent("dispatchsystem:setName", getHandle(), name[1], name[2])
         turnOnCivMenu()
     end)
@@ -89,7 +110,7 @@ function civCitations()
         local amount = tonumber(KeyboardInput("Citation Count", "", 3))
         if amount == nil then
             turnOnLeoMenu()
-            sendMessage("DispatchSystem", {0,0,0}, "You must have a valid number")
+            drawNotification("You must have a valid number")
             return
         end
         TriggerServerEvent("dispatchsystem:setCitations", getHandle(), amount)
@@ -104,6 +125,7 @@ function createCivVehicle()
             turnOnCivMenu()
             return
         end
+        vehName = plate
         TriggerServerEvent("dispatchsystem:setVehicle", getHandle(), plate)
         turnOnCivMenu()
     end)
@@ -136,7 +158,7 @@ local function setLastSearchedName()
     end
     local name = stringsplit(nameNotSplit, ' ')
     if tablelength(name) < 2 then
-        sendMessage("DispatchSystem", {0,0,0}, "You must have a first name and a last name")
+        drawNotification("You must have a first name and a last name")
         return
     end
     lastSearchedName = name
@@ -179,7 +201,7 @@ end
 function leoNcicNotes()
     Citizen.CreateThread(function()
         if lastSearchedName == nil then
-            sendMessage("DispatchSystem", {0,0,0}, "You must have searched a name before")
+            drawNotification("You must have searched a name before")
             return
         end
         TriggerServerEvent("dispatchsystem:displayCivNotes", getHandle(), lastSearchedName[1], lastSearchedName[2])
@@ -187,7 +209,7 @@ function leoNcicNotes()
 end
 function leoNcicTickets()
     if lastSearchedName == nil then
-        sendMessage("DispatchSystem", {0,0,0}, "You must have searched a name before")
+        drawNotification("You must have searched a name before")
         return
     end
     TriggerServerEvent("dispatchsystem:civTickets", getHandle(), lastSearchedName[1], lastSearchedName[2])
@@ -232,12 +254,12 @@ function leoAddTicket()
         local amount = tonumber(KeyboardInput("Amount", "", 7))
         if amount == nil then
             turnOnLeoMenu()
-            sendMessage("DispatchSystem", {0,0,0}, "You must have a valid number")
+            drawNotification("You must have a valid number")
             return
         end
         if amount > 9999.99 then
             turnOnLeoMenu()
-            sendMessage("DispatchSystem", {0,0,0}, "Your amount must be below 9999.99")
+            drawNotification("Your amount must be below 9999.99")
             return
         end
         local reason = KeyboardInput("Reason", "", 150)
@@ -342,6 +364,10 @@ RegisterNUICallback("ButtonClick", function(data, cb)
         toggleVehRegi()
     elseif data == "civ_vehinsurance" then
         toggleVehInsured()
+    elseif data == "civ_civdisplay" then
+        displayCivilian()
+    elseif data == "civ_vehdisplay" then
+        displayVeh()
 
     --[[LEO OPTIONS]]
     elseif data == "leo_create" then
