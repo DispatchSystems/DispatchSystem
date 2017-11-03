@@ -35,7 +35,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ref\cfx_server\CitizenFX.Core.dll</HintPath>
     </Reference>
+    <Reference Include="CloNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ref\CloNET.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -58,10 +63,9 @@
     <Compile Include="External\Config.cs" />
     <Compile Include="DispatchSystem\Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="External\Server.cs" />
+    <Compile Include="External\DispatchServer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="permissions.perms">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

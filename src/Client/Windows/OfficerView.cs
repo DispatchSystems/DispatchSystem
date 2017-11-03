@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 
-using MaterialSkin;
 using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.DataHolders;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
@@ -23,25 +17,25 @@ namespace DispatchSystem.cl.Windows
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
-        Officer ofc;
-        Assignment assignment = null;
-        AddRemoveView addBtn = null;
-        AddExistingAssignment addExisting = null;
+        private Officer ofc;
+        private Assignment assignment;
+        private AddRemoveView addBtn;
+        private AddExistingAssignment addExisting;
 
         public OfficerView(Officer data)
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
 
             InitializeComponent();
 
             ofc = data;
-            SetAssignment().Wait();
+            new Action(async delegate { await SetAssignment(); })();
         }
 
         public void UpdateCurrentInformation()
         {
-            this.nameView.Text = ofc.Callsign;
-            this.clockedView.Text = ofc.Creation.ToLocalTime().ToString("HH:mm:ss");
+            nameView.Text = ofc.Callsign;
+            clockedView.Text = ofc.Creation.ToLocalTime().ToString("HH:mm:ss");
             switch (ofc.Status)
             {
                 case OfficerStatus.OnDuty:
@@ -53,6 +47,8 @@ namespace DispatchSystem.cl.Windows
                 case OfficerStatus.Busy:
                     radioBusy.Checked = true;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
             materialListView1.Items.Clear();
             if (!(assignment is null))
@@ -65,17 +61,17 @@ namespace DispatchSystem.cl.Windows
 
         public async Task SetAssignment()
         {
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            using (Client handle = new Client())
+            {
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+                Tuple<NetRequestResult, Assignment> result = await handle.TryTriggerNetFunction<Assignment>("GetOfficerAssignment", ofc.Id);
+                handle.Disconnect();
 
-            Tuple<NetRequestResult, Assignment> result = await handle.TryTriggerNetFunction<Assignment>("GetOfficerAssignment", ofc.Id);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
+                assignment = result.Item2;
+            }
 
-            assignment = result.Item2;
             UpdateCurrentInformation();
         }
         public async Task Resync(bool skipTime)
@@ -89,81 +85,78 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, Officer> result = await handle.TryTriggerNetFunction<Officer>("GetOfficer", ofc.Id);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                if (result.Item2.SourceIP != string.Empty && result.Item2.Callsign != string.Empty)
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, Officer> result = await handle.TryTriggerNetFunction<Officer>("GetOfficer", ofc.Id);
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    Invoke((MethodInvoker)async delegate
+                    if (result.Item2.SourceIP != string.Empty && result.Item2.Callsign != string.Empty)
                     {
-                        ofc = result.Item2;
-                        await SetAssignment();
-                    });
+                        Invoke((MethodInvoker)async delegate
+                        {
+                            ofc = result.Item2;
+                            await SetAssignment();
+                        });
+                    }
+                    else
+                        MessageBox.Show("The officer profile has been deleted!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                 }
                 else
-                    MessageBox.Show("The officer profile has been deleted!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
 
         private async void StatusClick(object sender, EventArgs e)
         {
-            MaterialRadioButton _sender = (MaterialRadioButton)sender;
-
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            do
+            using (Client handle = new Client())
             {
-                if (_sender == radioOnDuty)
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                do
                 {
-                    if (ofc.Status == OfficerStatus.OnDuty)
+                    if (sender == radioOnDuty)
                     {
-                        MessageBox.Show("Really? That officer is already on duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        break;
-                    }
+                        if (ofc.Status == OfficerStatus.OnDuty)
+                        {
+                            MessageBox.Show("Really? That officer is already on duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                            break;
+                        }
 
-                    await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
-                }
-                else if (_sender == radioOffDuty)
-                {
-                    if (ofc.Status == OfficerStatus.OffDuty)
+                        await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
+                    }
+                    else if (sender == radioOffDuty)
                     {
-                        MessageBox.Show("Really? That officer is already off duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        break;
-                    }
+                        if (ofc.Status == OfficerStatus.OffDuty)
+                        {
+                            MessageBox.Show("Really? That officer is already off duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                            break;
+                        }
 
-                    await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OffDuty);
-                }
-                else
-                {
-                    if (ofc.Status == OfficerStatus.Busy)
+                        await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OffDuty);
+                    }
+                    else
                     {
-                        MessageBox.Show("Really? That officer is already busy!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                        break;
+                        if (ofc.Status == OfficerStatus.Busy)
+                        {
+                            MessageBox.Show("Really? That officer is already busy!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                            break;
+                        }
+
+                        await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.Busy);
                     }
+                } while (false);
 
-                    await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.Busy);
-                }
-            } while (false);
+                handle.Disconnect();
+            }
 
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
             await Resync(true);
         }
 
@@ -180,13 +173,13 @@ namespace DispatchSystem.cl.Windows
                 (addBtn = new AddRemoveView(AddRemoveView.Type.AddAssignment)).Show();
                 addBtn.FormClosed += async delegate
                 {
-                    Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    try { usrSocket.Connect(Config.IP, Config.Port); }
-                    catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+                    using (Client handle = new Client())
+                    {
+                        try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                        catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-                    NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-                    await handle.TriggerNetEvent("AddOfficerAssignment", addBtn.LastGuid, ofc.Id);
+                        await handle.TriggerNetEvent("AddOfficerAssignment", addBtn.LastGuid, ofc.Id);
+                    }
 
                     addBtn = null;
                     await Resync(true);
@@ -208,16 +201,15 @@ namespace DispatchSystem.cl.Windows
             if (materialListView1.FocusedItem == null)
                 return;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            using (Client handle = new Client())
+            {
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
+                await handle.TryTriggerNetEvent("RemoveOfficerAssignment", ofc.Id);
 
-            await handle.TryTriggerNetEvent("RemoveOfficerAssignment", ofc.Id);
-
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
+                handle.Disconnect();
+            }
 
             await Resync(true);
         }

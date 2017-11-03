@@ -1,22 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using MaterialSkin;
-using MaterialSkin.Controls;
-
-using System.Net;
 using System.Net.Sockets;
 
-using DispatchSystem.Common.DataHolders;
+using MaterialSkin.Controls;
+
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
@@ -25,15 +18,14 @@ namespace DispatchSystem.cl.Windows
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
-        Civilian data;
+        private Civilian data;
 
         public CivView(Civilian civData)
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
-
-            this.data = civData;
+            data = civData;
 
             UpdateCurrentInformation();
         }
@@ -62,7 +54,7 @@ namespace DispatchSystem.cl.Windows
             {
                 foreach (var item in data.Tickets)
                 {
-                    ListViewItem li = new ListViewItem($"${item.Amount.ToString()}");
+                    ListViewItem li = new ListViewItem($"${item.Amount}");
                     li.SubItems.Add(item.Reason);
                     ticketsView.Items.Add(li);
                 }
@@ -91,25 +83,25 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstNameView.Text) || string.IsNullOrWhiteSpace(lastNameView.Text))
                 return;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-            Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                Invoke((MethodInvoker)delegate
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    data = result.Item2;
-                    UpdateCurrentInformation();
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        data = result.Item2;
+                        UpdateCurrentInformation();
+                    });
+                }
+                else
+                    MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-            else
-                MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             IsCurrentlySyncing = false;
         }

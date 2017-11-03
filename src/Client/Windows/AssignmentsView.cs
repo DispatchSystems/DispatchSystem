@@ -9,7 +9,8 @@ using System.Net.Sockets;
 using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
@@ -17,13 +18,13 @@ namespace DispatchSystem.cl.Windows
     {
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; }
-        AddRemoveView addBtn = null;
+        private AddRemoveView addBtn;
 
-        IEnumerable<Assignment> assignments;
+        private IEnumerable<Assignment> assignments;
 
         public AssignmentsView(IEnumerable<Assignment> data)
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
             assignments = data;
@@ -51,26 +52,26 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                Invoke((MethodInvoker)delegate
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+
+                Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    assignments = result.Item2;
-                    UpdateCurrentInformation();
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        assignments = result.Item2;
+                        UpdateCurrentInformation();
+                    });
+                }
+                else
+                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -119,15 +120,14 @@ namespace DispatchSystem.cl.Windows
             int index = theAssignments.Items.IndexOf(theAssignments.FocusedItem);
             Assignment assignment = assignments.ToList()[index];
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            using (Client handle = new Client())
+            {
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            NetRequestResult result = await handle.TryTriggerNetEvent("RemoveAssignment", assignment);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
+                await handle.TryTriggerNetEvent("RemoveAssignment", assignment.Id);
+                handle.Disconnect();
+            }
 
             await Resync(true);
         }

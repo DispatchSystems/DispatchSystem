@@ -13,7 +13,8 @@ using System.Threading;
 using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
@@ -53,28 +54,27 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                while (!this.IsHandleCreated)
-                    await Task.Delay(50);
-                Invoke((MethodInvoker)delegate
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    assignments = result.Item2;
-                    UpdateCurrentInformation();
-                });
+                    while (!this.IsHandleCreated)
+                        await Task.Delay(50);
+                    Invoke((MethodInvoker)delegate
+                    {
+                        assignments = result.Item2;
+                        UpdateCurrentInformation();
+                    });
+                }
+                else
+                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -97,15 +97,14 @@ namespace DispatchSystem.cl.Windows
             int index = assignmentsView.Items.IndexOf(assignmentsView.FocusedItem);
             Assignment assignment = assignments.ToList()[index];
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+            using (Client handle = new Client())
+            {
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            await handle.TriggerNetEvent("AddOfficerAssignment", assignment.Id, ofc.Id);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
+                await handle.TriggerNetEvent("AddOfficerAssignment", assignment.Id, ofc.Id);
+                handle.Disconnect();
+            }
 
             Close();
         }

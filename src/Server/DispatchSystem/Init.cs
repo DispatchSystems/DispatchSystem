@@ -136,7 +136,7 @@ namespace DispatchSystem.sv
 
             if (cfg.GetIntValue("server", "enable", 0) == 1)
             {
-                ThreadPool.QueueUserWorkItem(x => server = new Server(cfg), null);
+                ThreadPool.QueueUserWorkItem(x => DispatchServer = new DispatchServer(cfg), null);
                 Log.WriteLine("Starting DISPATCH server");
             }
             else

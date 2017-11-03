@@ -1,49 +1,41 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net.Sockets;
 
-using MaterialSkin;
 using MaterialSkin.Controls;
 
-using System.Net.Sockets;
-using System.Net;
-
-using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
     public partial class CivVehView : MaterialForm, ISyncable
     {
-        CivilianVeh data;
+        private CivilianVeh data;
 
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
         public CivVehView(CivilianVeh civVehData)
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
-            this.data = civVehData;
+            data = civVehData;
             UpdateCurrentInformation();
         }
 
         public void UpdateCurrentInformation()
         {
-            this.plateView.Text = data.Plate;
-            this.firstNameView.Text = data.Owner.First;
-            this.lastNameView.Text = data.Owner.Last;
-            this.stolenView.Checked = data.StolenStatus;
-            this.registrationView.Checked = data.Registered;
-            this.insuranceView.Checked = data.Insured;
+            plateView.Text = data.Plate;
+            firstNameView.Text = data.Owner.First;
+            lastNameView.Text = data.Owner.Last;
+            stolenView.Checked = data.StolenStatus;
+            registrationView.Checked = data.Registered;
+            insuranceView.Checked = data.Insured;
         }
 
         public async Task Resync(bool skipTime)
@@ -60,25 +52,25 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plateView.Text))
                 return;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-            Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", data.Plate);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                Invoke((MethodInvoker)delegate
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", data.Plate);
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    data = result.Item2;
-                    UpdateCurrentInformation();
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        data = result.Item2;
+                        UpdateCurrentInformation();
+                    });
+                }
+                else
+                    MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-            else
-                MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             IsCurrentlySyncing = false;
         }

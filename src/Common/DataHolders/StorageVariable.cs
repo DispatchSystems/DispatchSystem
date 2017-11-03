@@ -1,4 +1,16 @@
-﻿using System;
+﻿/*
+
+░▄███▄░████▄░████░████▄░░██░████░▄███▄░░░
+██▀░▀▀░██░██░██▄░░██░▀██░██░░██░░▀█▄▀▀░██
+██▄░▄▄░████▀░██▀░░██░▄██░██░░██░░▄▄▀█▄░░░
+░▀███▀░██░██░████░████▀░░██░░██░░▀███▀░██
+This entire was made by CloneCommando
+ps thanks clone my boi
+https://www.github.com/CloneCommando
+Found in his CloNET repository
+*/
+
+using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 

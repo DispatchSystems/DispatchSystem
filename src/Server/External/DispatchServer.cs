@@ -8,90 +8,97 @@ using System.Threading;
 
 using Config.Reader;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
+using CloNET.Callbacks;
+using CloNET.Interfaces;
 
 using CitizenFX.Core;
 
 namespace DispatchSystem.sv.External
 {
-    public class Server
+    public class DispatchServer
     {
-        TcpListener tcp;
-        iniconfig cfg;
-        Permissions perms;
-        int port;
-        int Port => port;
+        private Server server;
+        private readonly iniconfig cfg;
+        private readonly Permissions perms;
+        private int Port { get; }
 
-        internal Server(iniconfig cfg)
+        internal DispatchServer(iniconfig cfg)
         {
             this.cfg = cfg;
             perms = Permissions.Get;
-            port = this.cfg.GetIntValue("server", "port", 33333);
-            Log.WriteLine("Setting port to " + port.ToString());
+            Port = this.cfg.GetIntValue("server", "port", 33333);
+            Log.WriteLine("Setting port to " + Port);
             Start();
         }
 
         public void Start()
         {
-            Log.WriteLine("Creating TCP Host");
-            tcp = new TcpListener(IPAddress.Parse(cfg.GetStringValue("server", "ip", "0.0.0.0")), port);
-            Log.WriteLine("Setting TCP connection IP to " + tcp.LocalEndpoint.ToString().Split(':')[0]);
+            server = new Server(cfg.GetStringValue("server", "ip", "0.0.0.0"), Port);
 
-            Log.WriteLine("TCP Created, Attempting to start");
-            try { tcp.Start(); }
+            Log.WriteLine("Creating and starting TCP");
+            try { server.Start(); }
             catch (SocketException)
             {
-                Log.WriteLine("The specified port (" + port + ") is already in use.");
+                Log.WriteLine("The specified port (" + Port + ") is already in use.");
                 return;
             }
             Log.WriteLine("TCP Started, Listening for connections...");
 
-            while (true)
-                ThreadPool.QueueUserWorkItem(x => {
-                    try { Connect(x); }
-                    catch (Exception e)
-                    {
-                        Log.WriteLineSilent(e.ToString());
-                    }
-                }, tcp.AcceptSocket());
+            AddCallbacks();
+            new Thread((ThreadStart) delegate
+            {
+                server.UserConnected += OnConnect;
+                server.UserDisconnected += OnDisconnect;
+            }).Start();
         }
-        private void Connect(object socket0)
+
+        private void AddCallbacks()
         {
-            NetRequestHandler net = new NetRequestHandler((Socket)socket0);
-
-#if DEBUG
-            Log.WriteLine($"[{net.IP}] New connection");
-#else
-            Log.WriteLineSilent($"[{net.IP}] New connection");
-#endif
-
-            net.Functions.Add("GetCivilian", new NetFunction(GetCivilian));
-            net.Functions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
-            net.Functions.Add("GetBolos", new NetFunction(GetBolos));
-            net.Functions.Add("GetOfficers", new NetFunction(GetOfficers));
-            net.Functions.Add("GetOfficer", new NetFunction(GetOfficer));
-            net.Functions.Add("GetAssignments", new NetFunction(GetAssignments));
-            net.Functions.Add("CreateAssignment", new NetFunction(NewAssignment));
-            net.Functions.Add("GetOfficerAssignment", new NetFunction(GetOfcAssignment));
-            net.Events.Add("AddOfficerAssignment", new NetEvent(AddOfcAssignment));
-            net.Events.Add("RemoveAssignment", new NetEvent(RemoveAssignment));
-            net.Events.Add("RemoveOfficerAssignment", new NetEvent(RemoveOfcAssignment));
-            net.Events.Add("SetStatus", new NetEvent(ChangeOfficerStatus));
-            net.Events.Add("RemoveOfficer", new NetEvent(RemoveOfficer));
-            net.Events.Add("AddBolo", new NetEvent(AddBolo));
-            net.Events.Add("RemoveBolo", new NetEvent(RemoveBolo));
-            net.Events.Add("AddNote", new NetEvent(AddNote));
-
-            net.Receive().Wait();
-
-#if DEBUG
-            Log.WriteLine($"[{net.IP}] Connection broken");
-#else
-            Log.WriteLineSilent($"[{net.IP}] Connection broken");
-#endif
+            server.Functions.Add("GetCivilian", new NetFunction(GetCivilian));
+            server.Functions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
+            server.Functions.Add("GetBolos", new NetFunction(GetBolos));
+            server.Functions.Add("GetOfficers", new NetFunction(GetOfficers));
+            server.Functions.Add("GetOfficer", new NetFunction(GetOfficer));
+            server.Functions.Add("GetAssignments", new NetFunction(GetAssignments));
+            server.Functions.Add("CreateAssignment", new NetFunction(NewAssignment));
+            server.Functions.Add("GetOfficerAssignment", new NetFunction(GetOfcAssignment));
+            server.Events.Add("AddOfficerAssignment", new NetEvent(AddOfcAssignment));
+            server.Events.Add("RemoveAssignment", new NetEvent(RemoveAssignment));
+            server.Events.Add("RemoveOfficerAssignment", new NetEvent(RemoveOfcAssignment));
+            server.Events.Add("SetStatus", new NetEvent(ChangeOfficerStatus));
+            server.Events.Add("RemoveOfficer", new NetEvent(RemoveOfficer));
+            server.Events.Add("AddBolo", new NetEvent(AddBolo));
+            server.Events.Add("RemoveBolo", new NetEvent(RemoveBolo));
+            server.Events.Add("AddNote", new NetEvent(AddNote));
         }
 
-        private async Task<object> GetCivilian(NetRequestHandler sender, object[] args)
+        private static Task OnConnect(IConnectedPeer user)
+        {
+            return Task.Run(delegate
+            {
+#if DEBUG
+                Log.WriteLine($"[{user.RemoteIP}] Connected");
+#else
+                Log.WriteLineSilent($"[user.RemoteIP}] Connected");
+#endif
+            });
+        }
+
+        private static Task OnDisconnect(IConnectedPeer user)
+        {
+            return Task.Run(delegate
+            {
+#if DEBUG
+                Log.WriteLine($"[{user.RemoteIP}] Disconnected");
+#else
+                Log.WriteLineSilent($"[user.RemoteIP}] Disconnected");
+#endif
+            });
+        }
+
+        private async Task<object> GetCivilian(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -125,7 +132,7 @@ namespace DispatchSystem.sv.External
                 return Civilian.Empty;
             }
         }
-        private async Task<object> GetCivilianVeh(NetRequestHandler sender, object[] args)
+        private async Task<object> GetCivilianVeh(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -158,7 +165,7 @@ namespace DispatchSystem.sv.External
                 return CivilianVeh.Empty;
             }
         }
-        private async Task<object> GetBolos(NetRequestHandler sender, object[] args)
+        private async Task<object> GetBolos(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -171,7 +178,7 @@ namespace DispatchSystem.sv.External
 
             return DispatchSystem.ActiveBolos;
         }
-        private async Task<object> GetOfficers(NetRequestHandler sender, object[] args)
+        private async Task<object> GetOfficers(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -185,7 +192,7 @@ namespace DispatchSystem.sv.External
 
             return DispatchSystem.officers;
         }
-        private async Task<object> GetOfficer(NetRequestHandler sender, object[] args)
+        private async Task<object> GetOfficer(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -203,7 +210,7 @@ namespace DispatchSystem.sv.External
             ofc = ofc ?? Officer.Empty;
             return ofc;
         }
-        private async Task<object> GetAssignments(NetRequestHandler sender, object[] args)
+        private async Task<object> GetAssignments(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -217,7 +224,7 @@ namespace DispatchSystem.sv.External
 
             return DispatchSystem.assignments.AsEnumerable();
         }
-        private async Task<object> GetOfcAssignment(NetRequestHandler sender, object[] args)
+        private async Task<object> GetOfcAssignment(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -233,7 +240,7 @@ namespace DispatchSystem.sv.External
 
             return Common.GetOfficerAssignment(ofc);
         }
-        private async Task AddOfcAssignment(NetRequestHandler sender, object[] args)
+        private async Task AddOfcAssignment(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -266,7 +273,7 @@ namespace DispatchSystem.sv.External
                     Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, $"New assignment added: \"{assignment.Summary}\"");
             });
         } 
-        private async Task<object> NewAssignment(NetRequestHandler sender, object[] args)
+        private async Task<object> NewAssignment(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -284,7 +291,7 @@ namespace DispatchSystem.sv.External
             DispatchSystem.assignments.Add(assignment);
             return assignment.Id;
         }
-        private async Task RemoveAssignment(NetRequestHandler sender, object[] args)
+        private async Task RemoveAssignment(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -296,12 +303,12 @@ namespace DispatchSystem.sv.External
             Log.WriteLineSilent("Remove assignment Request Received");
 #endif
 
-            Assignment item = args[0] as Assignment;
+            Guid item = (Guid) args[0];
 
-            Assignment item2 = DispatchSystem.assignments.ToList().Find(x => x.Id == item.Id);
+            Assignment item2 = DispatchSystem.assignments.ToList().Find(x => x.Id == item);
             Common.RemoveAllInstancesOfAssignment(item2);
         }
-        private async Task RemoveOfcAssignment(NetRequestHandler sender, object[] args)
+        private async Task RemoveOfcAssignment(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -329,7 +336,7 @@ namespace DispatchSystem.sv.External
                     Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "Your assignment has been removed by a dispatcher");
             });
         }
-        private async Task ChangeOfficerStatus(NetRequestHandler sender, object[] args)
+        private async Task ChangeOfficerStatus(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -341,12 +348,11 @@ namespace DispatchSystem.sv.External
             Log.WriteLineSilent("Change officer status Request Received");
 #endif
 
-            int index = 0;
             Officer ofc = (Officer)args[0];
             OfficerStatus status = (OfficerStatus)args[1];
 
             ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofc.Id);
-            index = DispatchSystem.officers.IndexOf(ofc);
+            var index = DispatchSystem.officers.IndexOf(ofc);
             if (index == -1)
                 return;
 
@@ -365,8 +371,8 @@ namespace DispatchSystem.sv.External
                 {
                     Player p = Common.GetPlayerByIp(ourOfc.SourceIP);
                     if (p != null)
-                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, 
-                            string.Format("Dispatcher set status to {0}", ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy"));
+                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 },
+                            $"Dispatcher set status to {(ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy")}");
                 });
             }
             else
@@ -378,7 +384,7 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task RemoveOfficer(NetRequestHandler sender, object[] args)
+        private async Task RemoveOfficer(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -420,7 +426,7 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task AddBolo(NetRequestHandler sender, object[] args)
+        private async Task AddBolo(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -441,7 +447,7 @@ namespace DispatchSystem.sv.External
 #endif
             DispatchSystem.ActiveBolos.Add(new Bolo(player, string.Empty, bolo));
         }
-        private async Task RemoveBolo(NetRequestHandler sender, object[] args)
+        private async Task RemoveBolo(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -472,7 +478,7 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task AddNote(NetRequestHandler sender, object[] args)
+        private async Task AddNote(IConnectedPeer sender, object[] args)
         {
             await Task.FromResult(0);
             if (CheckAndDispose(sender))
@@ -505,10 +511,10 @@ namespace DispatchSystem.sv.External
 #endif
         }
 
-        private bool CheckAndDispose(NetRequestHandler sender)
+        private bool CheckAndDispose(IConnectedPeer sender)
         {
-            if (perms.DispatchPermission == Permission.Specific) { if (!perms.DispatchContains(IPAddress.Parse(sender.IP))) { Log.WriteLine($"[{sender.IP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; } }
-            else if (perms.DispatchPermission == Permission.None) { Log.WriteLine($"[{sender.IP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; }
+            if (perms.DispatchPermission == Permission.Specific) { if (!perms.DispatchContains(IPAddress.Parse(sender.RemoteIP))) { Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; } }
+            else if (perms.DispatchPermission == Permission.None) { Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; }
             return false;
         }
     }

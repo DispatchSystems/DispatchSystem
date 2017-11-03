@@ -52,10 +52,6 @@
     <Compile Include="DataHolders\StorageVariable.cs" />
     <Compile Include="DataHolders\Storage\Ticket.cs" />
     <Compile Include="Functions.cs" />
-    <Compile Include="NetCode\NetEvent.cs" />
-    <Compile Include="NetCode\NetFunction.cs" />
-    <Compile Include="NetCode\NetRequest.cs" />
-    <Compile Include="NetCode\NetRequestHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

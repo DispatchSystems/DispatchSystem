@@ -1,35 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using MaterialSkin;
-using MaterialSkin.Controls;
-
-using System.Net;
 using System.Net.Sockets;
 
-using DispatchSystem.Common.DataHolders;
+using MaterialSkin.Controls;
+
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
     public partial class BoloView : MaterialForm, ISyncable
     {
-        StorageManager<Bolo> bolos = new StorageManager<Bolo>();
+        private StorageManager<Bolo> bolos;
 
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
         public BoloView(StorageManager<Bolo> data)
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
             bolos = data;
 
@@ -44,10 +37,10 @@ namespace DispatchSystem.cl.Windows
             {
                 bolosView.Items.Clear();
 
-                for (int i = 0; i < bolos.Count; i++)
+                foreach (Bolo t in bolos)
                 {
-                    ListViewItem lvi = new ListViewItem(bolos[i].Player);
-                    lvi.SubItems.Add(bolos[i].Reason);
+                    ListViewItem lvi = new ListViewItem(t.Player);
+                    lvi.SubItems.Add(t.Reason);
                     lvis.Add(lvi);
                 }
 
@@ -66,25 +59,25 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-            Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                Invoke((MethodInvoker)delegate
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    bolos = result.Item2;
-                    UpdateCurrentInformation();
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        bolos = result.Item2;
+                        UpdateCurrentInformation();
+                    });
+                }
+                else
+                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -115,21 +108,20 @@ namespace DispatchSystem.cl.Windows
 
         private async void OnRemoveSelectedClick(object sender, EventArgs e)
         {
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            if (bolosView.SelectedItems.Count > 0)
+            using (Client handle = new Client())
             {
-                await handle.TryTriggerNetEvent("RemoveBolo", 0);
-            }
-            else
-                MessageBox.Show("You don't have any selected items!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
+                if (bolosView.SelectedItems.Count > 0)
+                {
+                    await handle.TryTriggerNetEvent("RemoveBolo", 0);
+                }
+                else
+                    MessageBox.Show("You don't have any selected items!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+
+                handle.Disconnect();
+            }
 
             await Resync(true);
         }
@@ -138,7 +130,7 @@ namespace DispatchSystem.cl.Windows
         {
             if (e.Button == MouseButtons.Right)
             {
-                if (bolosView.FocusedItem.Bounds.Contains(e.Location) == true)
+                if (bolosView.FocusedItem.Bounds.Contains(e.Location))
                 {
                     rightClickMenu.Show(Cursor.Position);
                 }

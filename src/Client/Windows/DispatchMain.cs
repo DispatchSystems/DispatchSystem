@@ -1,38 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Windows.Forms;
+using System.Net.Sockets;
 
 using MaterialSkin;
 using MaterialSkin.Controls;
 
-using System.Net.Sockets;
-using System.Net;
-using System.Runtime.InteropServices;
-
-using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
     public partial class DispatchMain : MaterialForm
     {
-        Socket usrSocket;
-
-        BoloView boloWindow = null;
-        MultiOfficerView officersWindow = null;
-        AssignmentsView assignmentsWindow = null;
+        private BoloView boloWindow;
+        private MultiOfficerView officersWindow;
+        private AssignmentsView assignmentsWindow;
 
         public DispatchMain()
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
             SkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
@@ -44,30 +33,29 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text))
                 return;
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    Invoke((MethodInvoker)delegate
+                    if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
                     {
-                        new CivView(result.Item2).Show();
-                    });
+                        Invoke((MethodInvoker)delegate
+                        {
+                            new CivView(result.Item2).Show();
+                        });
+                    }
+                    else
+                        MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 else
-                    MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             firstName.ResetText();
             lastName.ResetText();
@@ -78,30 +66,29 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plate.Text))
                 return;
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                if (!(string.IsNullOrEmpty(result.Item2.Plate)))
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    Invoke((MethodInvoker)delegate
+                    if (!(string.IsNullOrEmpty(result.Item2.Plate)))
                     {
-                        new CivVehView(result.Item2).Show();
-                    });
+                        Invoke((MethodInvoker)delegate
+                        {
+                            new CivVehView(result.Item2).Show();
+                        });
+                    }
+                    else
+                        MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
                 else
-                    MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("Invalid Request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
-            else
-                MessageBox.Show("Invalid Request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             plate.ResetText();
         }
@@ -115,26 +102,25 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                Invoke((MethodInvoker)delegate
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    (boloWindow = new BoloView(result.Item2)).Show();
-                    boloWindow.FormClosed += delegate { boloWindow = null; };
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        (boloWindow = new BoloView(result.Item2)).Show();
+                        boloWindow.FormClosed += delegate { boloWindow = null; };
+                    });
+                }
+                else
+                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         private async void OnViewOfficersClick(object sender, EventArgs e)
         {
@@ -145,26 +131,25 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, StorageManager<Officer>> result = await handle.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
-            if (result.Item2 != null)
+            using (Client handle = new Client())
             {
-                Invoke((MethodInvoker)delegate
+                try { handle.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
+
+                Tuple<NetRequestResult, StorageManager<Officer>> result = await handle.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
+                handle.Disconnect();
+
+                if (result.Item2 != null)
                 {
-                    (officersWindow = new MultiOfficerView(result.Item2)).Show();
-                    officersWindow.FormClosed += delegate { officersWindow = null; };
-                });
+                    Invoke((MethodInvoker)delegate
+                    {
+                        (officersWindow = new MultiOfficerView(result.Item2)).Show();
+                        officersWindow.FormClosed += delegate { officersWindow = null; };
+                    });
+                }
+                else
+                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            else
-                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         private async void OnViewAssignmentsClick(object sender, EventArgs e)
         {
@@ -175,15 +160,13 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
+            Client handle = new Client();
+            try { handle.Connect(Config.IP.ToString(), Config.Port); }
             catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
+            var result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
+            handle.Disconnect();
+            handle.Dispose();
 
             if (result.Item2 != null)
             {
