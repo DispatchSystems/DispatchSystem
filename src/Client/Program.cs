@@ -2,10 +2,11 @@
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Threading;
-
+using System.Threading.Tasks;
 using DispatchSystem.cl.Windows;
 
 using CloNET;
+using CloNET.Callbacks;
 
 namespace DispatchSystem.cl
 {
@@ -29,6 +30,13 @@ namespace DispatchSystem.cl
 
             using (Client = new Client())
             {
+                Client.Events.Add("Alert", new NetEvent(async (peer, objects) =>
+                {
+                    await Task.FromResult(0);
+
+                    MessageBox.Show(objects[0] as string, "ALERT", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }));
+
                 try { Client.Connect(Config.IP.ToString(), Config.Port); }
                 catch (SocketException) { MessageBox.Show("Connection refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
