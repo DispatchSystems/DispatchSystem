@@ -81,7 +81,7 @@ namespace DispatchSystem.sv.External
 #if DEBUG
                 Log.WriteLine($"[{user.RemoteIP}] Connected");
 #else
-                Log.WriteLineSilent($"[user.RemoteIP}] Connected");
+                Log.WriteLineSilent($"[{user.RemoteIP}] Connected");
 #endif
             });
         }
@@ -93,7 +93,7 @@ namespace DispatchSystem.sv.External
 #if DEBUG
                 Log.WriteLine($"[{user.RemoteIP}] Disconnected");
 #else
-                Log.WriteLineSilent($"[user.RemoteIP}] Disconnected");
+                Log.WriteLineSilent($"[{user.RemoteIP}] Disconnected");
 #endif
             });
         }
