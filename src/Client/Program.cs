@@ -21,6 +21,9 @@ namespace DispatchSystem.cl
         {
             Config.Create("settings.ini");
 
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             using (Client = new Client())
             {
                 try { Client.Connect(Config.IP.ToString(), Config.Port); }
