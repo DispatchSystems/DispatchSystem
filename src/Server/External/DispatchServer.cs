@@ -35,9 +35,10 @@ namespace DispatchSystem.sv.External
 
         public void Start()
         {
+            Log.WriteLine("Creating TCP Device");
             server = new Server(cfg.GetStringValue("server", "ip", "0.0.0.0"), Port);
 
-            Log.WriteLine("Creating and starting TCP");
+            Log.WriteLine("TCP Created, starting TCP");
             try { server.Start(); }
             catch (SocketException)
             {
@@ -104,9 +105,9 @@ namespace DispatchSystem.sv.External
             if (CheckAndDispose(sender))
                 return null;
 #if DEBUG
-            Log.WriteLine("Get civilian Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Get civilian Request Recieved");
 #else
-            Log.WriteLineSilent("Get civilian Request Recieved");
+            Log.WriteLineSilent("[{sender.RemoteIP}] Get civilian Request Recieved");
 #endif
 
             string first = (string)args[0];
@@ -116,18 +117,18 @@ namespace DispatchSystem.sv.External
             if (civ != null)
             {
 #if DEBUG
-                Log.WriteLine("Sending Civilian information to Client");
+                Log.WriteLine($"[{sender.RemoteIP}] Sending Civilian information to Client");
 #else
-                Log.WriteLineSilent("Sending Civilian information to Client");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Sending Civilian information to Client");
 #endif
                 return civ;
             }
             else
             {
 #if DEBUG
-                Log.WriteLine("Civilian not found, sending null");
+                Log.WriteLine($"[{sender.RemoteIP}] Civilian not found, sending null");
 #else
-                Log.WriteLineSilent("Civilian not found, sending null");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Civilian not found, sending null");
 #endif
                 return Civilian.Empty;
             }
@@ -138,9 +139,9 @@ namespace DispatchSystem.sv.External
             if (CheckAndDispose(sender))
                 return null;
 #if DEBUG
-            Log.WriteLine("Get civilian veh Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Get civilian veh Request Recieved");
 #else
-            Log.WriteLineSilent("Get civilian veh Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get civilian veh Request Recieved");
 #endif
 
             string plate = (string)args[0];
@@ -149,21 +150,18 @@ namespace DispatchSystem.sv.External
             if (civVeh != null)
             {
 #if DEBUG
-                Log.WriteLine("Sending Civilian Veh information to Client");
+                Log.WriteLine($"[{sender.RemoteIP}] Sending Civilian Veh information to Client");
 #else
-                Log.WriteLineSilent("Sending Civilian Veh information to Client");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Sending Civilian Veh information to Client");
 #endif
                 return civVeh;
             }
-            else
-            {
 #if DEBUG
-                Log.WriteLine("Civilian Veh not found, sending null");
+            Log.WriteLine($"[{sender.RemoteIP}] Civilian Veh not found, sending null");
 #else
-                Log.WriteLineSilent("Civilian Veh not found, sending null");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Civilian Veh not found, sending null");
 #endif
-                return CivilianVeh.Empty;
-            }
+            return CivilianVeh.Empty;
         }
         private async Task<object> GetBolos(IConnectedPeer sender, object[] args)
         {
@@ -171,9 +169,9 @@ namespace DispatchSystem.sv.External
             if (CheckAndDispose(sender))
                 return null;
 #if DEBUG
-            Log.WriteLine("Get bolos Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Get bolos Request Recieved");
 #else
-            Log.WriteLineSilent("Get bolos Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get bolos Request Recieved");
 #endif
 
             return DispatchSystem.ActiveBolos;
@@ -185,9 +183,9 @@ namespace DispatchSystem.sv.External
                 return null;
 
 #if DEBUG
-            Log.WriteLine("Get officers Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Get officers Request Received");
 #else
-            Log.WriteLineSilent("Get officers Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get officers Request Received");
 #endif
 
             return DispatchSystem.officers;
@@ -201,9 +199,9 @@ namespace DispatchSystem.sv.External
             Guid id = (Guid)args[0];
 
 #if DEBUG
-            Log.WriteLine("Get officer Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Get officer Request Received");
 #else
-            Log.WriteLineSilent("Get officer Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get officer Request Received");
 #endif
 
             Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == id);
@@ -217,9 +215,9 @@ namespace DispatchSystem.sv.External
                 return null;
 
 #if DEBUG
-            Log.WriteLine("Get assignments Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Get assignments Request Received");
 #else
-            Log.WriteLineSilent("Get assignments Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get assignments Request Received");
 #endif
 
             return DispatchSystem.assignments.AsEnumerable();
@@ -231,9 +229,9 @@ namespace DispatchSystem.sv.External
                 return null;
 
 #if DEBUG
-            Log.WriteLine("Get officer assignments Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Get officer assignments Request Received");
 #else
-            Log.WriteLineSilent("Get officer assignments Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get officer assignments Request Received");
 #endif
             Guid id = (Guid)args[0];
             Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == id);
@@ -247,9 +245,9 @@ namespace DispatchSystem.sv.External
                 return;
 
 #if DEBUG
-            Log.WriteLine("Add officer assignment Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Add officer assignment Request Received");
 #else
-            Log.WriteLineSilent("Add officer assignment Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Add officer assignment Request Received");
 #endif
 
             Guid id = (Guid)args[0];
@@ -280,9 +278,9 @@ namespace DispatchSystem.sv.External
                 return null;
 
 #if DEBUG
-            Log.WriteLine("New assignment Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] New assignment Request Received");
 #else
-            Log.WriteLineSilent("New assignment Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] New assignment Request Received");
 #endif
 
             string summary = args[0] as string;
@@ -298,9 +296,9 @@ namespace DispatchSystem.sv.External
                 return;
 
 #if DEBUG
-            Log.WriteLine("Remove assignment Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Remove assignment Request Received");
 #else
-            Log.WriteLineSilent("Remove assignment Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Remove assignment Request Received");
 #endif
 
             Guid item = (Guid) args[0];
@@ -315,9 +313,9 @@ namespace DispatchSystem.sv.External
                 return;
 
 #if DEBUG
-            Log.WriteLine("Remove officer assignment Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Remove officer assignment Request Received");
 #else
-            Log.WriteLineSilent("Remove officer assignment Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Remove officer assignment Request Received");
 #endif
 
             Guid ofcId = (Guid)args[0];
@@ -343,9 +341,9 @@ namespace DispatchSystem.sv.External
                 return;
 
 #if DEBUG
-            Log.WriteLine("Change officer status Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Change officer status Request Received");
 #else
-            Log.WriteLineSilent("Change officer status Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Change officer status Request Received");
 #endif
 
             Officer ofc = (Officer)args[0];
@@ -362,9 +360,9 @@ namespace DispatchSystem.sv.External
             {
                 ourOfc.Status = status;
 #if DEBUG
-                Log.WriteLine("Setting officer status to " + status.ToString());
+                Log.WriteLine($"[{sender.RemoteIP}] Setting officer status to " + status.ToString());
 #else
-                Log.WriteLineSilent("Setting officer status to " + status.ToString());
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Setting officer status to " + status.ToString());
 #endif
 
                 DispatchSystem.Invoke(() =>
@@ -378,9 +376,9 @@ namespace DispatchSystem.sv.External
             else
             {
 #if DEBUG
-                Log.WriteLine("Officer status already set to the incoming status");
+                Log.WriteLine($"[{sender.RemoteIP}] Officer status already set to the incoming status");
 #else
-                Log.WriteLineSilent("Officer status already set to the incoming status");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Officer status already set to the incoming status");
 #endif
             }
         }
@@ -391,14 +389,14 @@ namespace DispatchSystem.sv.External
                 return;
 
 #if DEBUG
-            Log.WriteLine("Remove officer Request Received");
+            Log.WriteLine($"[{sender.RemoteIP}] Remove officer Request Received");
 #else
-            Log.WriteLineSilent("Add bolo Request Received");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Received");
 #endif
 
-            Officer ofcGiven = (Officer)args[0];
+            Guid ofcGiven = (Guid)args[0];
 
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcGiven.Id);
+            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcGiven);
             if (ofc != null)
             {
                 DispatchSystem.Invoke(delegate
@@ -412,17 +410,17 @@ namespace DispatchSystem.sv.External
                 DispatchSystem.officers.Remove(ofc);
 
 #if DEBUG
-                Log.WriteLine("Removed the officer from the list of officers");
+                Log.WriteLine($"[{sender.RemoteIP}] Removed the officer from the list of officers");
 #else
-                Log.WriteLineSilent("Removed the officer from the list of officers");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Removed the officer from the list of officers");
 #endif
             }
             else
             {
 #if DEBUG
-                Log.WriteLine("Officer in list not found, not removing");
+                Log.WriteLine($"[{sender.RemoteIP}] Officer in list not found, not removing");
 #else
-                Log.WriteLineSilent("Officer in list not found, not removing");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Officer in list not found, not removing");
 #endif
             }
         }
@@ -432,18 +430,18 @@ namespace DispatchSystem.sv.External
             if (CheckAndDispose(sender))
                 return;
 #if DEBUG
-            Log.WriteLine("Add bolo Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Add bolo Request Recieved");
 #else
-            Log.WriteLineSilent("Add bolo Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Recieved");
 #endif
 
             string player = (string)args[0];
             string bolo = (string)args[1];
 
 #if DEBUG
-            Log.WriteLine($"Adding new Bolo for \"{bolo}\"");
+            Log.WriteLine($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
 #else
-            Log.WriteLineSilent($"Adding new Bolo for \"{bolo}\"");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
 #endif
             DispatchSystem.ActiveBolos.Add(new Bolo(player, string.Empty, bolo));
         }
@@ -453,9 +451,9 @@ namespace DispatchSystem.sv.External
             if (CheckAndDispose(sender))
                 return;
 #if DEBUG
-            Log.WriteLine("Remove bolo Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Remove bolo Request Recieved");
 #else
-            Log.WriteLineSilent("Remove bolo Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Remove bolo Request Recieved");
 #endif
 
             int parse = (int)args[0];
@@ -464,17 +462,17 @@ namespace DispatchSystem.sv.External
             {
                 DispatchSystem.ActiveBolos.RemoveAt(parse);
 #if DEBUG
-                Log.WriteLine("Removed Active BOLO from the List");
+                Log.WriteLine($"[{sender.RemoteIP}] Removed Active BOLO from the List");
 #else
-                Log.WriteLineSilent("Removed Active BOLO from the List");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Removed Active BOLO from the List");
 #endif
             }
             catch (ArgumentOutOfRangeException)
             {
 #if DEBUG
-                Log.WriteLine("Index for BOLO not found, not removing...");
+                Log.WriteLine($"[{sender.RemoteIP}] Index for BOLO not found, not removing...");
 #else
-                Log.WriteLineSilent("Index for BOLO not found, not removing...");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Index for BOLO not found, not removing...");
 #endif
             }
         }
@@ -484,12 +482,12 @@ namespace DispatchSystem.sv.External
             if (CheckAndDispose(sender))
                 return;
 #if DEBUG
-            Log.WriteLine("Add Civilian note Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Add Civilian note Request Recieved");
 #else
-            Log.WriteLineSilent("Add Civilian note Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Add Civilian note Request Recieved");
 #endif
 
-            string[] name = new[] { (string)args[0], (string)args[1] };
+            string[] name = { (string)args[0], (string)args[1] };
             string note = (string)args[2];
 
             Civilian civ = Common.GetCivilianByName(name[0], name[1]);
@@ -497,21 +495,21 @@ namespace DispatchSystem.sv.External
             if (civ != null)
             {
 #if DEBUG
-                Log.WriteLine($"Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
+                Log.WriteLine($"[{sender.RemoteIP}] Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
 #else
-                Log.WriteLineSilent($"Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
 #endif
                 civ.Notes.Add(note);
             }
             else
 #if DEBUG
-                Log.WriteLine("Civilian not found, not adding note...");
+                Log.WriteLine($"[{sender.RemoteIP}] Civilian not found, not adding note...");
 #else
-                Log.WriteLineSilent("Civilian not found, not adding note...");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Civilian not found, not adding note...");
 #endif
         }
 
-        private bool CheckAndDispose(IConnectedPeer sender)
+        private bool CheckAndDispose(IBaseNet sender)
         {
             if (perms.DispatchPermission == Permission.Specific) { if (!perms.DispatchContains(IPAddress.Parse(sender.RemoteIP))) { Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; } }
             else if (perms.DispatchPermission == Permission.None) { Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; }

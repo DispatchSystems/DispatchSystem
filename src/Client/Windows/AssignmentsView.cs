@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
 
 using MaterialSkin.Controls;
 
@@ -52,26 +51,17 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-
-                Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        assignments = result.Item2;
-                        UpdateCurrentInformation();
-                    });
-                }
-                else
-                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    assignments = result.Item2;
+                    UpdateCurrentInformation();
+                });
             }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -120,14 +110,7 @@ namespace DispatchSystem.cl.Windows
             int index = theAssignments.Items.IndexOf(theAssignments.FocusedItem);
             Assignment assignment = assignments.ToList()[index];
 
-            using (Client handle = new Client())
-            {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                await handle.TryTriggerNetEvent("RemoveAssignment", assignment.Id);
-                handle.Disconnect();
-            }
+            await Program.Client.TryTriggerNetEvent("RemoveAssignment", assignment.Id);
 
             await Resync(true);
         }

@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
 
 using MaterialSkin.Controls;
 
@@ -52,25 +51,17 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plateView.Text))
                 return;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, CivilianVeh> result = await Program.Client.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", data.Plate);
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", data.Plate);
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        data = result.Item2;
-                        UpdateCurrentInformation();
-                    });
-                }
-                else
-                    MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    data = result.Item2;
+                    UpdateCurrentInformation();
+                });
             }
+            else
+                MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             IsCurrentlySyncing = false;
         }

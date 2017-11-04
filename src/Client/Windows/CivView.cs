@@ -3,7 +3,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
 
 using MaterialSkin.Controls;
 
@@ -83,25 +82,17 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstNameView.Text) || string.IsNullOrWhiteSpace(lastNameView.Text))
                 return;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, Civilian> result = await Program.Client.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        data = result.Item2;
-                        UpdateCurrentInformation();
-                    });
-                }
-                else
-                    MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    data = result.Item2;
+                    UpdateCurrentInformation();
+                });
             }
+            else
+                MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             IsCurrentlySyncing = false;
         }

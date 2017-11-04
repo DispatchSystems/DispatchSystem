@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Net.Sockets;
 
 using CloNET;
 
@@ -70,51 +69,45 @@ namespace DispatchSystem.cl.Windows
 
         private async void OnBtnClick(object sender, EventArgs e)
         {
-            using (Client handle = new Client())
+            switch (FormType)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Failed\nPlease contact the owner of your Roleplay server!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                switch (FormType)
+                case Type.AddBolo:
                 {
-                    case Type.AddBolo:
-                        {
-                            if (!(string.IsNullOrWhiteSpace(line1.Text) || string.IsNullOrWhiteSpace(line2.Text)))
-                                await handle.TryTriggerNetEvent("AddBolo", line2.Text, line1.Text);
-                            line1.ResetText();
-                            line2.ResetText();
-                            break;
-                        }
-                    case Type.RemoveBolo:
-                        {
-                            if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
-                            await handle.TryTriggerNetEvent("RemoveBolo", result);
-                            line1.ResetText();
-                            break;
-                        }
-                    case Type.AddNote:
-                        {
-                            if (!string.IsNullOrEmpty(line1.Text))
-                                await handle.TryTriggerNetEvent("AddNote", arguments[0], arguments[1], line1.Text);
-                            line1.ResetText();
-                            break;
-                        }
-                    case Type.AddAssignment:
-                        {
-                            if (!string.IsNullOrEmpty(line1.Text))
-                            {
-                                Tuple<NetRequestResult, Guid> result = await handle.TryTriggerNetFunction<Guid>("CreateAssignment", line1.Text);
-                                LastGuid = result.Item2;
-                            }
-                            break;
-                        }
+                    if (!(string.IsNullOrWhiteSpace(line1.Text) || string.IsNullOrWhiteSpace(line2.Text)))
+                        await Program.Client.TryTriggerNetEvent("AddBolo", line2.Text, line1.Text);
+                    line1.ResetText();
+                    line2.ResetText();
+                    break;
                 }
-
-                Close();
-                OperationDone = true;
-
-                handle.Disconnect();
+                case Type.RemoveBolo:
+                {
+                    if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
+                    await Program.Client.TryTriggerNetEvent("RemoveBolo", result);
+                    line1.ResetText();
+                    break;
+                }
+                case Type.AddNote:
+                {
+                    if (!string.IsNullOrEmpty(line1.Text))
+                        await Program.Client.TryTriggerNetEvent("AddNote", arguments[0], arguments[1], line1.Text);
+                    line1.ResetText();
+                    break;
+                }
+                case Type.AddAssignment:
+                {
+                    if (!string.IsNullOrEmpty(line1.Text))
+                    {
+                        Tuple<NetRequestResult, Guid> result = await Program.Client.TryTriggerNetFunction<Guid>("CreateAssignment", line1.Text);
+                        LastGuid = result.Item2;
+                    }
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
+
+            Close();
+            OperationDone = true;
         }
     }
 }

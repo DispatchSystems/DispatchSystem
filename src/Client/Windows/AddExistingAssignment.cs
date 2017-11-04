@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
 using System.Threading;
 
 using MaterialSkin.Controls;
@@ -23,12 +19,12 @@ namespace DispatchSystem.cl.Windows
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; }
 
-        Officer ofc;
-        IEnumerable<Assignment> assignments;
+        private readonly Officer ofc;
+        private IEnumerable<Assignment> assignments;
 
         public AddExistingAssignment(Officer ofc)
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
             this.ofc = ofc;
@@ -36,10 +32,7 @@ namespace DispatchSystem.cl.Windows
             ThreadPool.QueueUserWorkItem(async x =>
             {
                 await Resync(true);
-                Invoke((MethodInvoker)delegate
-                {
-                    UpdateCurrentInformation();
-                });
+                Invoke((MethodInvoker)UpdateCurrentInformation);
             });
         }
 
@@ -54,27 +47,19 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, IEnumerable<Assignment>> result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                while (!IsHandleCreated)
+                    await Task.Delay(50);
+                Invoke((MethodInvoker)delegate
                 {
-                    while (!this.IsHandleCreated)
-                        await Task.Delay(50);
-                    Invoke((MethodInvoker)delegate
-                    {
-                        assignments = result.Item2;
-                        UpdateCurrentInformation();
-                    });
-                }
-                else
-                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    assignments = result.Item2;
+                    UpdateCurrentInformation();
+                });
             }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -97,14 +82,7 @@ namespace DispatchSystem.cl.Windows
             int index = assignmentsView.Items.IndexOf(assignmentsView.FocusedItem);
             Assignment assignment = assignments.ToList()[index];
 
-            using (Client handle = new Client())
-            {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                await handle.TriggerNetEvent("AddOfficerAssignment", assignment.Id, ofc.Id);
-                handle.Disconnect();
-            }
+            await Program.Client.TriggerNetEvent("AddOfficerAssignment", assignment.Id, ofc.Id);
 
             Close();
         }

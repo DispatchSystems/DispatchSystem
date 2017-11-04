@@ -1,48 +1,48 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Net.Sockets;
+using System.Threading;
+
 using DispatchSystem.cl.Windows;
-using System.IO;
+
+using CloNET;
 
 namespace DispatchSystem.cl
 {
     static class Program
     {
-        internal static DispatchMain mainWindow;
+        internal static Client Client;
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             Config.Create("settings.ini");
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
+            using (Client = new Client())
+            {
+                try { Client.Connect(Config.IP.ToString(), Config.Port); }
+                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
 
-            mainWindow = new DispatchMain();
-            try
-            {
-                Application.Run(mainWindow);
+                new Thread((ThreadStart)delegate
+                    {
+                        while (true)
+                        {
+                            Thread.Sleep(100);
+                            if (Client.Connected) continue;
+                            MessageBox.Show("The connection to the server suddenly dropped!", "DispatchSystem",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Environment.Exit(-1);
+                        }
+                    })
+                    { Name = "ConnectionDetection" }.Start();
+                Application.Run(new DispatchMain());
+
+                Client.Disconnect();
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(
-                    "An exception in BlockBa5her's code caused it to CRASH!\n" +
-                    "The error has been put into a file called 'err.dmp' in your directory\n" +
-                    "Either send it to BlockBa5her or contact your community owner!"
-                    );
-                using (var stream = new FileStream("err.dmp", FileMode.OpenOrCreate))
-                {
-                    byte[] buffer = Encoding.UTF8.GetBytes(e.ToString());
-                    stream.Write(buffer, 0, buffer.Length);
-                }
-                Environment.Exit(-1);
-            }
+            Environment.Exit(0);
         }
     }
 }

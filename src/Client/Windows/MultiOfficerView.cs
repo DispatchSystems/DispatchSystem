@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
 
 using MaterialSkin.Controls;
 
@@ -35,10 +34,10 @@ namespace DispatchSystem.cl.Windows
 
             officers.Items.Clear();
 
-            for (int i = 0; i < data.Count; i++)
+            foreach (Officer ofc in data)
             {
-                ListViewItem lvi = new ListViewItem(data[i].Callsign);
-                lvi.SubItems.Add(data[i].Status == OfficerStatus.OffDuty ? "Off Duty" : data[i].Status == OfficerStatus.OnDuty ? "On Duty" : "Busy");
+                ListViewItem lvi = new ListViewItem(ofc.Callsign);
+                lvi.SubItems.Add(ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy");
                 lvis.Add(lvi);
             }
 
@@ -56,25 +55,17 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, StorageManager<Officer>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, StorageManager<Officer>> result = await handle.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        data = result.Item2;
-                        UpdateCurrentInformation();
-                    });
-                }
-                else
-                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    data = result.Item2;
+                    UpdateCurrentInformation();
+                });
             }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -88,12 +79,10 @@ namespace DispatchSystem.cl.Windows
 
         private void OnMouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            if (e.Button != MouseButtons.Right) return;
+            if (officers.FocusedItem.Bounds.Contains(e.Location))
             {
-                if (officers.FocusedItem.Bounds.Contains(e.Location))
-                {
-                    rightClickMenu.Show(Cursor.Position);
-                }
+                rightClickMenu.Show(Cursor.Position);
             }
         }
         private async void OnSelectStatusClick(object sender, EventArgs e)
@@ -102,47 +91,39 @@ namespace DispatchSystem.cl.Windows
             int index = officers.Items.IndexOf(focusesItem);
             Officer ofc = data[index];
 
-            using (Client handle = new Client())
+            do
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                do
+                if (sender == statusOnDutyStripItem)
                 {
-                    if (sender == statusOnDutyStripItem)
+                    if (ofc.Status == OfficerStatus.OnDuty)
                     {
-                        if (ofc.Status == OfficerStatus.OnDuty)
-                        {
-                            MessageBox.Show("Really? That officer is already on duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                            break;
-                        }
-
-                        await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
+                        MessageBox.Show("Really? That officer is already on duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        break;
                     }
-                    else if (sender == statusOffDutyStripItem)
+
+                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
+                }
+                else if (sender == statusOffDutyStripItem)
+                {
+                    if (ofc.Status == OfficerStatus.OffDuty)
                     {
-                        if (ofc.Status == OfficerStatus.OffDuty)
-                        {
-                            MessageBox.Show("Really? That officer is already off duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                            break;
-                        }
-
-                        await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OffDuty);
+                        MessageBox.Show("Really? That officer is already off duty!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        break;
                     }
-                    else
+
+                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OffDuty);
+                }
+                else
+                {
+                    if (ofc.Status == OfficerStatus.Busy)
                     {
-                        if (ofc.Status == OfficerStatus.Busy)
-                        {
-                            MessageBox.Show("Really? That officer is already busy!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-                            break;
-                        }
-
-                        await handle.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.Busy);
+                        MessageBox.Show("Really? That officer is already busy!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                        break;
                     }
-                } while (false);
 
-                handle.Disconnect();
-            }
+                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.Busy);
+                }
+            } while (false);
 
             await Resync(true); 
         }
@@ -162,15 +143,7 @@ namespace DispatchSystem.cl.Windows
             int index = officers.Items.IndexOf(focusesItem);
             Officer ofc = data[index];
 
-            using (Client handle = new Client())
-            {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                await handle.TryTriggerNetEvent("RemoveOfficer", ofc);
-
-                handle.Disconnect();
-            }
+            await Program.Client.TryTriggerNetEvent("RemoveOfficer", ofc.Id);
 
             await Resync(true);
         }

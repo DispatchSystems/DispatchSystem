@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
 
 using MaterialSkin.Controls;
 
@@ -59,25 +58,17 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, StorageManager<Bolo>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        bolos = result.Item2;
-                        UpdateCurrentInformation();
-                    });
-                }
-                else
-                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    bolos = result.Item2;
+                    UpdateCurrentInformation();
+                });
             }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             IsCurrentlySyncing = false;
         }
@@ -108,22 +99,13 @@ namespace DispatchSystem.cl.Windows
 
         private async void OnRemoveSelectedClick(object sender, EventArgs e)
         {
-            using (Client handle = new Client())
+            if (bolosView.SelectedItems.Count > 0)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                if (bolosView.SelectedItems.Count > 0)
-                {
-                    await handle.TryTriggerNetEvent("RemoveBolo", 0);
-                }
-                else
-                    MessageBox.Show("You don't have any selected items!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-
-                handle.Disconnect();
+                await Program.Client.TryTriggerNetEvent("RemoveBolo", 0);
+                await Resync(true);
             }
-
-            await Resync(true);
+            else
+                MessageBox.Show("You don't have any selected items!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
         }
 
         private void OnMouseClick(object sender, MouseEventArgs e)

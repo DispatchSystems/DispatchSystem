@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Net.Sockets;
 
 using MaterialSkin;
 using MaterialSkin.Controls;
@@ -33,29 +32,21 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text))
                 return;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, Civilian> result = await Program.Client.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
                 {
-                    if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
+                    Invoke((MethodInvoker)delegate
                     {
-                        Invoke((MethodInvoker)delegate
-                        {
-                            new CivView(result.Item2).Show();
-                        });
-                    }
-                    else
-                        MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        new CivView(result.Item2).Show();
+                    });
                 }
                 else
-                    MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+            else
+                MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             firstName.ResetText();
             lastName.ResetText();
@@ -66,29 +57,21 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plate.Text))
                 return;
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, CivilianVeh> result = await Program.Client.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                if (!(string.IsNullOrEmpty(result.Item2.Plate)))
                 {
-                    if (!(string.IsNullOrEmpty(result.Item2.Plate)))
+                    Invoke((MethodInvoker)delegate
                     {
-                        Invoke((MethodInvoker)delegate
-                        {
-                            new CivVehView(result.Item2).Show();
-                        });
-                    }
-                    else
-                        MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        new CivVehView(result.Item2).Show();
+                    });
                 }
                 else
-                    MessageBox.Show("Invalid Request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
+            else
+                MessageBox.Show("Invalid Request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             plate.ResetText();
         }
@@ -102,25 +85,17 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, StorageManager<Bolo>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        (boloWindow = new BoloView(result.Item2)).Show();
-                        boloWindow.FormClosed += delegate { boloWindow = null; };
-                    });
-                }
-                else
-                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    (boloWindow = new BoloView(result.Item2)).Show();
+                    boloWindow.FormClosed += delegate { boloWindow = null; };
+                });
             }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         private async void OnViewOfficersClick(object sender, EventArgs e)
         {
@@ -131,25 +106,17 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            using (Client handle = new Client())
+            Tuple<NetRequestResult, StorageManager<Officer>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
+            if (result.Item2 != null)
             {
-                try { handle.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                Tuple<NetRequestResult, StorageManager<Officer>> result = await handle.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
-                handle.Disconnect();
-
-                if (result.Item2 != null)
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        (officersWindow = new MultiOfficerView(result.Item2)).Show();
-                        officersWindow.FormClosed += delegate { officersWindow = null; };
-                    });
-                }
-                else
-                    MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    (officersWindow = new MultiOfficerView(result.Item2)).Show();
+                    officersWindow.FormClosed += delegate { officersWindow = null; };
+                });
             }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         private async void OnViewAssignmentsClick(object sender, EventArgs e)
         {
@@ -160,14 +127,7 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            Client handle = new Client();
-            try { handle.Connect(Config.IP.ToString(), Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            var result = await handle.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            handle.Disconnect();
-            handle.Dispose();
-
+            var result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
             if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
