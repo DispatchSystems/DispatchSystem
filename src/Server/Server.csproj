@@ -52,11 +52,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command.cs" />
+    <Compile Include="CommandAttribute.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="DispatchSystem\Events.cs" />
     <Compile Include="DispatchSystem\Init.cs" />
     <Compile Include="DispatchSystem\Items.cs" />
+    <Compile Include="Commands.cs" />
     <Compile Include="External\Database.cs" />
     <Compile Include="External\Log.cs" />
     <Compile Include="External\Permissions.cs" />
@@ -64,14 +65,6 @@
     <Compile Include="DispatchSystem\Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="External\DispatchServer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="permissions.perms">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="settings.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">

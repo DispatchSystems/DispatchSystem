@@ -29,6 +29,6 @@ namespace DispatchSystem.sv
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
         public static StorageManager<Bolo> ActiveBolos => bolos;
 
-        private Dictionary<string, Command> commands;
+        private Dictionary<string, CommandAttribute> commands;
     }
 }

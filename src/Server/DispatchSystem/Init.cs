@@ -53,79 +53,6 @@ namespace DispatchSystem.sv
             EventHandlers["dispatchsystem:viewBolos"] += new Action<string>(ViewBolos);
             #endregion
         }
-        private void RegisterCommands()
-        {
-            // General Purpose
-            commands.Add("/dsreset", new Command(CommandType.Civilian | CommandType.Leo)
-            {
-                Callback = async (p, args) =>
-                {
-                    await Delay(0);
-                    TriggerEvent("dispatchsystem:dsreset", p.Handle);
-                    return true;
-                }
-            });
-            commands.Add("/civ", new Command(CommandType.Civilian)
-            {
-                Callback = async (p, args) =>
-                {
-                    await Delay(0);
-
-                    TriggerClientEvent(p, "dispatchsystem:toggleCivNUI");
-
-                    return true;
-                }
-            });
-            commands.Add("/leo", new Command(CommandType.Leo)
-            {
-                Callback = async (p, args) =>
-                {
-                    await Task.FromResult(0);
-
-                    TriggerClientEvent(p, "dispatchsystem:toggleLeoNUI");
-
-                    return true;
-                }
-            });
-#if DEBUG
-            #region Debug Commands
-            // Lower 2 commands will throw errors if the names do not exist
-            commands.Add("/ipof", new Command(CommandType.Civilian)
-            {
-                Callback = async (p, args) =>
-                {
-                    await Delay(0);
-                    if (args.Count() < 2)
-                    {
-                        SendUsage(p, "/ipof {first} {last}");
-                        return false;
-                    }
-
-                    Civilian x = GetCivilianByName(args[0], args[1]);
-                    SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, x.SourceIP);
-                    return true;
-                }
-            });
-            commands.Add("/hexof", new Command(CommandType.Civilian)
-            {
-                Callback = async (p, args) =>
-                {
-                    await Delay(0);
-                    if (args.Count() < 2)
-                    {
-                        SendUsage(p, "/hexof {first} {last}");
-                        return false;
-                    }
-
-                    Civilian x = GetCivilianByName(args[0], args[1]);
-                    string hex = GetPlayerByIp(x.SourceIP).Identifiers["steam"];
-                    SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, hex);
-                    return true;
-                }
-            });
-            #endregion
-#endif
-        }
         private void InitializeComponents()
         {
             cfg = new iniconfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
@@ -180,7 +107,7 @@ namespace DispatchSystem.sv
             officers = new StorageManager<Officer>();
             assignments = new List<Assignment>();
             ofcAssignments = new Dictionary<Officer, Assignment>();
-            commands = new Dictionary<string, Command>();
+            commands = new Dictionary<string, CommandAttribute>();
             bolos = new StorageManager<Bolo>();
         }
     }

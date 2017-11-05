@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
-
+using System.Reflection;
 using CitizenFX.Core;
 
 using DispatchSystem.Common.DataHolders.Storage;
@@ -220,27 +221,35 @@ namespace DispatchSystem.sv
         #region Police Events
         public static void AddOfficer(string handle, string callsign)
         {
-            Player p = GetPlayerByHandle(handle);
-            
-            if (GetCivilian(handle) != null)
+            try
             {
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You cannot be a officer and a civilian at the same time.");
-                return;
-            }
+                Player p = GetPlayerByHandle(handle);
 
-            if (GetOfficer(handle) == null)
-            {
-                officers.Add(new Officer(p.Identifiers["ip"], callsign));
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Assigning new officer for callsign {callsign}");
+                if (GetCivilian(handle) != null)
+                {
+                    SendMessage(p, "DispatchSystem", new[] {0, 0, 0},
+                        "You cannot be a officer and a civilian at the same time.");
+                    return;
+                }
+
+                if (GetOfficer(handle) == null)
+                {
+                    officers.Add(new Officer(p.Identifiers["ip"], callsign));
+                    SendMessage(p, "DispatchSystem", new[] {0, 0, 0}, $"Assigning new officer for callsign {callsign}");
 #if DEBUG
-                SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
+                    SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
 #endif
+                }
+                else
+                {
+                    int index = officers.IndexOf(GetOfficer(handle));
+                    officers[index] = new Officer(p.Identifiers["ip"], callsign);
+                    SendMessage(p, "DispatchSystem", new[] {0, 0, 0}, $"Changing your callsign to {callsign}");
+                }
             }
-            else
+            catch (Exception e)
             {
-                int index = officers.IndexOf(GetOfficer(handle));
-                officers[index] = new Officer(p.Identifiers["ip"], callsign);
-                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Changing your callsign to {callsign}");
+                Log.WriteLine(e.ToString());
             }
         }
         public static void DisplayStatus(string handle)
@@ -428,44 +437,57 @@ namespace DispatchSystem.sv
         #endregion
         #endregion
 
-        private async void OnChatMessage(int source, string n, string msg)
+        private void OnChatMessage(int source, string n, string msg)
         {
             Player p = this.Players[source];
             var args = msg.Split(' ').ToList();
             var cmd = args[0].ToLower();
             args.RemoveAt(0);
 
-            if (commands.ContainsKey(cmd))
+            // Reflection
+            Commands instance = new Commands();
+            var command = instance.GetType().GetMethods().Where(x => x.GetCustomAttributes<CommandAttribute>().Any())
+                .FirstOrDefault(x => string.Equals(x.GetCustomAttributes<CommandAttribute>().ToArray()[0].Command, cmd, StringComparison.CurrentCultureIgnoreCase));
+            if (command == null) return;
+
+            CancelEvent();
+            CommandAttribute information = command.GetCustomAttributes<CommandAttribute>().ToArray()[0];
+            switch (information.Type)
             {
-                CancelEvent();
-                if (commands[cmd].Type == CommandType.Civilian)
-                {
-                    if (perms.CivilianPermission == Permission.Specific)
+                case CommandType.Civilian:
+                    switch (perms.CivilianPermission)
                     {
-                        if (perms.CivContains(IPAddress.Parse(p.Identifiers["ip"])))
-                            await commands[cmd].Callback(p, args.ToArray());
-                        else
-                            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                        case Permission.Everyone:
+                            command.Invoke(instance, new object[] {p, args.ToArray()});
+                            break;
+                        case Permission.Specific:
+                            if (perms.CivContains(IPAddress.Parse(p.Identifiers["ip"])))
+                                command.Invoke(instance, new object[] { p, args.ToArray() });
+                            else
+                                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
-                    else if (perms.CivilianPermission == Permission.Everyone)
-                        await commands[cmd].Callback(p, args.ToArray());
-                    else
-                        SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
-                }
-                else if (commands[cmd].Type == CommandType.Leo)
-                {
-                    if (perms.LeoPermission == Permission.Specific)
+                    break;
+                case CommandType.Leo:
+                    switch (perms.LeoPermission)
                     {
-                        if (perms.LeoContains(IPAddress.Parse(p.Identifiers["ip"])))
-                            await commands[cmd].Callback(p, args.ToArray());
-                        else
-                            SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                        case Permission.Everyone:
+                            command.Invoke(instance, new object[] { p, args.ToArray() });
+                            break;
+                        case Permission.Specific:
+                            if (perms.LeoContains(IPAddress.Parse(p.Identifiers["ip"])))
+                                command.Invoke(instance, new object[] { p, args.ToArray() });
+                            else
+                                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
-                    else if (perms.LeoPermission == Permission.Everyone)
-                        await commands[cmd].Callback(p, args.ToArray());
-                    else
-                        SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
-                }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

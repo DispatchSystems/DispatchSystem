@@ -1,20 +1,3 @@
-/*
- * Information:
- * 
- * 
- * 
- *                __THIS IS A PRE-RELEASE__
- *                -------------------------
- *             There may be some features missing
- *         There may be some bugs in the features here
- * 
- * 
- * 
- * DispatchSystem made by BlockBa5her
- * 
- * Protected under the MIT License
-*/
-
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -33,7 +16,6 @@ namespace DispatchSystem.sv
 
             InitializeComponents();
             RegisterEvents();
-            RegisterCommands();
 
             Tick += OnTick;
 
