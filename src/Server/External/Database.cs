@@ -9,7 +9,6 @@ namespace DispatchSystem.sv.External
 {
     public sealed class Database
     {
-        private const int READ_LENGTH = 15000;
         private const string CIV_FILE = "dsciv.db";
         private const string VEH_FILE = "dsveh.db";
 
@@ -36,9 +35,14 @@ namespace DispatchSystem.sv.External
                 if (!stream.CanWrite || !stream.CanRead)
                     throw new IOException("Invalid permissions to read or write");
 
-                byte[] buffer = new byte[READ_LENGTH];
-                int length = stream.Read(buffer, 0, READ_LENGTH);
-                buffer = buffer.Take(length).ToArray();
+                byte[] buffer = new byte[0];
+                int read = 1000;
+                while (read > 0)
+                {
+                    var temp = new byte[read];
+                    read = stream.Read(temp, 0, read);
+                    buffer = buffer.Concat(temp).ToArray();
+                }
 
                 reading = false;
                 return buffer.Length == 0 ? null : new StorableValue<StorageManager<T>>(buffer).Value;
