@@ -18,7 +18,7 @@ namespace DispatchSystem.sv
     {
         public static Civilian GetCivilian(string pHandle)
         {
-            return civs.Where(item => GetPlayerByIp(item.SourceIP) != null).FirstOrDefault(item => GetPlayerByIp(item.SourceIP).Handle == pHandle);
+            return civs.FirstOrDefault(item => GetPlayerByIp(item.SourceIP)?.Handle == pHandle);
         }
         public static Civilian GetCivilianByName(string first, string last)
         {

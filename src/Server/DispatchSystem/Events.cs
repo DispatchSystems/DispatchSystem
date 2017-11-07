@@ -221,35 +221,28 @@ namespace DispatchSystem.sv
         #region Police Events
         public static void AddOfficer(string handle, string callsign)
         {
-            try
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetCivilian(handle) != null)
             {
-                Player p = GetPlayerByHandle(handle);
-
-                if (GetCivilian(handle) != null)
-                {
-                    SendMessage(p, "DispatchSystem", new[] {0, 0, 0},
-                        "You cannot be a officer and a civilian at the same time.");
-                    return;
-                }
-
-                if (GetOfficer(handle) == null)
-                {
-                    officers.Add(new Officer(p.Identifiers["ip"], callsign));
-                    SendMessage(p, "DispatchSystem", new[] {0, 0, 0}, $"Assigning new officer for callsign {callsign}");
-#if DEBUG
-                    SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
-#endif
-                }
-                else
-                {
-                    int index = officers.IndexOf(GetOfficer(handle));
-                    officers[index] = new Officer(p.Identifiers["ip"], callsign);
-                    SendMessage(p, "DispatchSystem", new[] {0, 0, 0}, $"Changing your callsign to {callsign}");
-                }
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 },
+                    "You cannot be a officer and a civilian at the same time.");
+                return;
             }
-            catch (Exception e)
+
+            if (GetOfficer(handle) == null)
             {
-                Log.WriteLine(e.ToString());
+                officers.Add(new Officer(p.Identifiers["ip"], callsign));
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Assigning new officer for callsign {callsign}");
+#if DEBUG
+                SendMessage(p, "", new[] { 0, 0, 0 }, "Creating new Officer profile...");
+#endif
+            }
+            else
+            {
+                int index = officers.IndexOf(GetOfficer(handle));
+                officers[index] = new Officer(p.Identifiers["ip"], callsign);
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, $"Changing your callsign to {callsign}");
             }
         }
         public static void DisplayStatus(string handle)
@@ -446,7 +439,7 @@ namespace DispatchSystem.sv
 
             // Reflection
             Commands instance = new Commands();
-            var command = instance.GetType().GetMethods().Where(x => x.GetCustomAttributes<CommandAttribute>().Any())
+            var command = typeof(Commands).GetMethods().Where(x => x.GetCustomAttributes<CommandAttribute>().Any())
                 .FirstOrDefault(x => string.Equals(x.GetCustomAttributes<CommandAttribute>().ToArray()[0].Command, cmd, StringComparison.CurrentCultureIgnoreCase));
             if (command == null) return;
 
@@ -466,6 +459,8 @@ namespace DispatchSystem.sv
                             else
                                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
                             break;
+                        case Permission.None:
+                            break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -481,6 +476,8 @@ namespace DispatchSystem.sv
                                 command.Invoke(instance, new object[] { p, args.ToArray() });
                             else
                                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You don't have the permission to do that!");
+                            break;
+                        case Permission.None:
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

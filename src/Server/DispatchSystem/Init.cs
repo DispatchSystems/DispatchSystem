@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,6 +56,15 @@ namespace DispatchSystem.sv
         }
         private void InitializeComponents()
         {
+            callbacks = new ConcurrentQueue<Action>();
+            officers = new StorageManager<Officer>();
+            assignments = new List<Assignment>();
+            ofcAssignments = new Dictionary<Officer, Assignment>();
+            commands = new Dictionary<string, CommandAttribute>();
+            bolos = new StorageManager<Bolo>();
+            civs = new StorageManager<Civilian>();
+            civVehs = new StorageManager<CivilianVeh>();
+
             cfg = new iniconfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
 
             Permissions.SetInformation("permissions.perms", Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME));
@@ -71,16 +81,11 @@ namespace DispatchSystem.sv
             if (cfg.GetIntValue("database", "enable", 0) == 1)
             {
                 Log.WriteLine("Reading database...");
-                ThreadPool.QueueUserWorkItem(x =>
-                {
-                    data = new Database();
-                    StorageManager<Civilian> _civs = data.Read<Civilian>("dsciv.db");
-                    StorageManager<CivilianVeh> _civVehs = data.Read<CivilianVeh>("dsveh.db");
-
-                    civs = _civs;
-                    civVehs = _civVehs;
-                });
+                data = new Database();
+                civs = data.Read<Civilian>("dsciv.db") ?? new StorageManager<Civilian>();
+                civVehs = data.Read<CivilianVeh>("dsveh.db") ?? new StorageManager<CivilianVeh>();
                 Log.WriteLine("Read and set database");
+
                 ThreadPool.QueueUserWorkItem(async x =>
                 {
                     await Delay(15000);
@@ -98,17 +103,9 @@ namespace DispatchSystem.sv
                 });
             }
             else
+            {
                 Log.WriteLine("Not start database");
-
-
-            callbacks = new ConcurrentQueue<Action>();
-            civs = new StorageManager<Civilian>();
-            civVehs = new StorageManager<CivilianVeh>();
-            officers = new StorageManager<Officer>();
-            assignments = new List<Assignment>();
-            ofcAssignments = new Dictionary<Officer, Assignment>();
-            commands = new Dictionary<string, CommandAttribute>();
-            bolos = new StorageManager<Bolo>();
+            }
         }
     }
 }
