@@ -29,6 +29,9 @@ namespace DispatchSystem.sv
             EventHandlers["dispatchsystem:setName"] += new Action<string, string, string>(SetName);
             EventHandlers["dispatchsystem:toggleWarrant"] += new Action<string>(ToggleWarrant);
             EventHandlers["dispatchsystem:setCitations"] += new Action<string, int>(SetCitations);
+            EventHandlers["dispatchsystem:911init"] += new Action<string>(InitializeEmergency);
+            EventHandlers["dispatchsystem:911msg"] += new Action<string, string>(MessageEmergency);
+            EventHandlers["dispatchsystem:911end"] += new Action<string>(EndEmergency);
             #endregion
 
             #region Vehicle Commands
@@ -64,6 +67,7 @@ namespace DispatchSystem.sv
             bolos = new StorageManager<Bolo>();
             civs = new StorageManager<Civilian>();
             civVehs = new StorageManager<CivilianVeh>();
+            currentCalls = new List<EmergencyCall>();
 
             cfg = new iniconfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
 
@@ -73,7 +77,7 @@ namespace DispatchSystem.sv
 
             if (cfg.GetIntValue("server", "enable", 0) == 1)
             {
-                ThreadPool.QueueUserWorkItem(x => DispatchServer = new DispatchServer(cfg), null);
+                ThreadPool.QueueUserWorkItem(x => server = new DispatchServer(cfg), null);
                 Log.WriteLine("Starting DISPATCH server");
             }
             else

@@ -36,8 +36,7 @@
       <HintPath>..\..\ref\cfx_server\CitizenFX.Core.dll</HintPath>
     </Reference>
     <Reference Include="CloNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ref\CloNET.dll</HintPath>
+      <HintPath>..\packages\CloneCommando.CloNET.0.4.2\lib\net461\CloNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -71,6 +70,9 @@
       <Project>{98d8a98f-63af-4cc1-9455-07390b2438a4}</Project>
       <Name>Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

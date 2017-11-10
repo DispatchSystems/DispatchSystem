@@ -11,6 +11,7 @@
         <div id="civ" style="display: none">
             <button class="option sub" data-sub="civ_civ">Civilian Menu</button>
             <button class="option sub" data-sub="civ_veh">Vehicle Menu</button>
+            <button class="option sub" data-sub="civ_911">911 Menu</button>
             <button class="option" data-action="dsreset">Delete Profiles</button>
             <button class="option x" data-action="exit">Exit</button>
         </div>
@@ -28,6 +29,13 @@
             <button class="option" data-action="civ_vehstolen">Toggle Stolen</button>
             <button class="option" data-action="civ_vehregi">Toggle Registration</button>
             <button class="option" data-action="civ_vehinsurance">Toggle Insurance</button>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="civ_911" style="display: none" data-parent="civ">
+            <button class="option" data-action="civ_911init">Call 911</button>
+            <button class="option" data-action="civ_911msg">Message 911</button>
+            <button class="option" data-action="civ_911end">End 911 call</button>
             <button class="option back" data-action="reset_menu">Home</button>
             <button class="option x" data-action="exit">Exit</button>
         </div>

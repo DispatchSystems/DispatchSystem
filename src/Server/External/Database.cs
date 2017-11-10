@@ -35,14 +35,8 @@ namespace DispatchSystem.sv.External
                 if (!stream.CanWrite || !stream.CanRead)
                     throw new IOException("Invalid permissions to read or write");
 
-                byte[] buffer = new byte[0];
-                int read = 1000;
-                while (read > 0)
-                {
-                    var temp = new byte[read];
-                    read = stream.Read(temp, 0, read);
-                    buffer = buffer.Concat(temp).ToArray();
-                }
+                byte[] buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, (int)stream.Length);
 
                 reading = false;
                 return buffer.Length == 0 ? null : new StorableValue<StorageManager<T>>(buffer).Value;

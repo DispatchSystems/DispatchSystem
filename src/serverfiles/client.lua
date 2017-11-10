@@ -109,12 +109,35 @@ function civCitations()
         exitAllMenus()
         local amount = tonumber(KeyboardInput("Citation Count", "", 3))
         if amount == nil then
-            turnOnLeoMenu()
+            turnOnCivMenu()
             drawNotification("You must have a valid number")
             return
         end
         TriggerServerEvent("dispatchsystem:setCitations", getHandle(), amount)
         turnOnCivMenu()
+    end)
+end
+function init911() 
+    Citizen.CreateThread(function()
+        TriggerServerEvent("dispatchsystem:911init", getHandle())
+    end)
+end
+function msg911()
+    Citizen.CreateThread(function()
+        exitAllMenus()
+        local msg = KeyboardInput("Text", "", 100)
+        if msg == nil then
+            turnOnCivMenu()
+            drawNotification("Invalid message")
+            return
+        end
+        TriggerServerEvent("dispatchsystem:911msg", getHandle(), msg)
+        turnOnCivMenu()
+    end)
+end
+function end911()
+    Citizen.CreateThread(function()
+        TriggerServerEvent("dispatchsystem:911end", getHandle())
     end)
 end
 function createCivVehicle()
@@ -356,6 +379,12 @@ RegisterNUICallback("ButtonClick", function(data, cb)
         toggleWarrant()
     elseif data == "civ_citations" then
         civCitations()
+    elseif data == "civ_911init" then
+        init911()
+    elseif data == "civ_911msg" then
+        msg911()
+    elseif data == "civ_911end" then
+        end911()
     elseif data == "civ_newveh" then
         createCivVehicle()
     elseif data == "civ_vehstolen" then

@@ -7,6 +7,8 @@ using DispatchSystem.cl.Windows;
 
 using CloNET;
 using CloNET.Callbacks;
+using DispatchSystem.cl.Windows.Emergency;
+using DispatchSystem.Common.DataHolders.Storage;
 
 namespace DispatchSystem.cl
 {
@@ -30,68 +32,85 @@ namespace DispatchSystem.cl
 
             using (Client = new Client())
             {
-                Client.Events.Add("Alert", new NetEvent(async (peer, objects) =>
+                Client.Encryption = new EncryptionOptions
+                {
+                    Encrypt = false,
+                    Overridable = true
+                };
+
+
+                new Action(async () =>
+                {
+                    try { await Client.Connect(Config.IP.ToString(), Config.Port); }
+                    catch (SocketException) { MessageBox.Show("Connection refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); Environment.Exit(-1); }
+                })();
+
+                Client.Events.Add("911alert", new NetEvent(async (peer, objects) =>
                 {
                     await Task.FromResult(0);
 
-                    MessageBox.Show(objects[0] as string, "ALERT", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    mainWindow.Invoke((MethodInvoker) delegate
+                    {
+                        new Accept911((Civilian) objects[0], (EmergencyCall) objects[1]).Show();
+                    });
                 }));
 
-                try { Client.Connect(Config.IP.ToString(), Config.Port); }
-                catch (SocketException) { MessageBox.Show("Connection refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-                new Thread((ThreadStart)delegate
+                Client.Connected += delegate
                 {
-                    while (true)
-                    {
-                        Thread.Sleep(100);
-                        if (Client.Connected) continue;
-                        if (mainWindow == null) continue;
-
-                        bool executing = true;
-                        new Thread(() =>
+                    new Thread((ThreadStart)async delegate
                         {
-                            mainWindow.Invoke((MethodInvoker) delegate
+                            while (true)
                             {
-                                while (executing)
+                                Thread.Sleep(100);
+                                if (Client.IsConnected) continue;
+                                if (mainWindow == null) continue;
+
+                                bool executing = true;
+                                new Thread(() =>
+                                    {
+                                        mainWindow.Invoke((MethodInvoker)delegate
+                                        {
+                                            while (executing)
+                                            {
+                                                Thread.Sleep(50);
+                                            }
+                                        });
+                                    })
+                                    { Name = "WindowFreezeThread" }.Start();
+
+                                for (int i = 0; i < RECONNECT_COUNT; i++)
                                 {
-                                    Thread.Sleep(50);
+                                    try
+                                    {
+                                        await Client.Disconnect();
+                                        await Client.Connect(Config.IP.ToString(), Config.Port);
+                                    }
+                                    catch (SocketException)
+                                    {
+                                    }
+
+                                    Thread.Sleep(1000);
+                                    if (Client.IsConnected) break;
                                 }
-                            });
-                        }) {Name = "WindowFreezeThread"}.Start();
 
-                        for (int i = 0; i < RECONNECT_COUNT; i++)
-                        {
-                            try
-                            {
-                                Client.Disconnect();
-                                Client.Connect(Config.IP.ToString(), Config.Port);
+                                if (Client.IsConnected)
+                                {
+                                    executing = false;
+                                }
+                                else
+                                {
+                                    MessageBox.Show($"Failed to connect to the server after {RECONNECT_COUNT} attempts", "DispatchSystem",
+                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    Environment.Exit(-1);
+                                }
                             }
-                            catch (SocketException)
-                            {
-                            }
-
-                            Thread.Sleep(100);
-                            if (Client.Connected) break;
-                        }
-
-                        if (Client.Connected)
-                        {
-                            executing = false;
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Failed to connect to the server after {RECONNECT_COUNT} attempts", "DispatchSystem",
-                                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            Environment.Exit(-1);
-                        }
-                    }
-                })
-                { Name = "ConnectionDetection" }.Start();
+                        })
+                        { Name = "ConnectionDetection" }.Start();
+                };
 
                 Application.Run(mainWindow = new DispatchMain());
 
-                Client.Disconnect();
+                new Action(async delegate { await Client.Disconnect(); })();
             }
             Environment.Exit(0);
         }

@@ -30,11 +30,15 @@ namespace DispatchSystem.sv
         }
         public static CivilianVeh GetCivilianVehByPlate(string plate)
         {
-            return civVehs.FirstOrDefault(item => String.Equals(item.Plate, plate, StringComparison.CurrentCultureIgnoreCase));
+            return civVehs.FirstOrDefault(item => string.Equals(item.Plate, plate, StringComparison.CurrentCultureIgnoreCase));
         }
         public static Officer GetOfficer(string pHandle)
         {
             return officers.Where(item => GetPlayerByIp(item.SourceIP) != null).FirstOrDefault(item => GetPlayerByIp(item.SourceIP).Handle == pHandle);
+        }
+        public static EmergencyCall GetEmergencyCall(string pHandle)
+        {
+            return currentCalls.FirstOrDefault(item => GetPlayerByIp(item.SourceIP)?.Handle == pHandle);
         }
 
         public static Assignment GetOfficerAssignment(Officer ofc)

@@ -4,7 +4,8 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
 using CitizenFX.Core;
-
+using CitizenFX.Core.Native;
+using CloNET;
 using DispatchSystem.Common.DataHolders.Storage;
 using DispatchSystem.sv.External;
 
@@ -104,6 +105,76 @@ namespace DispatchSystem.sv
             }
             else
                 SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before you can set your citations");
+        }
+        public static async void InitializeEmergency(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            if (GetEmergencyCall(handle) != null)
+            {
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You already have a 911 call!");
+                return;
+            }
+
+            if (GetCivilian(handle) != null)
+            {
+                Civilian civ = GetCivilian(handle);
+
+                if (server.ConnectedDispatchers.Length == 0)
+                {
+                    SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "It seems like there is no connected dispatchers at this moment!");
+                    return;
+                }
+
+                EmergencyCall call;
+                currentCalls.Add(call = new EmergencyCall(p.Identifiers["ip"], $"{civ.First} {civ.Last}"));
+                SendMessage(p, "Dispatch911", new[] { 255, 0, 0 }, "Please wait for a dispatcher to respond");
+                foreach (var peer in server.ConnectedDispatchers)
+                {
+                    await peer.TriggerNetEvent("911alert", civ, call);
+                }
+            }
+            else
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You must set your name before start a 911 call");
+        }
+        public static async void MessageEmergency(string handle, string msg)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            EmergencyCall call = GetEmergencyCall(handle);
+            if (call?.Accepted ?? true)
+            {
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "You're call must be answered or started first");
+                return;
+            }
+
+            string dispatcherIp = server.Calls[call.Id];
+            ConnectedPeer peer = server.ConnectedDispatchers.First(x => x.RemoteIP == dispatcherIp);
+            await peer.TryTriggerNetEvent(call.Id.ToString(), msg);
+        }
+        public static void EndEmergency(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+
+            EmergencyCall call = GetEmergencyCall(handle);
+            if (call == null)
+            {
+                SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "There is no 911 call to end!");
+                return;
+            }
+
+#if DEBUG
+            SendMessage(p, "", new[] { 0, 0, 0 }, "Ending 911 call...");
+#endif
+
+            string dispatcherIp = server.Calls[call.Id];
+            ConnectedPeer peer = server.ConnectedDispatchers.First(x => x.RemoteIP == dispatcherIp);
+#pragma warning disable 4014
+            peer.TryTriggerNetEvent("end" + call.Id);
+#pragma warning restore 4014
+
+            currentCalls.Remove(call);
+            SendMessage(p, "Dispatch911", new[] { 255, 0, 0 }, "Ended the 911 call");
         }
         #endregion
 
