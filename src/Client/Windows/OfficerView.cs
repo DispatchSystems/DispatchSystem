@@ -50,18 +50,17 @@ namespace DispatchSystem.cl.Windows
                     throw new ArgumentOutOfRangeException();
             }
             materialListView1.Items.Clear();
-            if (!(assignment is null))
-            {
-                ListViewItem lvi = new ListViewItem(assignment.Creation.ToString("HH:mm:ss"));
-                lvi.SubItems.Add(assignment.Summary);
-                materialListView1.Items.Add(lvi);
-            }
+            if (assignment is null) return;
+
+            ListViewItem lvi = new ListViewItem(assignment.Creation.ToString("HH:mm:ss"));
+            lvi.SubItems.Add(assignment.Summary);
+            materialListView1.Items.Add(lvi);
         }
 
         public async Task SetAssignment()
         {
-            Tuple<NetRequestResult, Assignment> result = await Program.Client.TryTriggerNetFunction<Assignment>("GetOfficerAssignment", ofc.Id);
-            assignment = result.Item2;
+            assignment = await Program.Client.Peer.RemoteCallbacks.Functions["GetOfficerAssignment"]
+                .Invoke<Assignment>(ofc.Id);
 
             UpdateCurrentInformation();
         }
@@ -76,14 +75,14 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Tuple<NetRequestResult, Officer> result = await Program.Client.TryTriggerNetFunction<Officer>("GetOfficer", ofc.Id);
-            if (result.Item2 != null)
+            Officer result = await Program.Client.Peer.RemoteCallbacks.Functions["GetOfficer"].Invoke<Officer>(ofc.Id);
+            if (result != null)
             {
-                if (result.Item2.SourceIP != string.Empty && result.Item2.Callsign != string.Empty)
+                if (result.SourceIP != string.Empty && result.Callsign != string.Empty)
                 {
                     Invoke((MethodInvoker)async delegate
                     {
-                        ofc = result.Item2;
+                        ofc = result;
                         await SetAssignment();
                     });
                 }
@@ -108,7 +107,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OnDuty);
                 }
                 else if (sender == radioOffDuty)
                 {
@@ -118,7 +117,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OffDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OffDuty);
                 }
                 else
                 {
@@ -128,7 +127,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.Busy);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.Busy);
                 }
             } while (false);
 
@@ -148,7 +147,8 @@ namespace DispatchSystem.cl.Windows
                 (addBtn = new AddRemoveView(AddRemoveView.Type.AddAssignment)).Show();
                 addBtn.FormClosed += async delegate
                 {
-                    await Program.Client.TriggerNetEvent("AddOfficerAssignment", addBtn.LastGuid, ofc.Id);
+                    await Program.Client.Peer.RemoteCallbacks.Events["AddOfficerAssignment"]
+                        .Invoke(addBtn.LastGuid, ofc.Id);
 
                     addBtn = null;
                     await Resync(true);
@@ -170,7 +170,7 @@ namespace DispatchSystem.cl.Windows
             if (materialListView1.FocusedItem == null)
                 return;
 
-            await Program.Client.TryTriggerNetEvent("RemoveOfficerAssignment", ofc.Id);
+            await Program.Client.Peer.RemoteCallbacks.Events["RemoveOfficerAssignment"].Invoke(ofc.Id);
 
             await Resync(true);
         }

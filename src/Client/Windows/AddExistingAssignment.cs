@@ -38,23 +38,23 @@ namespace DispatchSystem.cl.Windows
 
         public async Task Resync(bool skipTime)
         {
-            if (((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing) && !skipTime)
+            if (((DateTime.Now - LastSyncTime).Seconds < 5 || IsCurrentlySyncing) && !skipTime)
             {
-                MessageBox.Show($"You must wait 15 seconds before the last sync time \nSeconds to wait: {15 - (DateTime.Now - LastSyncTime).Seconds}", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"You must wait 5 seconds before the last sync time \nSeconds to wait: {5 - (DateTime.Now - LastSyncTime).Seconds}", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            if (result.Item2 != null)
+            IEnumerable<Assignment> result = await Program.Client.Peer.RemoteCallbacks.Functions["GetAssignments"].Invoke<IEnumerable<Assignment>>();
+            if (result != null)
             {
                 while (!IsHandleCreated)
                     await Task.Delay(50);
                 Invoke((MethodInvoker)delegate
                 {
-                    assignments = result.Item2;
+                    assignments = result;
                     UpdateCurrentInformation();
                 });
             }
@@ -82,7 +82,7 @@ namespace DispatchSystem.cl.Windows
             int index = assignmentsView.Items.IndexOf(assignmentsView.FocusedItem);
             Assignment assignment = assignments.ToList()[index];
 
-            await Program.Client.TriggerNetEvent("AddOfficerAssignment", assignment.Id, ofc.Id);
+            await Program.Client.Peer.RemoteCallbacks.Events["AddOfficerAssignment"].Invoke(assignment.Id, ofc.Id);
 
             Close();
         }

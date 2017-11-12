@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
@@ -6,6 +7,7 @@ using System.Reflection;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using CloNET;
+using CloNET.RemoteCallbacks;
 using DispatchSystem.Common.DataHolders.Storage;
 using DispatchSystem.sv.External;
 
@@ -22,14 +24,23 @@ namespace DispatchSystem.sv
 
             if (GetCivilian(p.Handle) != null)
             {
+#if DEBUG
+                SendMessage(p, "", new [] {0,0,0}, "Removing Civilian Profile...");
+#endif
                 civs.Remove(GetCivilian(p.Handle));
             }
             if (GetCivilianVeh(p.Handle) != null)
             {
+#if DEBUG
+                SendMessage(p, "", new[] { 0, 0, 0 }, "Removing Civilian Vehicle Profile...");
+#endif
                 civVehs.Remove(GetCivilianVeh(p.Handle));
             }
             if (GetOfficer(p.Handle) != null)
             {
+#if DEBUG
+                SendMessage(p, "", new[] { 0, 0, 0 }, "Removing Officer Profile...");
+#endif
                 officers.Remove(GetOfficer(p.Handle));
             }
 
@@ -131,7 +142,7 @@ namespace DispatchSystem.sv
                 SendMessage(p, "Dispatch911", new[] { 255, 0, 0 }, "Please wait for a dispatcher to respond");
                 foreach (var peer in server.ConnectedDispatchers)
                 {
-                    await peer.TriggerNetEvent("911alert", civ, call);
+                    await peer.RemoteCallbacks.Events["911alert"].Invoke(civ, call);
                 }
             }
             else
@@ -150,9 +161,9 @@ namespace DispatchSystem.sv
 
             string dispatcherIp = server.Calls[call.Id];
             ConnectedPeer peer = server.ConnectedDispatchers.First(x => x.RemoteIP == dispatcherIp);
-            await peer.TryTriggerNetEvent(call.Id.ToString(), msg);
+            await peer.RemoteCallbacks.Events[call.Id.ToString()].Invoke(msg);
         }
-        public static void EndEmergency(string handle)
+        public static async void EndEmergency(string handle)
         {
             Player p = GetPlayerByHandle(handle);
 
@@ -167,14 +178,14 @@ namespace DispatchSystem.sv
             SendMessage(p, "", new[] { 0, 0, 0 }, "Ending 911 call...");
 #endif
 
-            string dispatcherIp = server.Calls[call.Id];
-            ConnectedPeer peer = server.ConnectedDispatchers.First(x => x.RemoteIP == dispatcherIp);
-#pragma warning disable 4014
-            peer.TryTriggerNetEvent("end" + call.Id);
-#pragma warning restore 4014
+            var dispatcherIp = server.Calls[call.Id];
+            ConnectedPeer peer = server.ConnectedDispatchers.FirstOrDefault(x => x.RemoteIP == dispatcherIp);
+            var task = peer?.RemoteCallbacks.Events?["end" + call.Id].Invoke();
 
             currentCalls.Remove(call);
             SendMessage(p, "Dispatch911", new[] { 255, 0, 0 }, "Ended the 911 call");
+
+            if (!(task is null)) await task;
         }
         #endregion
 

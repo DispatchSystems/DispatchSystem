@@ -11,10 +11,9 @@ using Config.Reader;
 using DispatchSystem.Common.DataHolders.Storage;
 
 using CloNET;
-using CloNET.Callbacks;
-using CloNET.Interfaces;
 
 using CitizenFX.Core;
+using CloNET.LocalCallbacks;
 
 namespace DispatchSystem.sv.External
 {
@@ -54,7 +53,7 @@ namespace DispatchSystem.sv.External
             server.Connected += OnConnect;
             server.Disconnected += OnDisconnect;
             Log.WriteLine("TCP Created, starting TCP");
-            try { server.Start(); }
+            try { server.Listening = true; }
             catch (SocketException)
             {
                 Log.WriteLine("The specified port (" + Port + ") is already in use.");
@@ -67,25 +66,25 @@ namespace DispatchSystem.sv.External
 
         private void AddCallbacks()
         {
-            server.Functions.Add("GetCivilian", new NetFunction(GetCivilian));
-            server.Functions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
-            server.Functions.Add("GetBolos", new NetFunction(GetBolos));
-            server.Functions.Add("GetOfficers", new NetFunction(GetOfficers));
-            server.Functions.Add("GetOfficer", new NetFunction(GetOfficer));
-            server.Functions.Add("GetAssignments", new NetFunction(GetAssignments));
-            server.Functions.Add("CreateAssignment", new NetFunction(NewAssignment));
-            server.Functions.Add("GetOfficerAssignment", new NetFunction(GetOfcAssignment));
-            server.Functions.Add("Accept911", new NetFunction(AcceptEmergency));
-            server.Events.Add("911End", new NetEvent(EndEmergency));
-            server.Events.Add("911Msg", new NetEvent(MessageEmergency));
-            server.Events.Add("AddOfficerAssignment", new NetEvent(AddOfcAssignment));
-            server.Events.Add("RemoveAssignment", new NetEvent(RemoveAssignment));
-            server.Events.Add("RemoveOfficerAssignment", new NetEvent(RemoveOfcAssignment));
-            server.Events.Add("SetStatus", new NetEvent(ChangeOfficerStatus));
-            server.Events.Add("RemoveOfficer", new NetEvent(RemoveOfficer));
-            server.Events.Add("AddBolo", new NetEvent(AddBolo));
-            server.Events.Add("RemoveBolo", new NetEvent(RemoveBolo));
-            server.Events.Add("AddNote", new NetEvent(AddNote));
+            server.LocalCallbacks.Functions.Add("GetCivilian", new LocalFunction(GetCivilian));
+            server.LocalCallbacks.Functions.Add("GetCivilianVeh", new LocalFunction(GetCivilianVeh));
+            server.LocalCallbacks.Functions.Add("GetBolos", new LocalFunction(GetBolos));
+            server.LocalCallbacks.Functions.Add("GetOfficers", new LocalFunction(GetOfficers));
+            server.LocalCallbacks.Functions.Add("GetOfficer", new LocalFunction(GetOfficer));
+            server.LocalCallbacks.Functions.Add("GetAssignments", new LocalFunction(GetAssignments));
+            server.LocalCallbacks.Functions.Add("CreateAssignment", new LocalFunction(NewAssignment));
+            server.LocalCallbacks.Functions.Add("GetOfficerAssignment", new LocalFunction(GetOfcAssignment));
+            server.LocalCallbacks.Functions.Add("Accept911", new LocalFunction(AcceptEmergency));
+            server.LocalCallbacks.Events.Add("911End", new LocalEvent(EndEmergency));
+            server.LocalCallbacks.Events.Add("911Msg", new LocalEvent(MessageEmergency));
+            server.LocalCallbacks.Events.Add("AddOfficerAssignment", new LocalEvent(AddOfcAssignment));
+            server.LocalCallbacks.Events.Add("RemoveAssignment", new LocalEvent(RemoveAssignment));
+            server.LocalCallbacks.Events.Add("RemoveOfficerAssignment", new LocalEvent(RemoveOfcAssignment));
+            server.LocalCallbacks.Events.Add("SetStatus", new LocalEvent(ChangeOfficerStatus));
+            server.LocalCallbacks.Events.Add("RemoveOfficer", new LocalEvent(RemoveOfficer));
+            server.LocalCallbacks.Events.Add("AddBolo", new LocalEvent(AddBolo));
+            server.LocalCallbacks.Events.Add("RemoveBolo", new LocalEvent(RemoveBolo));
+            server.LocalCallbacks.Events.Add("AddNote", new LocalEvent(AddNote));
         }
 
         private static async Task OnConnect(ConnectedPeer user)
@@ -606,7 +605,7 @@ namespace DispatchSystem.sv.External
 #endif
         }
 
-        private bool CheckAndDispose(IBaseNet sender)
+        private bool CheckAndDispose(ConnectedPeer sender)
         {
             switch (perms.DispatchPermission)
             {

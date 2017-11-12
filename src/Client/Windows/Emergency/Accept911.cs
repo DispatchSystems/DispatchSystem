@@ -32,14 +32,14 @@ namespace DispatchSystem.cl.Windows.Emergency
 
         private async void OnAcceptClick(object sender, EventArgs e)
         {
-            Tuple<NetRequestResult, object> item = await Program.Client.TryTriggerNetFunction<object>("Accept911", call.Id);
-            if (item.Item2 == null)
+            object item = await Program.Client.Peer.RemoteCallbacks.Functions["Accept911"].Invoke<object>(call.Id);
+            if (item == null)
             {
                 MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if ((bool) item.Item2)
+            if ((bool) item)
             {
                 new Message911(civ, call).Show();
             }

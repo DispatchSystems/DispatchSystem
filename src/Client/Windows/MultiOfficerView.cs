@@ -55,12 +55,12 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Tuple<NetRequestResult, StorageManager<Officer>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
-            if (result.Item2 != null)
+            StorageManager<Officer> result = await Program.Client.Peer.RemoteCallbacks.Functions["GetOfficers"].Invoke<StorageManager<Officer>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    data = result.Item2;
+                    data = result;
                     UpdateCurrentInformation();
                 });
             }
@@ -101,7 +101,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OnDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OnDuty);
                 }
                 else if (sender == statusOffDutyStripItem)
                 {
@@ -111,7 +111,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.OffDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OffDuty);
                 }
                 else
                 {
@@ -121,7 +121,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.TryTriggerNetEvent("SetStatus", ofc, OfficerStatus.Busy);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.Busy);
                 }
             } while (false);
 
@@ -143,7 +143,7 @@ namespace DispatchSystem.cl.Windows
             int index = officers.Items.IndexOf(focusesItem);
             Officer ofc = data[index];
 
-            await Program.Client.TryTriggerNetEvent("RemoveOfficer", ofc.Id);
+            await Program.Client.Peer.RemoteCallbacks.Events["RemoveOfficer"].Invoke(ofc.Id);
 
             await Resync(true);
         }

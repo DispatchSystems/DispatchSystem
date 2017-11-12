@@ -32,14 +32,15 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text))
                 return;
 
-            Tuple<NetRequestResult, Civilian> result = await Program.Client.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetCivilian"]
+                .Invoke<Civilian>(firstName.Text, lastName.Text);
+            if (result != null)
             {
-                if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
+                if (!(string.IsNullOrEmpty(result.First) || string.IsNullOrEmpty(result.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        new CivView(result.Item2).Show();
+                        new CivView(result).Show();
                     });
                 }
                 else
@@ -57,14 +58,15 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plate.Text))
                 return;
 
-            Tuple<NetRequestResult, CivilianVeh> result = await Program.Client.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetCivilianVeh"]
+                .Invoke<CivilianVeh>(plate.Text);
+            if (result != null)
             {
-                if (!(string.IsNullOrEmpty(result.Item2.Plate)))
+                if (!(string.IsNullOrEmpty(result.Plate)))
                 {
                     Invoke((MethodInvoker)delegate
                     {
-                        new CivVehView(result.Item2).Show();
+                        new CivVehView(result).Show();
                     });
                 }
                 else
@@ -85,12 +87,12 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            Tuple<NetRequestResult, StorageManager<Bolo>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetBolos"].Invoke<StorageManager<Bolo>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    (boloWindow = new BoloView(result.Item2)).Show();
+                    (boloWindow = new BoloView(result)).Show();
                     boloWindow.FormClosed += delegate { boloWindow = null; };
                 });
             }
@@ -106,12 +108,12 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            Tuple<NetRequestResult, StorageManager<Officer>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetOfficers"].Invoke<StorageManager<Officer>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    (officersWindow = new MultiOfficerView(result.Item2)).Show();
+                    (officersWindow = new MultiOfficerView(result)).Show();
                     officersWindow.FormClosed += delegate { officersWindow = null; };
                 });
             }
@@ -127,12 +129,13 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            var result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetAssignments"]
+                .Invoke<IEnumerable<Assignment>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    (assignmentsWindow = new AssignmentsView(result.Item2)).Show();
+                    (assignmentsWindow = new AssignmentsView(result)).Show();
                     assignmentsWindow.FormClosed += delegate { assignmentsWindow = null; };
                 });
             }
