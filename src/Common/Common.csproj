@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataHolders\Database.cs" />
     <Compile Include="DataHolders\IOwnable.cs" />
     <Compile Include="DataHolders\IDataHolder.cs" />
     <Compile Include="DataHolders\Storage\Assignment.cs" />

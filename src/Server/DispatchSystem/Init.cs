@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using DispatchSystem.sv.External;
 using DispatchSystem.Common.DataHolders.Storage;
+using DispatchSystem.Common.DataHolders;
 
 using Config.Reader;
 
@@ -84,15 +85,18 @@ namespace DispatchSystem.sv
                 Log.WriteLine("Not starting DISPATCH server");
             if (cfg.GetIntValue("database", "enable", 0) == 1)
             {
-                Log.WriteLine("Reading database...");
-                data = new Database();
-                civs = data.Read<Civilian>("dsciv.db") ?? new StorageManager<Civilian>();
-                civVehs = data.Read<CivilianVeh>("dsveh.db") ?? new StorageManager<CivilianVeh>();
-                Log.WriteLine("Read and set database");
-
-                ThreadPool.QueueUserWorkItem(async x =>
+                new Thread(async () =>
                 {
-                    await Delay(15000);
+                    Log.WriteLine("Reading database...");
+                    data = new Database("dispatchsystem.dontdelete");
+                    Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read =
+                        data.Read() ??
+                        new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(new StorageManager<Civilian>(),
+                            new StorageManager<CivilianVeh>());
+                    civs = read.Item1;
+                    civVehs = read.Item2;
+                    Log.WriteLine("Read and set database");
+
                     while (true)
                     {
 #if DEBUG
@@ -100,11 +104,11 @@ namespace DispatchSystem.sv
 #else
                         Log.WriteLineSilent("Writing current information to database");
 #endif
-                        data.Write(civs, "dsciv.db");
-                        data.Write(civVehs, "dsveh.db");
+                        Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(civs, civVehs);
+                        data.Write(write);
                         await Delay(180 * 1000);
                     }
-                });
+                }) { Name = "Database Thread"}.Start();
             }
             else
             {

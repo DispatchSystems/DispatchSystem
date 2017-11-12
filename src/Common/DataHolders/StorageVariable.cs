@@ -10,16 +10,22 @@ https://www.github.com/CloneCommando
 Found in his CloNET repository
 */
 
-using System;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DispatchSystem.Common.DataHolders
 {
+    /// <summary>
+    /// Value that can be translated from bytes to object, and vise versa
+    /// </summary>
+    /// <typeparam name="T">The type of value to translate</typeparam>
     public struct StorableValue<T>
     {
         private T value;
+        /// <summary>
+        /// The value that has been translated
+        /// </summary>
         public T Value
         {
             get => value;
@@ -30,28 +36,29 @@ namespace DispatchSystem.Common.DataHolders
             }
         }
 
-        public string FilePath { get; set; }
-
-        private byte[] bytes;
+        private byte[] bytes; // private bytes version
         private bool valChanged;
+        /// <summary>
+        /// Serialization and deserialization of the given bytes
+        /// </summary>
         public byte[] Bytes
         {
             set
             {
                 using (var compressedStream = new MemoryStream())
                 {
-                    compressedStream.Write(value, 0, value.Length);
-                    compressedStream.Seek(0, SeekOrigin.Begin);
+                    compressedStream.Write(value, 0, value.Length); // Writing the value to the compressed stream
+                    compressedStream.Seek(0, SeekOrigin.Begin); // Going to the beginning of the stream
 
                     using (var uncompressedStream = new MemoryStream())
                     {
-                        uncompressedStream.Position = 0;
-                        using (var decompress = new GZipStream(compressedStream, CompressionMode.Decompress, true))
+                        uncompressedStream.Position = 0; // Setting the pos of the uncompressed stream to 0 (even though there is no value)
+                        using (var decompress = new GZipStream(compressedStream, CompressionMode.Decompress, true)) // Creating instance of GZip stream, to uncompress stream
                         {
-                            decompress.CopyTo(uncompressedStream);
+                            decompress.CopyTo(uncompressedStream); // Copying gzip stream to uncompressed stream
                         }
-                        uncompressedStream.Position = 0;
-                        Value = (T)new BinaryFormatter().Deserialize(uncompressedStream);
+                        uncompressedStream.Position = 0; // Setting the position to 0 for deserialization
+                        Value = (T)new BinaryFormatter().Deserialize(uncompressedStream); // Deserialization of the bytes given
                     }
                 }
 
@@ -61,15 +68,17 @@ namespace DispatchSystem.Common.DataHolders
             {
                 if (!valChanged) return bytes;
                 if (Value == null) return null;
-                if (!Value.GetType().IsSerializable) return null;
-                using (var ms = new MemoryStream())
-                using (var gzip = new GZipStream(ms, CompressionMode.Compress))
+                if (!Value.GetType().IsSerializable) return null; // Returning null if object unserializable
+                using (var ms = new MemoryStream()) // Creating a memory stream for the bytes
+                using (var gzip = new GZipStream(ms, CompressionMode.Compress)) // Creating a GZip stream for compression
                 {
-                    new BinaryFormatter().Serialize(gzip, Value);
+                    new BinaryFormatter().Serialize(gzip, Value); // Serializing the bytes to the gzip stream
 
+                    // Closing the streams for read
                     gzip.Close();
                     ms.Close();
 
+                    // Setting the bytes in the class to the memorystream
                     bytes = ms.ToArray();
                 }
                 valChanged = false;
@@ -77,24 +86,20 @@ namespace DispatchSystem.Common.DataHolders
             }
         }
 
+        /// <summary>
+        /// Creates an instance of <see cref="StorableValue{T}"/> from <see cref="T"/>
+        /// </summary>
+        /// <param name="value"></param>
         public StorableValue(T value) : this()
         {
             Value = value;
             valChanged = true;
         }
 
-        public StorableValue(string filePath) : this()
-        {
-            if (!File.Exists(filePath))
-                throw new InvalidOperationException("The file does not exist!");
-
-            FilePath = filePath;
-
-            Bytes = File.ReadAllBytes(filePath);
-
-            valChanged = true;
-        }
-
+        /// <summary>
+        /// Creates an instance of <see cref="StorableValue{T}"/> from an array of <see cref="byte"/>
+        /// </summary>
+        /// <param name="valueBytes"></param>
         public StorableValue(byte[] valueBytes) : this()
         {
             Bytes = valueBytes;
@@ -114,14 +119,6 @@ namespace DispatchSystem.Common.DataHolders
         public static bool operator !=(StorableValue<T> obj1, T obj2)
         {
             return !obj1.Value.Equals(obj2);
-        }
-
-        public void Save()
-        {
-            if (string.IsNullOrWhiteSpace(FilePath))
-                throw new InvalidOperationException("Cannot save to file if " + nameof(FilePath) + " is null or whitespace!");
-
-            File.WriteAllBytes(FilePath, Bytes);
         }
 
         public static StorableValue<T> operator +(StorableValue<T> storableValue, T value)
