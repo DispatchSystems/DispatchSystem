@@ -1,33 +1,8 @@
-/*
- * Information:
- * 
- * 
- * 
- *                __THIS IS A PRE-RELEASE__
- *                -------------------------
- *             There may be some features missing
- *         There may be some bugs in the features here
- * 
- * 
- * 
- * DispatchSystem made by BlockBa5her
- * 
- * Protected under the MIT License
-*/
-
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Collections.ObjectModel;
-using System.Net;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
-using Config.Reader;
-
-using DispatchSystem.sv.External;
-using DispatchSystem.Common.DataHolders.Storage;
 
 using static DispatchSystem.sv.Common;
 
@@ -41,10 +16,26 @@ namespace DispatchSystem.sv
 
             InitializeComponents();
             RegisterEvents();
-            RegisterCommands();
+
+            Tick += OnTick;
 
             Log.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
             SendAllMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
         }
+
+        /*
+         * Below is just for executing something on the main thread
+        */
+
+        private static volatile ConcurrentQueue<Action> callbacks;
+        async Task OnTick()
+        {
+            // Executing all of the callback methods available
+            while (callbacks.TryDequeue(out Action queue))
+                queue();
+
+            await Delay(0);
+        }
+        internal static void Invoke(Action method) => callbacks.Enqueue(method); // Adding method for execution in main thread
     }
 }

@@ -9,6 +9,6 @@ namespace DispatchSystem.Common.DataHolders
     public interface IDataHolder
     {
         DateTime Creation { get; }
-        object[] ToObjectArray();
+        Guid Id { get; }
     }
 }

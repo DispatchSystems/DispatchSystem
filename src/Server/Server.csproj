@@ -35,15 +35,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ref\cfx_server\CitizenFX.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Dispatch.Common">
-      <HintPath>..\bin\Common\Debug\Dispatch.Common.dll</HintPath>
+    <Reference Include="CloNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CloneCommando.CloNET.0.4.2\lib\net461\CloNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,26 +52,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command.cs" />
+    <Compile Include="CommandAttribute.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="DispatchSystem\Events.cs" />
     <Compile Include="DispatchSystem\Init.cs" />
     <Compile Include="DispatchSystem\Items.cs" />
+    <Compile Include="Commands.cs" />
+    <Compile Include="External\Database.cs" />
     <Compile Include="External\Log.cs" />
     <Compile Include="External\Permissions.cs" />
     <Compile Include="External\Config.cs" />
     <Compile Include="DispatchSystem\Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="External\Server.cs" />
+    <Compile Include="External\DispatchServer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{98d8a98f-63af-4cc1-9455-07390b2438a4}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="permissions.perms">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="settings.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

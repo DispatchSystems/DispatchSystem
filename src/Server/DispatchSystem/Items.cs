@@ -16,15 +16,20 @@ namespace DispatchSystem.sv
     {
         protected static iniconfig cfg;
         protected static Permissions perms;
-        protected static Server server;
+        protected static DispatchServer server;
+        protected static Database data;
 
         internal static StorageManager<Bolo> bolos;
         internal static StorageManager<Civilian> civs;
         internal static StorageManager<CivilianVeh> civVehs;
+        internal static StorageManager<Officer> officers;
+        internal static List<Assignment> assignments;
+        internal static Dictionary<Officer, Assignment> ofcAssignments;
+        internal static List<EmergencyCall> currentCalls;
         public static ReadOnlyCollection<Civilian> Civilians => new ReadOnlyCollection<Civilian>(civs);
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(civVehs);
         public static StorageManager<Bolo> ActiveBolos => bolos;
 
-        private Dictionary<string, Command> commands;
+        private Dictionary<string, CommandAttribute> commands;
     }
 }

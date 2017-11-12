@@ -1,11 +1,23 @@
-﻿using System;
+﻿/*
+
+░▄███▄░████▄░████░████▄░░██░████░▄███▄░░░
+██▀░▀▀░██░██░██▄░░██░▀██░██░░██░░▀█▄▀▀░██
+██▄░▄▄░████▀░██▀░░██░▄██░██░░██░░▄▄▀█▄░░░
+░▀███▀░██░██░████░████▀░░██░░██░░▀███▀░██
+This entire was made by CloneCommando
+ps thanks clone my boi
+https://www.github.com/CloneCommando
+Found in his CloNET repository
+*/
+
+using System;
 using System.IO;
+using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DispatchSystem.Common.DataHolders
 {
-    [Serializable]
-    public class StorableValue<T>
+    public struct StorableValue<T>
     {
         private T value;
         public T Value
@@ -26,68 +38,83 @@ namespace DispatchSystem.Common.DataHolders
         {
             set
             {
-                BinaryFormatter bf = new BinaryFormatter();
-                using (MemoryStream memStream = new MemoryStream())
+                using (var compressedStream = new MemoryStream())
                 {
-                    memStream.Write(value, 0, value.Length);
-                    memStream.Seek(0, SeekOrigin.Begin);
-                    Value = (T)bf.Deserialize(memStream);
-                }
+                    compressedStream.Write(value, 0, value.Length);
+                    compressedStream.Seek(0, SeekOrigin.Begin);
 
-                bytes = value;
-                valChanged = false;
-            }
-            get
-            {
-                if (!valChanged)
-                    return bytes;
-
-                BinaryFormatter bf = new BinaryFormatter();
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    bf.Serialize(ms, Value);
-                    bytes = ms.ToArray();
+                    using (var uncompressedStream = new MemoryStream())
+                    {
+                        uncompressedStream.Position = 0;
+                        using (var decompress = new GZipStream(compressedStream, CompressionMode.Decompress, true))
+                        {
+                            decompress.CopyTo(uncompressedStream);
+                        }
+                        uncompressedStream.Position = 0;
+                        Value = (T)new BinaryFormatter().Deserialize(uncompressedStream);
+                    }
                 }
 
                 valChanged = true;
+            }
+            get
+            {
+                if (!valChanged) return bytes;
+                if (Value == null) return null;
+                if (!Value.GetType().IsSerializable) return null;
+                using (var ms = new MemoryStream())
+                using (var gzip = new GZipStream(ms, CompressionMode.Compress))
+                {
+                    new BinaryFormatter().Serialize(gzip, Value);
+
+                    gzip.Close();
+                    ms.Close();
+
+                    bytes = ms.ToArray();
+                }
+                valChanged = false;
                 return bytes;
             }
         }
 
-        public StorableValue()
+        public StorableValue(T value) : this()
         {
+            Value = value;
             valChanged = true;
         }
 
-        public StorableValue(T Value) : this()
+        public StorableValue(string filePath) : this()
         {
-            this.Value = Value;
-        }
-
-        public StorableValue(string FilePath) : this()
-        {
-            if (!File.Exists(FilePath))
+            if (!File.Exists(filePath))
                 throw new InvalidOperationException("The file does not exist!");
 
-            this.FilePath = FilePath;
+            FilePath = filePath;
 
-            Bytes = File.ReadAllBytes(FilePath);
+            Bytes = File.ReadAllBytes(filePath);
+
+            valChanged = true;
         }
 
-        public StorableValue(byte[] ValueBytes) : this()
+        public StorableValue(byte[] valueBytes) : this()
         {
-            Bytes = ValueBytes;
+            Bytes = valueBytes;
+
+            valChanged = true;
         }
 
         public override string ToString() => Value.ToString();
         public override bool Equals(object obj) => Value.Equals(obj);
         public override int GetHashCode() => Value.GetHashCode();
 
-        public static bool operator ==(StorableValue<T> obj1, T obj2) =>
-            obj1.Value.Equals(obj2);
+        public static bool operator ==(StorableValue<T> obj1, T obj2)
+        {
+            return obj1.Value.Equals(obj2);
+        }
 
-        public static bool operator !=(StorableValue<T> obj1, T obj2) =>
-            !obj1.Value.Equals(obj2);
+        public static bool operator !=(StorableValue<T> obj1, T obj2)
+        {
+            return !obj1.Value.Equals(obj2);
+        }
 
         public void Save()
         {
@@ -97,10 +124,10 @@ namespace DispatchSystem.Common.DataHolders
             File.WriteAllBytes(FilePath, Bytes);
         }
 
-        public static StorableValue<T> operator +(StorableValue<T> StorableValue, T Value)
+        public static StorableValue<T> operator +(StorableValue<T> storableValue, T value)
         {
-            StorableValue.Value = Value;
-            return StorableValue;
+            storableValue.Value = value;
+            return storableValue;
         }
     }
 }

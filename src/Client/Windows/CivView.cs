@@ -1,22 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using MaterialSkin;
 using MaterialSkin.Controls;
 
-using System.Net;
-using System.Net.Sockets;
-
-using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
@@ -25,15 +17,14 @@ namespace DispatchSystem.cl.Windows
         public bool IsCurrentlySyncing { get; private set; }
         public DateTime LastSyncTime { get; private set; } = DateTime.Now;
 
-        Civilian data;
+        private Civilian data;
 
         public CivView(Civilian civData)
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
-
-            this.data = civData;
+            data = civData;
 
             UpdateCurrentInformation();
         }
@@ -62,8 +53,8 @@ namespace DispatchSystem.cl.Windows
             {
                 foreach (var item in data.Tickets)
                 {
-                    ListViewItem li = new ListViewItem($"${item.Item2.ToString()}");
-                    li.SubItems.Add(item.Item1);
+                    ListViewItem li = new ListViewItem($"${item.Amount}");
+                    li.SubItems.Add(item.Reason);
                     ticketsView.Items.Add(li);
                 }
             }
@@ -73,15 +64,20 @@ namespace DispatchSystem.cl.Windows
         {
             Invoke((MethodInvoker)delegate
             {
-                new AddRemoveView(AddRemoveView.Type.AddNote, data.First, data.Last).Show();
+                AddRemoveView view;
+                (view = new AddRemoveView(AddRemoveView.Type.AddNote, data.First, data.Last)).Show();
+                view.FormClosed += async delegate
+                {
+                    await Resync(true);
+                };
             });
         }
 
         public async Task Resync(bool skipTime)
         {
-            if (((DateTime.Now - LastSyncTime).Seconds < 15 || IsCurrentlySyncing) && !skipTime)
+            if (((DateTime.Now - LastSyncTime).Seconds < 5 || IsCurrentlySyncing) && !skipTime)
             {
-                MessageBox.Show($"You must wait 15 seconds before the last sync time \nSeconds to wait: {15 - (DateTime.Now - LastSyncTime).Seconds}", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"You must wait 5 seconds before the last sync time \nSeconds to wait: {5 - (DateTime.Now - LastSyncTime).Seconds}", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -91,15 +87,7 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstNameView.Text) || string.IsNullOrWhiteSpace(lastNameView.Text))
                 return;
 
-            Socket usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-            Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
+            Tuple<NetRequestResult, Civilian> result = await Program.Client.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
             if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
@@ -114,6 +102,11 @@ namespace DispatchSystem.cl.Windows
             IsCurrentlySyncing = false;
         }
 
-        private void OnResyncClick(object sender, EventArgs e) => new Task(async () => await Resync(false)).Start();
+        private async void OnResyncClick(object sender, EventArgs e) =>
+#if DEBUG
+            await Resync(true);
+#else
+            await Resync(true);
+#endif
     }
 }

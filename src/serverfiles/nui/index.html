@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
+        <script src="nui.js" type="text/javascript"></script>
+        <link href="index.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <!--
+            CIVILIAN MENUS
+        -->
+        <div id="civ" style="display: none">
+            <button class="option sub" data-sub="civ_civ">Civilian Menu</button>
+            <button class="option sub" data-sub="civ_veh">Vehicle Menu</button>
+            <button class="option sub" data-sub="civ_911">911 Menu</button>
+            <button class="option" data-action="dsreset">Delete Profiles</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="civ_civ" style="display: none" data-parent="civ">
+            <button class="option" data-action="civ_newname">Create New</button>
+            <button class="option" data-action="civ_civdisplay">Display Current</button>
+            <button class="option" data-action="civ_warrant">Toggle Warrant</button>
+            <button class="option" data-action="civ_citations">Set Citations</button>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="civ_veh" style="display: none" data-parent="civ">
+            <button class="option" data-action="civ_newveh">Create New</button>
+            <button class="option" data-action="civ_vehdisplay">Display Current</button>
+            <button class="option" data-action="civ_vehstolen">Toggle Stolen</button>
+            <button class="option" data-action="civ_vehregi">Toggle Registration</button>
+            <button class="option" data-action="civ_vehinsurance">Toggle Insurance</button>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="civ_911" style="display: none" data-parent="civ">
+            <button class="option" data-action="civ_911init">Call 911</button>
+            <button class="option" data-action="civ_911msg">Message 911</button>
+            <button class="option" data-action="civ_911end">End 911 call</button>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <!--
+            LEO MENUS
+        -->
+        <div id="leo" style="display: none">
+            <button class="option" data-action="leo_create">Create New</button>
+            <button class="option sub" data-sub="leo_status">Change Status</button>
+            <button class="option sub" data-sub="leo_database">View Database</button>
+            <button class="option sub" data-sub="leo_cad">CAD Options</button>
+            <button class="option" data-action="dsreset">Delete Profiles</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="leo_status" style="display: none" data-parent="leo">
+            <button class="option" data-action="leo_displayduty">View Status</button>
+            <button class="option" data-action="leo_onduty">On Duty</button>
+            <button class="option" data-action="leo_offduty">Off Duty</button>
+            <button class="option" data-action="leo_busy">Busy</button>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="leo_database" style="display: none" data-parent="leo">
+            <button class="option sub" data-sub="leo_civ">Civilian Options</button>
+            <button class="option" data-action="leo_plate">Search Plate</button>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="leo_civ" style="display: none" data-parent="leo_database">
+            <button class="option" data-action="leo_ncic">Search Civilian</button>
+            <button class="option" data-action="leo_ncic-note">View Civilian Notes</button>
+            <button class="option" data-action="leo_ncic-ticket">View Civilian Tickets</button>
+            <button class="option" data-action="leo_add-note">Add Civilian Note</button>
+            <button class="option" data-action="leo_add-ticket">Add Civilian Ticket</button>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+        <div id="leo_cad" style="display: none" data-parent="leo">
+            <button class="option" data-action="leo_add-bolo">Add Bolo</buton>
+            <button class="option" data-action="leo_view-bolo">View Bolos</buton>
+            <button class="option back" data-action="reset_menu">Home</button>
+            <button class="option x" data-action="exit">Exit</button>
+        </div>
+    </body>
+    </html>

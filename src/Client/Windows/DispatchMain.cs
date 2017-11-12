@@ -1,36 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Windows.Forms;
 
 using MaterialSkin;
 using MaterialSkin.Controls;
 
-using System.Net.Sockets;
-using System.Net;
-using System.Runtime.InteropServices;
-
-using DispatchSystem.Common.DataHolders;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.NetCode;
+
+using CloNET;
 
 namespace DispatchSystem.cl.Windows
 {
     public partial class DispatchMain : MaterialForm
     {
-        Socket usrSocket;
-
-        BoloView boloWindow = null;
+        private BoloView boloWindow;
+        private MultiOfficerView officersWindow;
+        private AssignmentsView assignmentsWindow;
 
         public DispatchMain()
         {
-            this.Icon = Icon.ExtractAssociatedIcon("icon.ico");
+            Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
             SkinManager.Theme = MaterialSkinManager.Themes.LIGHT;
@@ -42,16 +32,7 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text))
                 return;
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, Civilian> result = await handle.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
+            Tuple<NetRequestResult, Civilian> result = await Program.Client.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
             if (result.Item2 != null)
             {
                 if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
@@ -76,16 +57,7 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plate.Text))
                 return;
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, CivilianVeh> result = await handle.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
+            Tuple<NetRequestResult, CivilianVeh> result = await Program.Client.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
             if (result.Item2 != null)
             {
                 if (!(string.IsNullOrEmpty(result.Item2.Plate)))
@@ -108,20 +80,12 @@ namespace DispatchSystem.cl.Windows
         {
             if (boloWindow != null)
             {
-                MessageBox.Show("You cannot have 2 instances of the Bolos window open at the same time!\nTry pressing the Resync button inside your bolo window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                MessageBox.Show("You cannot have 2 instances of the Bolos window open at the same time!\n" +
+                    "Try pressing the Resync button inside your bolo window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return;
             }
 
-            usrSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            try { usrSocket.Connect(Config.IP, Config.Port); }
-            catch (SocketException) { MessageBox.Show("Connection Refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); return; }
-
-            NetRequestHandler handle = new NetRequestHandler(usrSocket);
-
-            Tuple<NetRequestResult, StorageManager<Bolo>> result = await handle.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-            usrSocket.Shutdown(SocketShutdown.Both);
-            usrSocket.Close();
-
+            Tuple<NetRequestResult, StorageManager<Bolo>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
             if (result.Item2 != null)
             {
                 Invoke((MethodInvoker)delegate
@@ -133,21 +97,47 @@ namespace DispatchSystem.cl.Windows
             else
                 MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-
-        private void OnRemoveBoloClick(object sender, EventArgs e)
+        private async void OnViewOfficersClick(object sender, EventArgs e)
         {
-            Invoke((MethodInvoker)delegate
+            if (officersWindow != null)
             {
-                new AddRemoveView(AddRemoveView.Type.RemoveBolo).Show();
-            });
+                MessageBox.Show("You cannot have 2 instances of the Officers window open at the same time!\n" +
+                    "Try pressing the Resync button inside your officers window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+
+            Tuple<NetRequestResult, StorageManager<Officer>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
+            if (result.Item2 != null)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    (officersWindow = new MultiOfficerView(result.Item2)).Show();
+                    officersWindow.FormClosed += delegate { officersWindow = null; };
+                });
+            }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-
-        private void OnAddBoloClick(object sender, EventArgs e)
+        private async void OnViewAssignmentsClick(object sender, EventArgs e)
         {
-            Invoke((MethodInvoker)delegate
+            if (assignmentsWindow != null)
             {
-                new AddRemoveView(AddRemoveView.Type.AddBolo).Show();
-            });
+                MessageBox.Show("You cannot have 2 instances of the Assignments window open at the same time!\n" +
+                    "Try pressing the Resync button inside your officers window.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                return;
+            }
+
+            var result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
+            if (result.Item2 != null)
+            {
+                Invoke((MethodInvoker)delegate
+                {
+                    (assignmentsWindow = new AssignmentsView(result.Item2)).Show();
+                    assignmentsWindow.FormClosed += delegate { assignmentsWindow = null; };
+                });
+            }
+            else
+                MessageBox.Show("FATAL: Invalid", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void OnFirstNameKeyPress(object sender, KeyPressEventArgs e)

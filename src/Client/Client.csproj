@@ -36,17 +36,16 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="Dispatch.Common">
-      <HintPath>..\bin\Common\Debug\Dispatch.Common.dll</HintPath>
+    <Reference Include="CloNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CloneCommando.CloNET.0.4.2\lib\net461\CloNET.dll</HintPath>
     </Reference>
     <Reference Include="MaterialSkin, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialSkin.Updated.0.2.2\lib\MaterialSkin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -58,11 +57,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Windows\AddExistingAssignment.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\AddExistingAssignment.Designer.cs">
+      <DependentUpon>AddExistingAssignment.cs</DependentUpon>
+    </Compile>
     <Compile Include="Windows\AddRemoveView.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Windows\AddRemoveView.Designer.cs">
       <DependentUpon>AddRemoveView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\AssignmentsView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\AssignmentsView.Designer.cs">
+      <DependentUpon>AssignmentsView.cs</DependentUpon>
     </Compile>
     <Compile Include="Windows\BoloView.cs">
       <SubType>Form</SubType>
@@ -92,8 +103,38 @@
     <Compile Include="ISyncable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Windows\Emergency\Accept911.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Emergency\Accept911.Designer.cs">
+      <DependentUpon>Accept911.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\Emergency\Message911.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\Emergency\Message911.Designer.cs">
+      <DependentUpon>Message911.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\MultiOfficerView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\MultiOfficerView.Designer.cs">
+      <DependentUpon>MultiOfficerView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\OfficerView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Windows\OfficerView.Designer.cs">
+      <DependentUpon>OfficerView.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Windows\AddExistingAssignment.resx">
+      <DependentUpon>AddExistingAssignment.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Windows\AddRemoveView.resx">
       <DependentUpon>AddRemoveView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\AssignmentsView.resx">
+      <DependentUpon>AssignmentsView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\BoloView.resx">
       <DependentUpon>BoloView.cs</DependentUpon>
@@ -117,6 +158,18 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Windows\Emergency\Accept911.resx">
+      <DependentUpon>Accept911.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\Emergency\Message911.resx">
+      <DependentUpon>Message911.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\MultiOfficerView.resx">
+      <DependentUpon>MultiOfficerView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Windows\OfficerView.resx">
+      <DependentUpon>OfficerView.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -139,5 +192,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{98d8a98f-63af-4cc1-9455-07390b2438a4}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

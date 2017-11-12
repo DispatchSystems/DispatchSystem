@@ -42,17 +42,17 @@
   <ItemGroup>
     <Compile Include="DataHolders\IOwnable.cs" />
     <Compile Include="DataHolders\IDataHolder.cs" />
+    <Compile Include="DataHolders\Storage\Assignment.cs" />
     <Compile Include="DataHolders\Storage\Bolo.cs" />
     <Compile Include="DataHolders\Storage\Civilian.cs" />
-    <Compile Include="DataHolders\Storage\CivilianBase.cs" />
+    <Compile Include="DataHolders\Storage\EmergencyCall.cs" />
+    <Compile Include="DataHolders\Storage\PlayerBase.cs" />
     <Compile Include="DataHolders\Storage\CivilianVeh.cs" />
+    <Compile Include="DataHolders\Storage\Officer.cs" />
     <Compile Include="DataHolders\Storage\StorageManager.cs" />
     <Compile Include="DataHolders\StorageVariable.cs" />
+    <Compile Include="DataHolders\Storage\Ticket.cs" />
     <Compile Include="Functions.cs" />
-    <Compile Include="NetCode\NetEvent.cs" />
-    <Compile Include="NetCode\NetFunction.cs" />
-    <Compile Include="NetCode\NetRequest.cs" />
-    <Compile Include="NetCode\NetRequestHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

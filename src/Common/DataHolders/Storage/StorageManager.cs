@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public class StorageManager<T> : IEnumerable<T>, ICollection<T>, ICollection, IList<T>, IEquatable<StorageManager<T>>, IEquatable<IEnumerable<T>> where T : IOwnable
+    public class StorageManager<T> : ICollection, IList<T>, IEquatable<StorageManager<T>>, IEquatable<IEnumerable<T>> where T : IOwnable
     {
         #region Fields and Properties
         protected List<T> m_list = new List<T>();
@@ -56,8 +56,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
         #region Enumerator
         public IEnumerator<T> GetEnumerator()
         {
-            foreach (var item in m_list)
-                yield return item;
+            return m_list?.GetEnumerator();
         }
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         #endregion
