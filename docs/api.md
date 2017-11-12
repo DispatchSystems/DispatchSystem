@@ -7,6 +7,60 @@ Dispatchsystems API is sort of new. Because it is in the works there is no set A
 These events will be in the context of C# and **NOT** lua.
 
 ```csharp
+// Eventname: dispatchsystem:dsreset
+
+void TriggerServerEvent("dispatchsystem:dsreset", String invokerHandle);
+```
+***
+```csharp
+// Eventname: dispatchsystem:911init
+
+void TriggerServerEvent("dispatchsystem:911init", String invokerHandle);
+```
+***
+```csharp
+// Eventname: dispatchsystem:911msg
+
+void TriggerServerEvent("dispatchsystem:911msg", String invokerHandle, String message);
+```
+***
+```csharp
+// Eventname: dispatchsystem:911end
+
+void TriggerServerEvent("dispatchsystem:911end", String invokerHandle);
+```
+***
+```csharp
+// Eventname: dispatchsystem:initOfficer
+
+void TriggerServerEvent("dispatchsystem:initOfficer", String invokerHandle, String callsign);
+```
+***
+```csharp
+// Eventname: dispatchsystem:onDuty
+
+void TriggerServerEvent("dispatchsystem:onDuty", String invokerHandle);
+```
+***
+```csharp
+// Eventname: dispatchsystem:offDuty
+
+void TriggerServerEvent("dispatchsystem:offDuty", String invokerHandle);
+```
+***
+```csharp
+// Eventname: dispatchsystem:busy
+
+void TriggerServerEvent("dispatchsystem:busy", String invokerHandle);
+```
+***
+```csharp
+// Eventname: dispatchsystem:displayStatus
+
+void TriggerServerEvent("dispatchsystem:displayStatus", String invokerHandle);
+```
+***
+```csharp
 // Eventname: dispatchsystem:ticketCiv
 
 void TriggerServerEvent("dispatchsystem:ticketCiv", String invokerHandle, String first, String last, String ticket, Single amount);
@@ -28,6 +82,18 @@ void TriggerServerEvent("dispatchsystem:getCivilian", String invokerHandle, Stri
 // Eventname: dispatchsystem:getCivilianVeh
 
 void TriggerServerEvent("dispatchsystem:getCivilianVeh", String invokerHandle, String plate);
+```
+***
+```csharp
+// Eventname: dispatchsystem:addBolo
+
+void TriggerServerEvent("dispatchsystem:addBolo", String invokerHandle, String reason);
+```
+***
+```csharp
+// Eventname: dispatchsystem:viewBolos
+
+void TriggerServerEvent("dispatchsystem:viewBolos", String invokerHandle);
 ```
 ***
 ```csharp
