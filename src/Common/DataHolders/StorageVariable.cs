@@ -1,9 +1,12 @@
 ﻿/*
-
-░▄███▄░████▄░████░████▄░░██░████░▄███▄░░░
-██▀░▀▀░██░██░██▄░░██░▀██░██░░██░░▀█▄▀▀░██
-██▄░▄▄░████▀░██▀░░██░▄██░██░░██░░▄▄▀█▄░░░
-░▀███▀░██░██░████░████▀░░██░░██░░▀███▀░██
+   _____                     _   _   _             
+  / ____|                   | | (_) | |          _ 
+ | |       _ __    ___    __| |  _  | |_   ___  (_)
+ | |      | '__|  / _ \  / _` | | | | __| / __|    
+ | |____  | |    |  __/ | (_| | | | | |_  \__ \  _ 
+  \_____| |_|     \___|  \__,_| |_|  \__| |___/ (_)
+                                                   
+                                                   
 This entire was made by CloneCommando
 ps thanks clone my boi
 https://www.github.com/CloneCommando
@@ -52,7 +55,6 @@ namespace DispatchSystem.Common.DataHolders
 
                     using (var uncompressedStream = new MemoryStream())
                     {
-                        uncompressedStream.Position = 0; // Setting the pos of the uncompressed stream to 0 (even though there is no value)
                         using (var decompress = new GZipStream(compressedStream, CompressionMode.Decompress, true)) // Creating instance of GZip stream, to uncompress stream
                         {
                             decompress.CopyTo(uncompressedStream); // Copying gzip stream to uncompressed stream

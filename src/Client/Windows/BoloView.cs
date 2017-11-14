@@ -58,8 +58,8 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            StorageManager<Bolo> result = await Program.Client.Peer.RemoteCallbacks.Functions["GetBolos"]
-                .Invoke<StorageManager<Bolo>>();
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Bolos"]
+                .Get<StorageManager<Bolo>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate

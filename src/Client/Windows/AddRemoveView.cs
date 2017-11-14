@@ -90,7 +90,7 @@ namespace DispatchSystem.cl.Windows
                 {
                     if (!string.IsNullOrEmpty(line1.Text))
                         await Program.Client.Peer.RemoteCallbacks.Events["AddNote"]
-                            .Invoke(arguments[0], arguments[1], line1.Text);
+                            .Invoke(arguments[0], line1.Text);
                     line1.ResetText();
                     break;
                 }

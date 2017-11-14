@@ -9,8 +9,6 @@ using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
 
-using CloNET;
-
 namespace DispatchSystem.cl.Windows
 {
     public partial class AssignmentsView : MaterialForm, ISyncable
@@ -51,8 +49,8 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            IEnumerable<Assignment> result = await Program.Client.Peer.RemoteCallbacks.Functions["GetAssignments"]
-                .Invoke<IEnumerable<Assignment>>();
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Assignments"]
+                .Get<List<Assignment>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate
@@ -97,12 +95,10 @@ namespace DispatchSystem.cl.Windows
 
         private void OnAssignmentsClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            if (e.Button != MouseButtons.Right) return;
+            if (theAssignments.FocusedItem.Bounds.Contains(e.Location))
             {
-                if (theAssignments.FocusedItem.Bounds.Contains(e.Location))
-                {
-                    rightClickMenu.Show(Cursor.Position);
-                }
+                rightClickMenu.Show(Cursor.Position);
             }
         }
 

@@ -55,7 +55,7 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            StorageManager<Officer> result = await Program.Client.Peer.RemoteCallbacks.Functions["GetOfficers"].Invoke<StorageManager<Officer>>();
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Officers"].Get<StorageManager<Officer>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate
@@ -101,7 +101,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OnDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc.Id, OfficerStatus.OnDuty);
                 }
                 else if (sender == statusOffDutyStripItem)
                 {
@@ -111,7 +111,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OffDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc.Id, OfficerStatus.OffDuty);
                 }
                 else
                 {
@@ -121,7 +121,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.Busy);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc.Id, OfficerStatus.Busy);
                 }
             } while (false);
 

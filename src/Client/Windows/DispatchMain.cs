@@ -8,8 +8,6 @@ using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
 
-using CloNET;
-
 namespace DispatchSystem.cl.Windows
 {
     public partial class DispatchMain : MaterialForm
@@ -36,18 +34,13 @@ namespace DispatchSystem.cl.Windows
                 .Invoke<Civilian>(firstName.Text, lastName.Text);
             if (result != null)
             {
-                if (!(string.IsNullOrEmpty(result.First) || string.IsNullOrEmpty(result.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        new CivView(result).Show();
-                    });
-                }
-                else
-                    MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    new CivView(result).Show();
+                });
             }
             else
-                MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             firstName.ResetText();
             lastName.ResetText();
@@ -62,18 +55,13 @@ namespace DispatchSystem.cl.Windows
                 .Invoke<CivilianVeh>(plate.Text);
             if (result != null)
             {
-                if (!(string.IsNullOrEmpty(result.Plate)))
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        new CivVehView(result).Show();
-                    });
-                }
-                else
-                    MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    new CivVehView(result).Show();
+                });
             }
             else
-                MessageBox.Show("Invalid Request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             plate.ResetText();
         }
@@ -87,7 +75,7 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetBolos"].Invoke<StorageManager<Bolo>>();
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Bolos"].Get<StorageManager<Bolo>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate
@@ -108,7 +96,7 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetOfficers"].Invoke<StorageManager<Officer>>();
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Officers"].Get<StorageManager<Officer>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate
@@ -129,8 +117,8 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetAssignments"]
-                .Invoke<IEnumerable<Assignment>>();
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Assignments"]
+                .Get<List<Assignment>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate
@@ -148,7 +136,7 @@ namespace DispatchSystem.cl.Windows
             if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
                 e.Handled = true;
             if (char.IsLetter(e.KeyChar))
-                e.KeyChar = char.ToUpper(e.KeyChar);
+                e.KeyChar = firstName.Text.Length == 0 ? char.ToUpper(e.KeyChar) : char.ToLower(e.KeyChar);
         }
 
         private void OnLastNameKeyPress(object sender, KeyPressEventArgs e)
@@ -156,7 +144,8 @@ namespace DispatchSystem.cl.Windows
             if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
                 e.Handled = true;
             if (char.IsLetter(e.KeyChar))
-                e.KeyChar = char.ToUpper(e.KeyChar);
+                e.KeyChar = lastName.Text.Length == 0 ? char.ToUpper(e.KeyChar) : char.ToLower(e.KeyChar);
+                
         }
 
         private void OnPlateKeyPress(object sender, KeyPressEventArgs e)

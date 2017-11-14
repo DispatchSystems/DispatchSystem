@@ -65,7 +65,7 @@ namespace DispatchSystem.cl.Windows
             Invoke((MethodInvoker)delegate
             {
                 AddRemoveView view;
-                (view = new AddRemoveView(AddRemoveView.Type.AddNote, data.First, data.Last)).Show();
+                (view = new AddRemoveView(AddRemoveView.Type.AddNote, data.Id)).Show();
                 view.FormClosed += async delegate
                 {
                     await Resync(true);

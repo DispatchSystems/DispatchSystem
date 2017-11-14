@@ -107,7 +107,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OnDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc.Id, OfficerStatus.OnDuty);
                 }
                 else if (sender == radioOffDuty)
                 {
@@ -117,7 +117,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.OffDuty);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc.Id, OfficerStatus.OffDuty);
                 }
                 else
                 {
@@ -127,7 +127,7 @@ namespace DispatchSystem.cl.Windows
                         break;
                     }
 
-                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc, OfficerStatus.Busy);
+                    await Program.Client.Peer.RemoteCallbacks.Events["SetStatus"].Invoke(ofc.Id, OfficerStatus.Busy);
                 }
             } while (false);
 

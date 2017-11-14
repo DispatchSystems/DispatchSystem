@@ -47,7 +47,7 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            IEnumerable<Assignment> result = await Program.Client.Peer.RemoteCallbacks.Functions["GetAssignments"].Invoke<IEnumerable<Assignment>>();
+            IEnumerable<Assignment> result = await Program.Client.Peer.RemoteCallbacks.Properties["Assignments"].Get<IEnumerable<Assignment>>();
             if (result != null)
             {
                 while (!IsHandleCreated)
