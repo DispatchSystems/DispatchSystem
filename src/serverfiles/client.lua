@@ -206,11 +206,11 @@ function displayStatus()
 end
 function changeStatus(type)
     Citizen.CreateThread(function()
-        if type == "leo_onduty" then
+        if type == "onduty" then
             TriggerServerEvent("dispatchsystem:onDuty", getHandle())
-        elseif type == "leo_offduty" then
+        elseif type == "offduty" then
             TriggerServerEvent("dispatchsystem:offDuty", getHandle())
-        elseif type == "leo_busy" then
+        elseif type == "busy" then
             TriggerServerEvent("dispatchsystem:busy", getHandle())
         end
     end)
@@ -369,68 +369,79 @@ Citizen.CreateThread(function()
 end)
 
 -- Adding callbacks for NUI button presses
-RegisterNUICallback("ButtonClick", function(data, cb)
+
+--[[ADDING CIV CALLBACKS]]
+RegisterNUICallback("civ", function(data, cb)
     if data == nil then
         return
-    --[[CIV OPTIONS]]
-    elseif data == "civ_newname" then
+    elseif data == "newname" then
         createCivilian()
-    elseif data == "civ_warrant" then
+    elseif data == "warrant" then
         toggleWarrant()
-    elseif data == "civ_citations" then
+    elseif data == "citations" then
         civCitations()
-    elseif data == "civ_911init" then
+    elseif data == "911init" then
         init911()
-    elseif data == "civ_911msg" then
+    elseif data == "911msg" then
         msg911()
-    elseif data == "civ_911end" then
+    elseif data == "911end" then
         end911()
-    elseif data == "civ_newveh" then
+    elseif data == "newveh" then
         createCivVehicle()
-    elseif data == "civ_vehstolen" then
+    elseif data == "vehstolen" then
         toggleVehStolen()
-    elseif data == "civ_vehregi" then
+    elseif data == "vehregi" then
         toggleVehRegi()
-    elseif data == "civ_vehinsurance" then
+    elseif data == "vehinsurance" then
         toggleVehInsured()
-    elseif data == "civ_civdisplay" then
+    elseif data == "civdisplay" then
         displayCivilian()
-    elseif data == "civ_vehdisplay" then
+    elseif data == "vehdisplay" then
         displayVeh()
-
-    --[[LEO OPTIONS]]
-    elseif data == "leo_create" then
-        createOfficer()
-    elseif data == "leo_displayduty" then
-        displayStatus()
-    elseif data == "leo_onduty" or data == "leo_offduty" or data == "leo_busy" then
-        changeStatus(data)
-    elseif data == "leo_ncic" then
-        leoNcic()
-    elseif data == "leo_ncic-note" then
-        leoNcicNotes()
-    elseif data == "leo_ncic-ticket" then
-        leoNcicTickets()
-    elseif data == "leo_plate" then
-        leoPlate()
-    elseif data == "leo_add-note" then
-        leoAddNote()
-    elseif data == "leo_add-ticket" then
-        leoAddTicket()
-    elseif data == "leo_add-bolo" then
-        leoAddBolo()
-    elseif data == "leo_view-bolo" then
-        leoViewBolos()
-
-    --[[COMMON MENU OPTIONS]]
-    elseif data == "reset_menu" then
-        resetMenu()
-    elseif data == "dsreset" then
-        TriggerServerEvent("dispatchsystem:dsreset", getHandle())
-    elseif data == "exit" then
-        exitAllMenus()
-	end
+    end
 
 	if cb then cb("OK") end
+end)
+--[[ADDING LEO CALLBACKS]]
+RegisterNUICallback("leo", function(data, cb)
+    if data == nil then
+        return
+    elseif data == "create" then
+        createOfficer()
+    elseif data == "displayduty" then
+        displayStatus()
+    elseif data == "onduty" or data == "offduty" or data == "busy" then
+        changeStatus(data)
+    elseif data == "ncic" then
+        leoNcic()
+    elseif data == "ncic-note" then
+        leoNcicNotes()
+    elseif data == "ncic-ticket" then
+        leoNcicTickets()
+    elseif data == "plate" then
+        leoPlate()
+    elseif data == "add-note" then
+        leoAddNote()
+    elseif data == "add-ticket" then
+        leoAddTicket()
+    elseif data == "add-bolo" then
+        leoAddBolo()
+    elseif data == "view-bolo" then
+        leoViewBolos()
+    end
+
+    if cb then cb("OK") end
+end)
+--[[ADDING COMMON CALLBACKS]]
+RegisterNUICallback("common", function(data, cb)
+    if data == nil then
+        return
+    elseif data == "exit" then
+        exitAllMenus()
+    elseif data == "dsreset" then
+        TriggerServerEvent("dispatchsystem:dsreset", getHandle())
+    end
+
+    if cb then cb("OK") end
 end)
 --[[                                 END OF NUI                                 ]]

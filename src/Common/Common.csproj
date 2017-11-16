@@ -51,7 +51,6 @@
     <Compile Include="DataHolders\Storage\CivilianVeh.cs" />
     <Compile Include="DataHolders\Storage\Officer.cs" />
     <Compile Include="DataHolders\Storage\StorageManager.cs" />
-    <Compile Include="DataHolders\StorageVariable.cs" />
     <Compile Include="DataHolders\Storage\Ticket.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

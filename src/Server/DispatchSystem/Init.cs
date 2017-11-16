@@ -5,9 +5,9 @@ using System.Threading;
 
 using DispatchSystem.sv.External;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.Common.DataHolders;
 
 using Config.Reader;
+using EZDatabase;
 
 using CitizenFX.Core.Native;
 
@@ -87,16 +87,15 @@ namespace DispatchSystem.sv
             if (Cfg.GetIntValue("database", "enable", 0) == 1)
             {
                 // starting the read/write thread for database
-                new Thread(async () =>
+                async void RunDatabase()
                 {
                     Log.WriteLine("Reading database...");
-                    Data = new Database("dispatchsystem.dontdelete"); // creating the database instance
-                    Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read =
-                        Data.Read(); // reading the serialized tuple from the database
+                    Data = new Database("dispatchsystem.dontdelete", true); // creating the database instance
+                    Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read = Data.Read(); // reading the serialized tuple from the database
                     Civs = read?.Item1 ?? new StorageManager<Civilian>();
                     CivVehs = read?.Item2 ?? new StorageManager<CivilianVeh>();
                     Log.WriteLine("Read and set database"); // logging done
-                    
+
                     // starting while loop for writing the database
                     while (true)
                     {
@@ -106,14 +105,15 @@ namespace DispatchSystem.sv
                         Log.WriteLineSilent("Writing current information to database");
 #endif
                         // creating the tuple to write
-                        Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> write =
-                            new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(Civs, CivVehs);
+                        Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(Civs, CivVehs);
                         // writing the information
                         Data.Write(write);
                         // waiting 3 minutes before doing it again
                         await Delay(180 * 1000);
                     }
-                }) { Name = "Database Thread"}.Start(); // starting database thread
+                }
+
+                new Thread(RunDatabase) { Name = "Database Thread"}.Start(); // starting database thread
             }
             else
             {

@@ -41,8 +41,9 @@ button.back:after {
     content: "<<";
 }
 
-div {
-    position: fixed; /* or absolute */
+.menu {
+    position: fixed;
     top: 50%;
     left: 30%;
+    display: none;
 }

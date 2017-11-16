@@ -45,7 +45,7 @@ namespace DispatchSystem.cl
 
                 try
                 {
-                    Client.Connect(Config.IP.ToString(), Config.Port).Wait();
+                    Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
                 }
                 catch (SocketException)
                 {
@@ -95,7 +95,7 @@ namespace DispatchSystem.cl
                                 try
                                 {
                                     await Client.Disconnect();
-                                    Client.Connect(Config.IP.ToString(), Config.Port).Wait();
+                                    Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
                                 }
                                 catch (SocketException)
                                 {
