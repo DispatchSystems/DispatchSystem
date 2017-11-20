@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CitizenFX.Core.Native;
 using System.Net;
 
-namespace DispatchSystem.sv.External
+namespace DispatchSystem.Common
 {
     /// <summary>
     /// Permission levels
     /// </summary>
+    [Serializable]
     public enum Permission
     {
         /// <summary>
@@ -24,6 +24,7 @@ namespace DispatchSystem.sv.External
         /// </summary>
         None
     }
+    [Serializable]
     public sealed class Permissions
     {
         #region Singleton
@@ -31,12 +32,13 @@ namespace DispatchSystem.sv.External
         private static readonly object _lock = new object();
         // Instance of permissions object
         private static Permissions obj;
-        // The filename for the permissions
-        static string _fileName;
-        // The resource name of the permissions file
-        static string _resourceName;
+        // The data of the files for permissions
+        private static string _data;
         // Void to set the information listed above
-        public static void SetInformation(string fileName, string resourceName) { _fileName = fileName; _resourceName = resourceName; }
+        public static void SetInformation(string data)
+        {
+            _data = data;
+        }
 
         /// <summary>
         /// Property for returning the permissions
@@ -48,7 +50,7 @@ namespace DispatchSystem.sv.External
                 if (obj != null) return obj; // Checking if instance is already initiated
                 lock (_lock) // thread locking when instance null
                     if (obj == null) // checking if current thread thinks it's still null
-                        obj = new Permissions(_fileName, _resourceName); // creating instance when everything checks out
+                        obj = new Permissions(_data); // creating instance when everything checks out
                 return obj; // returns the instance
             }
         }
@@ -66,11 +68,6 @@ namespace DispatchSystem.sv.External
         /// The key to find when searching for Dispatch perms
         /// </summary>
         public const string DISPATCH_KEY = "dispatcher:";
-
-        // filename of the permission file
-        private readonly string fileName;
-        // resource that the permission file is under
-        private readonly string resourceName;
 
         // A list of specific permissions
         private readonly List<Tuple<string, string>> items = new List<Tuple<string, string>>();
@@ -129,18 +126,13 @@ namespace DispatchSystem.sv.External
         }
 
         #region constructor
-        private Permissions(string fileName, string resourceName)
+        private Permissions(string fileData)
         {
             // setting file items
-            this.fileName = fileName;
-            this.resourceName = resourceName;
+            Refresh(fileData);
         }
-        public void Refresh()
+        public void Refresh(string data)
         {
-            Log.WriteLine("Setting the permissions"); // logs xd
-
-            // reading the string data from the file
-            string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, resourceName, fileName);
             string current = string.Empty; // current key that the permissions is on
             // splitting the lines so that it is only important lines
             string[] lines = data.Split('\n').Where(x => !string.IsNullOrWhiteSpace(x)).Where(x => !x.StartsWith("//"))
@@ -194,14 +186,12 @@ namespace DispatchSystem.sv.External
                                 break;
                         }
                         break;
-                     // if no conditions apply, add the line as an IP to items
+                    // if no conditions apply, add the line as an IP to items
                     default:
                         items.Add(new Tuple<string, string>(current, line));
                         break;
                 }
             }
-
-            Log.WriteLine("Permissions set!"); // more logging
         }
         #endregion
 

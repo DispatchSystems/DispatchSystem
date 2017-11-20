@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 
 using CitizenFX.Core;
 
+using DispatchSystem.Common;
+using DispatchSystem.Common.DataHolders.Storage;
+
+using EZDatabase;
 using static DispatchSystem.sv.Common;
 
 namespace DispatchSystem.sv
@@ -43,5 +47,39 @@ namespace DispatchSystem.sv
             await Delay(0);
         }
         internal static void Invoke(Action method) => callbacks.Enqueue(method); // adding method for execution in main thread
+
+        /// <summary>
+        /// An emergency dump to clear all lists and dump everything into a file
+        /// </summary>
+        public static void EmergencyDump(Player invoker)
+        {
+            var write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(new StorageManager<Civilian>(),
+                new StorageManager<CivilianVeh>());
+            Data.Write(write); // writing empty things to database
+
+            var database = new Database("dispatchsystem.dmp"); // create the new database
+            var write2 =
+                new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
+                    StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions>(Civs,
+                    CivVehs, ActiveBolos, CurrentCalls, Officers, Perms); // create the tuple to write
+            database.Write(write2); // write info
+
+            // clearing all of the lists
+            Civs.Clear();
+            CivVehs.Clear();
+            Officers.Clear();
+            Assignments.Clear();
+            OfcAssignments.Clear();
+            CurrentCalls.Clear();
+            Bolos.Clear();
+            Server.Calls.Clear();
+
+            TriggerClientEvent("dispatchsystem:resetNUI"); // turning off the nui for all clients
+
+            // sending a message to all for notifications
+            SendAllMessage("DispatchSystem", new[] {255, 0, 0},
+                $"DispatchSystem has been dumpted! Everything has been deleted and scratched by {invoker.Name} [{invoker.Handle}]. " +
+                "All previous items have been placed in a file labeled \"dispatchsystem.dmp\"");
+        }
     }
 }

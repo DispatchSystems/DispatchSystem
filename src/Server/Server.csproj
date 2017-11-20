@@ -58,7 +58,6 @@
     <Compile Include="DispatchSystem\Items.cs" />
     <Compile Include="Commands.cs" />
     <Compile Include="External\Log.cs" />
-    <Compile Include="External\Permissions.cs" />
     <Compile Include="External\Config.cs" />
     <Compile Include="DispatchSystem\Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

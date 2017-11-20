@@ -14,6 +14,7 @@ using CloNET.Callbacks;
 using CloNET.LocalCallbacks;
 
 using CitizenFX.Core;
+using DispatchSystem.Common;
 
 namespace DispatchSystem.sv.External
 {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CitizenFX.Core.Native;
 using System.IO;
 
@@ -53,6 +54,7 @@ namespace Config
     namespace Reader
     {
         #region INI CONFIG
+        [Serializable]
         public class ServerConfig
         {
             public ServerConfig(string resourceName, string file)

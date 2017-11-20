@@ -1,5 +1,10 @@
-﻿using CitizenFX.Core;
+﻿using System;
+using CitizenFX.Core;
+using DispatchSystem.Common.DataHolders.Storage;
+using DispatchSystem.sv.External;
 using static CitizenFX.Core.BaseScript;
+
+using EZDatabase;
 
 namespace DispatchSystem.sv
 {
@@ -36,6 +41,17 @@ namespace DispatchSystem.sv
         public void LeoNuiInit(Player p, string[] args)
         {
             TriggerClientEvent(p, "dispatchsystem:toggleLeoNUI");
+        }
+
+        /// <summary>
+        /// Dumps everything into a file, and clears all databases
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="args"></param>
+        [Command(CommandType.Leo | CommandType.Civilian, "/dsdmp")]
+        public void DispatchSystemDump(Player p, string[] args)
+        {
+            DispatchSystem.EmergencyDump(p);
         }
     }
 }

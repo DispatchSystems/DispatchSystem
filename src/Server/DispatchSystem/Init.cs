@@ -10,6 +10,7 @@ using Config.Reader;
 using EZDatabase;
 
 using CitizenFX.Core.Native;
+using DispatchSystem.Common;
 
 namespace DispatchSystem.sv
 {
@@ -72,9 +73,11 @@ namespace DispatchSystem.sv
             Cfg = new ServerConfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
 
             // creating the permissions singleton
-            Permissions.SetInformation("permissions.perms", Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME));
+            Log.WriteLine("Setting permission information");
+            Permissions.SetInformation(Function.Call<string>(Hash.LOAD_RESOURCE_FILE, Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "permissions.perms"));
+            Log.WriteLine("Parsing permission information");
             Perms = Permissions.Get;
-            Perms.Refresh();
+            Log.WriteLine("Permissions set!");
 
             // reading config, then starting the server is config true
             if (Cfg.GetIntValue("server", "enable", 0) == 1)
