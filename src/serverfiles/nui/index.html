@@ -1,6 +1,6 @@
 <html>
     <head>
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
+        <script src="nui://game/ui/jquery.js" type="text/javascript"></script>
         <script src="nui.js" type="text/javascript"></script>
         <link href="index.css" rel="stylesheet" type="text/css" />
     </head>
@@ -9,9 +9,9 @@
             CIVILIAN MENUS
         -->
         <div id="civ" class="menu">
-            <button class="option sub" data-sub="civ_civ">Civilian Menu</button>
-            <button class="option sub" data-sub="civ_veh">Vehicle Menu</button>
-            <button class="option sub" data-sub="civ_911">911 Menu</button>
+            <button class="option" data-sub="civ_civ">Civilian Menu</button>
+            <button class="option" data-sub="civ_veh">Vehicle Menu</button>
+            <button class="option" data-sub="civ_911">911 Menu</button>
             <button class="option" data-action="common dsreset">Delete Profiles</button>
         </div>
         <div id="civ_civ" class="menu" data-parent="civ">
@@ -37,9 +37,9 @@
         -->
         <div id="leo" class="menu">
             <button class="option" data-action="leo create">Create New</button>
-            <button class="option sub" data-sub="leo_status">Change Status</button>
-            <button class="option sub" data-sub="leo_database">View Database</button>
-            <button class="option sub" data-sub="leo_cad">CAD Options</button>
+            <button class="option" data-sub="leo_status">Change Status</button>
+            <button class="option" data-sub="leo_database">View Database</button>
+            <button class="option" data-sub="leo_cad">CAD Options</button>
             <button class="option" data-action="dsreset">Delete Profiles</button>
         </div>
         <div id="leo_status" class="menu" data-parent="leo">
@@ -49,19 +49,19 @@
             <button class="option" data-action="leo busy">Busy</button>
         </div>
         <div id="leo_database" class="menu" data-parent="leo">
-            <button class="option sub" data-sub="leo_civ">Civilian Options</button>
+            <button class="option" data-sub="leo_civ">Civilian Options</button>
             <button class="option" data-action="leo plate">Search Plate</button>
         </div>
         <div id="leo_civ" class="menu" data-parent="leo_database">
             <button class="option" data-action="leo ncic">Search Civilian</button>
-            <button class="option" data-action="leo ncic-note">View Civilian Notes</button>
-            <button class="option" data-action="leo ncic-ticket">View Civilian Tickets</button>
-            <button class="option" data-action="leo add-note">Add Civilian Note</button>
-            <button class="option" data-action="leo add-ticket">Add Civilian Ticket</button>
+            <button class="option" data-action="leo note view">View Civilian Notes</button>
+            <button class="option" data-action="leo ticket view">View Civilian Tickets</button>
+            <button class="option" data-action="leo note add">Add Civilian Note</button>
+            <button class="option" data-action="leo ticket add">Add Civilian Ticket</button>
         </div>
         <div id="leo_cad" class="menu" data-parent="leo">
-            <button class="option" data-action="leo add-bolo">Add Bolo</buton>
-            <button class="option" data-action="leo view-bolo">View Bolos</buton>
+            <button class="option" data-action="leo bolo add">Add Bolo</buton>
+            <button class="option" data-action="leo bolo view">View Bolos</buton>
         </div>
     </body>
     </html>

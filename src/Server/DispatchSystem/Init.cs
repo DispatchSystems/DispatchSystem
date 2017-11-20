@@ -23,6 +23,7 @@ namespace DispatchSystem.sv
 
             // civilian events
             #region Civilian Commands
+            EventHandlers["dispatchsystem:displayCiv"] += new Action<string>(DisplayCurrentCivilian);
             EventHandlers["dispatchsystem:setName"] += new Action<string, string, string>(SetName);
             EventHandlers["dispatchsystem:toggleWarrant"] += new Action<string>(ToggleWarrant);
             EventHandlers["dispatchsystem:setCitations"] += new Action<string, int>(SetCitations);
@@ -33,6 +34,7 @@ namespace DispatchSystem.sv
 
             // events for vehicles
             #region Vehicle Commands
+            EventHandlers["dispatchsystem:displayVeh"] += new Action<string>(DisplayCurrentVehicle);
             EventHandlers["dispatchsystem:setVehicle"] += new Action<string, string>(SetVehicle);
             EventHandlers["dispatchsystem:toggleVehStolen"] += new Action<string>(ToggleVehicleStolen);
             EventHandlers["dispatchsystem:toggleVehRegi"] += new Action<string>(ToggleVehicleRegistration);

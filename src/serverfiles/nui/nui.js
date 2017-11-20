@@ -1,3 +1,5 @@
+var lastmenu;
+
 $( function() {
     init();
 
@@ -8,15 +10,20 @@ $( function() {
         var item = event.data;
         
         if ( item.showleomenu ) {
-            civContainer.hide()
+            civContainer.hide();
             ofcContainer.show();
+            lastmenu = ofcContainer;
         }
         if ( item.showcivmenu ) {
             ofcContainer.hide();
             civContainer.show();
+            lastmenu = ofcContainer;
+        }
+        if (item.openlastmenu) {
+            lastmenu.show();
         }
         if ( item.hidemenus ) {
-            closeItems();
+            $("div").hide();
         }
     } );
 } )
@@ -31,16 +38,23 @@ function back() {
             var parent = $(this).data("parent");
 
             $(this).hide();
-            $("#" + parent).show();
+            var parentMenu = $("#" + parent);
+            parentMenu.show();
+            lastmenu = parentMenu;
         }
     } );
 }
 
-function closeItems() {
-    $( "div" ).each( function( i, obj ) {
-        var element = $( this );
-        element.hide();
-    } );
+function exit() {
+    $("div").each(function(i,obj) {
+        if (!$(this).is(":visible")) {
+            return;
+        }
+
+        $(this).hide();
+        
+        send("common", ["exit"]);
+    });
 }
 
 function init() {
@@ -48,7 +62,7 @@ function init() {
         if ( $(this).attr("data-parent")) {
             $(this).append("<button class='option back' onclick='back()'>Back</button>");
         }
-        $(this).append("<button class='option x' data-action='common exit test'>Exit</button>");
+        $(this).append("<button class='option x' onclick='exit()'>Exit</button>");
     });
 
     $( ".option" ).each( function( i, obj ) {
@@ -56,24 +70,31 @@ function init() {
         if ( $( this ).attr( "data-action" ) ) {
             $( this ).click( function() { 
                 var dataArr = $( this ).data( "action" ).split(" ");
+                var data = [];
+                
+                for (var i = 1; i < dataArr.length; i++) {
+                    data[i - 1] = dataArr[i];
+                }
 
-                sendData( dataArr[0], dataArr[1] ); 
+                send( dataArr[0], data ); 
             } )
         }
 
         if ( $( this ).attr( "data-sub" ) ) {
+            $(this).addClass("sub");
             $( this ).click( function() {
                 var menu = $( this ).data( "sub" );
                 var element = $( "#" + menu ); 
                 element.show();
+                lastmenu = element;
                 $( this ).parent().hide();  
             } )
         }
     } );
 }
 
-function sendData( name, data ) {
-    $.post( "http://dispatchsystem/" + name, JSON.stringify( data ), function( datab ) {
+function send( name, data ) {
+    $.post( "http://dispatchsystem/" + name, JSON.stringify(data), function( datab ) {
         if ( datab != "OK" ) {
             console.log( datab );
         }            

@@ -60,24 +60,14 @@ sendMessage("DispatchSystem", {0,0,0}, "DispatchSystem.Client by BlockBa5her loa
 ]]
 
 -- Civ Transactions
-local civName = nil
-local vehName = nil
 function displayCivilian()
     Citizen.CreateThread(function()
-        if civName == nil then
-            drawNotification("You must set your name first!")
-            return
-        end
-        TriggerServerEvent("dispatchsystem:getCivilian", getHandle(), civName[1], civName[2])
+        TriggerServerEvent("dispatchsystem:displayCiv", getHandle())
     end)
 end
 function displayVeh()
     Citizen.CreateThread(function()
-        if vehName == nil then
-            drawNotification("You must set your vehicle first!")
-            return
-        end
-        TriggerServerEvent("dispatchsystem:getCivilianVeh", getHandle(), vehName)
+        TriggerServerEvent("dispatchsystem:displayVeh", getHandle())
     end)
 end
 function createCivilian()
@@ -85,18 +75,17 @@ function createCivilian()
         exitAllMenus()
         local nameNotSplit = KeyboardInput("Name", "", 20)
         if nameNotSplit == nil then
-            turnOnCivMenu()
+            turnOnLastMenu()
             return
         end
         local name = stringsplit(nameNotSplit, ' ')
         if tablelength(name) < 2 then
             drawNotification("You must have a first name and a last name")
-            turnOnCivMenu()
+            turnOnLastMenu()
             return
         end
-        civName = name
         TriggerServerEvent("dispatchsystem:setName", getHandle(), name[1], name[2])
-        turnOnCivMenu()
+        turnOnLastMenu()
     end)
 end
 function toggleWarrant()
@@ -109,12 +98,12 @@ function civCitations()
         exitAllMenus()
         local amount = tonumber(KeyboardInput("Citation Count", "", 3))
         if amount == nil then
-            turnOnCivMenu()
+            turnOnLastMenu()
             drawNotification("You must have a valid number")
             return
         end
         TriggerServerEvent("dispatchsystem:setCitations", getHandle(), amount)
-        turnOnCivMenu()
+        turnOnLastMenu()
     end)
 end
 function init911() 
@@ -127,12 +116,12 @@ function msg911()
         exitAllMenus()
         local msg = KeyboardInput("Text", "", 100)
         if msg == nil then
-            turnOnCivMenu()
+            turnOnLastMenu()
             drawNotification("Invalid message")
             return
         end
         TriggerServerEvent("dispatchsystem:911msg", getHandle(), msg)
-        turnOnCivMenu()
+        turnOnLastMenu()
     end)
 end
 function end911()
@@ -145,12 +134,11 @@ function createCivVehicle()
         exitAllMenus()
         local plate = KeyboardInput("Plate", "", 8)
         if plate == nil then
-            turnOnCivMenu()
+            turnOnLastMenu()
             return
         end
-        vehName = plate
         TriggerServerEvent("dispatchsystem:setVehicle", getHandle(), plate)
-        turnOnCivMenu()
+        turnOnLastMenu()
     end)
 end
 function toggleVehStolen()
@@ -170,33 +158,16 @@ function toggleVehInsured()
 end
 
 -- Leo Transactions
-local lastSearchedName = nil
-
-local function setLastSearchedName()
-    exitAllMenus()
-    local nameNotSplit = KeyboardInput("Name", "", 20)
-    if nameNotSplit == nil then 
-        turnOnLeoMenu()
-        return 
-    end
-    local name = stringsplit(nameNotSplit, ' ')
-    if tablelength(name) < 2 then
-        drawNotification("You must have a first name and a last name")
-        return
-    end
-    lastSearchedName = name
-    turnOnLeoMenu()
-end
 function createOfficer()
     Citizen.CreateThread(function()
         exitAllMenus()
         local callsign = KeyboardInput("Officer Callsign", "", 9)
         if callsign == nil then 
-            turnOnLeoMenu()
+            turnOnLastMenu()
             return 
         end
         TriggerServerEvent("dispatchsystem:initOfficer", getHandle(), callsign)
-        turnOnLeoMenu()
+        turnOnLastMenu()
     end)
 end
 function displayStatus()
@@ -217,81 +188,103 @@ function changeStatus(type)
 end
 function leoNcic()
     Citizen.CreateThread(function()
-        setLastSearchedName()
-        TriggerServerEvent("dispatchsystem:getCivilian", getHandle(), lastSearchedName[1], lastSearchedName[2])
+        exitAllMenus()
+        local nameNotSplit = KeyboardInput("Name", "", 50)
+        if nameNotSplit == nil then
+            turnOnLastMenu()
+            drawNotification("Invalid name")
+            return
+        end
+        local name = stringsplit(nameNotSplit, " ")
+        TriggerServerEvent("dispatchsystem:getCivilian", getHandle(), name[1], name[2])
+        turnOnLastMenu()
     end)
 end
 function leoNcicNotes()
     Citizen.CreateThread(function()
-        if lastSearchedName == nil then
-            drawNotification("You must have searched a name before")
+        exitAllMenus()
+        local nameNotSplit = KeyboardInput("Name", "", 50)
+        if nameNotSplit == nil then
+            turnOnLastMenu()
+            drawNotification("Invalid name")
             return
         end
-        TriggerServerEvent("dispatchsystem:displayCivNotes", getHandle(), lastSearchedName[1], lastSearchedName[2])
+        local name = stringsplit(nameNotSplit, " ")
+        TriggerServerEvent("dispatchsystem:displayCivNotes", getHandle(), name[1], name[2])
+        turnOnLastMenu()
     end)
 end
 function leoNcicTickets()
-    if lastSearchedName == nil then
-        drawNotification("You must have searched a name before")
+    exitAllMenus()
+    local nameNotSplit = KeyboardInput("Name", "", 50)
+    if nameNotSplit == nil then
+        turnOnLastMenu()
+        drawNotification("Invalid name")
         return
     end
-    TriggerServerEvent("dispatchsystem:civTickets", getHandle(), lastSearchedName[1], lastSearchedName[2])
+    local name = stringsplit(nameNotSplit, " ")
+    TriggerServerEvent("dispatchsystem:civTickets", getHandle(), name[1], name[2])
+    turnOnLastMenu()
 end
 function leoPlate()
     Citizen.CreateThread(function()
         exitAllMenus()
         local plate = KeyboardInput("Plate", "", 8)
         if plate == nil then
-            turnOnLeoMenu()
+            turnOnLastMenu()
             return 
         end
         TriggerServerEvent("dispatchsystem:getCivilianVeh", getHandle(), plate)
-        turnOnLeoMenu()
+        turnOnLastMenu()
     end)
 end
 function leoAddNote()
     Citizen.CreateThread(function()
-        if lastSearchedName == nil then
-            setLastSearchedName()
-        else
-            drawNotification("~r~Default name set to ~w~"..lastSearchedName[1].." "..lastSearchedName[2])
-        end
         exitAllMenus()
-        local note = KeyboardInput("Note Text", "", 150)
-        if note == nil then
-            turnOnLeoMenu()
+        local nameNotSplit = KeyboardInput("Name", "", 50)
+        if nameNotSplit == nil then
+            turnOnLastMenu()
+            drawNotification("Invalid name")
             return
         end
-        TriggerServerEvent("dispatchsystem:addCivNote", getHandle(), lastSearchedName[1], lastSearchedName[2], note)
-        turnOnLeoMenu()
+        local name = stringsplit(nameNotSplit, " ")
+        local note = KeyboardInput("Note Text", "", 150)
+        if note == nil then
+            turnOnLastMenu()
+            return
+        end
+        TriggerServerEvent("dispatchsystem:addCivNote", getHandle(), name[1], name[2], note)
+        turnOnLastMenu()
     end)
 end
 function leoAddTicket()
     Citizen.CreateThread(function()
-        if lastSearchedName == nil then
-            setLastSearchedName()
-        else
-            drawNotification("~r~Default name set to ~w~"..lastSearchedName[1].." "..lastSearchedName[2])
-        end
         exitAllMenus()
+        local nameNotSplit = KeyboardInput("Name", "", 50)
+        if nameNotSplit == nil then
+            turnOnLastMenu()
+            drawNotification("Invalid name")
+            return
+        end
+        local name = stringsplit(nameNotSplit, " ")
         local amount = tonumber(KeyboardInput("Amount", "", 7))
         if amount == nil then
-            turnOnLeoMenu()
+            turnOnLastMenu()
             drawNotification("You must have a valid number")
             return
         end
         if amount > 9999.99 then
-            turnOnLeoMenu()
+            turnOnLastMenu()
             drawNotification("Your amount must be below 9999.99")
             return
         end
         local reason = KeyboardInput("Reason", "", 150)
         if reason == nil then
-            turnOnLeoMenu()
+            turnOnLastMenu()
             return
         end
-        TriggerServerEvent("dispatchsystem:ticketCiv", getHandle(), lastSearchedName[1], lastSearchedName[2], reason, amount)
-        turnOnLeoMenu()
+        TriggerServerEvent("dispatchsystem:ticketCiv", getHandle(), name[1], name[2], reason, amount)
+        turnOnLastMenu()
     end)
 end
 function leoAddBolo()
@@ -299,11 +292,11 @@ function leoAddBolo()
         exitAllMenus()
         local reason = KeyboardInput("BOLO Reason", "", 250)
         if reason == nil then
-            turnOnLeoMenu()
+            turnOnLastMenu()
             return
         end
         TriggerServerEvent("dispatchsystem:addBolo", getHandle(), reason)
-        turnOnLeoMenu()
+        turnOnLastMenu()
     end)
 end
 function leoViewBolos()
@@ -330,6 +323,11 @@ function turnOnLeoMenu()
 	SetNuiFocus(true, true)
 	SendNUIMessage({showleomenu = true})
 end
+function turnOnLastMenu()
+    menu = "unknown"
+    SetNuiFocus(true, true)
+    SendNUIMessage({openlastmenu = true})
+end
 function exitAllMenus()
 	menu = nil
 	SetNuiFocus(false)
@@ -343,6 +341,10 @@ function resetMenu()
         SendNUIMessage({hidemenus = true})
         SendNUIMessage({showleomenu = true})
     end
+end
+function safeExit()
+    SetNuiFocus(false)
+    menu = nil
 end
 
 -- Adding event handler at the end to use all of the above functions
@@ -372,31 +374,31 @@ end)
 
 --[[ADDING CIV CALLBACKS]]
 RegisterNUICallback("civ", function(data, cb)
-    if data == nil then
+    if data[1] == nil then
         return
-    elseif data == "newname" then
+    elseif data[1] == "newname" then
         createCivilian()
-    elseif data == "warrant" then
+    elseif data[1] == "warrant" then
         toggleWarrant()
-    elseif data == "citations" then
+    elseif data[1] == "citations" then
         civCitations()
-    elseif data == "911init" then
+    elseif data[1] == "911init" then
         init911()
-    elseif data == "911msg" then
+    elseif data[1] == "911msg" then
         msg911()
-    elseif data == "911end" then
+    elseif data[1] == "911end" then
         end911()
-    elseif data == "newveh" then
+    elseif data[1] == "newveh" then
         createCivVehicle()
-    elseif data == "vehstolen" then
+    elseif data[1] == "vehstolen" then
         toggleVehStolen()
-    elseif data == "vehregi" then
+    elseif data[1] == "vehregi" then
         toggleVehRegi()
-    elseif data == "vehinsurance" then
+    elseif data[1] == "vehinsurance" then
         toggleVehInsured()
-    elseif data == "civdisplay" then
+    elseif data[1] == "civdisplay" then
         displayCivilian()
-    elseif data == "vehdisplay" then
+    elseif data[1] == "vehdisplay" then
         displayVeh()
     end
 
@@ -404,41 +406,47 @@ RegisterNUICallback("civ", function(data, cb)
 end)
 --[[ADDING LEO CALLBACKS]]
 RegisterNUICallback("leo", function(data, cb)
-    if data == nil then
+    if data[1] == nil then
         return
-    elseif data == "create" then
+    elseif data[1] == "create" then
         createOfficer()
-    elseif data == "displayduty" then
+    elseif data[1] == "displayduty" then
         displayStatus()
-    elseif data == "onduty" or data == "offduty" or data == "busy" then
-        changeStatus(data)
-    elseif data == "ncic" then
+    elseif data[1] == "onduty" or data[1] == "offduty" or data[1] == "busy" then
+        changeStatus(data[1])
+    elseif data[1] == "ncic" then
         leoNcic()
-    elseif data == "ncic-note" then
-        leoNcicNotes()
-    elseif data == "ncic-ticket" then
-        leoNcicTickets()
-    elseif data == "plate" then
+    elseif data[1] == "note" then
+        if data[2] == "add" then
+            leoAddNote()
+        elseif data[2] == "view" then
+            leoNcicNotes()
+        end
+    elseif data[1] == "ticket" then
+        if data[2] == "add" then
+            leoAddTicket()
+        elseif data[2] == "view" then
+            leoNcicTickets()
+        end
+    elseif data[1] == "plate" then
         leoPlate()
-    elseif data == "add-note" then
-        leoAddNote()
-    elseif data == "add-ticket" then
-        leoAddTicket()
-    elseif data == "add-bolo" then
-        leoAddBolo()
-    elseif data == "view-bolo" then
-        leoViewBolos()
+    elseif data[1] == "bolo" then
+        if data[2] == "add" then
+            leoAddBolo()
+        elseif data[2] == "view" then
+            leoViewBolos()
+        end
     end
 
     if cb then cb("OK") end
 end)
 --[[ADDING COMMON CALLBACKS]]
 RegisterNUICallback("common", function(data, cb)
-    if data == nil then
+    if data[1] == nil then
         return
-    elseif data == "exit" then
-        exitAllMenus()
-    elseif data == "dsreset" then
+    elseif data[1] == "exit" then
+        safeExit()
+    elseif data[1] == "dsreset" then
         TriggerServerEvent("dispatchsystem:dsreset", getHandle())
     end
 

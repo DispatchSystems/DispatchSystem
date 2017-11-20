@@ -43,6 +43,16 @@ namespace DispatchSystem.cl
                     Overridable = true
                 };
 
+                Client.LocalCallbacks.Events.Add("911alert", new LocalEvent(async (peer, objects) =>
+                {
+                    await Task.FromResult(0);
+
+                    mainWindow.Invoke((MethodInvoker)delegate
+                    {
+                        new Accept911(objects[0], objects[1]).Show();
+                    });
+                }));
+
                 try
                 {
                     Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
@@ -53,16 +63,6 @@ namespace DispatchSystem.cl
                         "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(-1);
                 }
-
-                Client.LocalCallbacks.Events.Add("911alert", new LocalEvent(async (peer, objects) =>
-                {
-                    await Task.FromResult(0);
-
-                    mainWindow.Invoke((MethodInvoker)delegate
-                    {
-                        new Accept911(objects[0], objects[1]).Show();
-                    });
-                }));
 
                 Client.Connected += delegate
                 {

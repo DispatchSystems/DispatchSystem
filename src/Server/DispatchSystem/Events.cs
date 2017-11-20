@@ -48,6 +48,20 @@ namespace DispatchSystem.sv
         }
 
         #region Civilian Events
+        public static void DisplayCurrentCivilian(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+            Civilian civ = GetCivilian(handle);
+
+            if (civ != null)
+            {
+                SendMessage(p, "", new[] { 255, 255, 255 }, $"First: {civ.First} | Last: {civ.Last}");
+                SendMessage(p, "", new[] { 255, 255, 255 }, $"Warrant: {civ.WarrantStatus}");
+                SendMessage(p, "", new[] { 255, 255, 255 }, $"Citations: {civ.CitationCount}");
+            }
+            else
+                SendMessage(p, "DispatchSystem", new [] {0,0,0}, "You don't exist in the system");
+        }
         public static void SetName(string handle, string first, string last)
         {
             Player p = GetPlayerByHandle(handle);
@@ -197,6 +211,21 @@ namespace DispatchSystem.sv
         #endregion
 
         #region Vehicle Events
+        public static void DisplayCurrentVehicle(string handle)
+        {
+            Player p = GetPlayerByHandle(handle);
+            CivilianVeh veh = GetCivilianVeh(handle);
+
+            if (veh != null)
+            {
+                SendMessage(p, "", new[] { 255, 255, 255 }, $"Plate: {veh.Plate.ToUpper()}");
+                SendMessage(p, "", new[] { 255, 255, 255 }, $"Stolen: {veh.StolenStatus}");
+                SendMessage(p, "", new[] { 255, 255, 255 }, $"Registered: {veh.Registered}");
+                SendMessage(p, "", new[] { 255, 255, 255 }, $"Insured: {veh.Insured}");
+            }
+            else
+                SendMessage(p, "DispatchSystem", new [] {0,0,0}, "Your vehicle doesn't exist in the system");
+        }
         public static void SetVehicle(string handle, string plate)
         {
             Player p = GetPlayerByHandle(handle);
