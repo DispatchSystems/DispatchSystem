@@ -64,11 +64,8 @@ namespace DispatchSystem.cl
                     Environment.Exit(-1);
                 }
 
-                Client.Connected += delegate
+                if (Client.Peer != null) // If no perms, peer will be null
                 {
-#if DEBUG
-                    MessageBox.Show("Connected");
-#endif
                     new Thread(async delegate ()
                     {
                         while (true)
@@ -119,11 +116,7 @@ namespace DispatchSystem.cl
                         }
                     })
                     { Name = "ConnectionDetection" }.Start();
-                };
 
-
-                if (Client.Peer != null) // If no perms, peer will be null
-                {
                     Application.Run(mainWindow = new DispatchMain());
                     await Client.Disconnect();
                 }
