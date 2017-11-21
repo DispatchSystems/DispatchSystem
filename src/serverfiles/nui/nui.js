@@ -1,4 +1,5 @@
 var lastmenu;
+var resourcename = "dispatchsystem";
 
 $( function() {
     init();
@@ -24,6 +25,9 @@ $( function() {
         }
         if ( item.hidemenus ) {
             $("div").hide();
+        }
+        if ( item.setname ) {
+            resourcename = item.metadata;
         }
     } );
 } )
@@ -94,7 +98,7 @@ function init() {
 }
 
 function send( name, data ) {
-    $.post( "http://dispatchsystem/" + name, JSON.stringify(data), function( datab ) {
+    $.post( "http://" + resourcename + "/" + name, JSON.stringify(data), function( datab ) {
         if ( datab != "OK" ) {
             console.log( datab );
         }            

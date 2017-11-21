@@ -53,8 +53,6 @@ function tablelength(T)
   end
 --[[                                 END OF COMMON                                 ]]
 
-sendMessage("DispatchSystem", {0,0,0}, "DispatchSystem.Client by BlockBa5her loaded")
-
 --[[
     SERVER & CLIENT TRANSACTIONS
 ]]
@@ -453,3 +451,6 @@ RegisterNUICallback("common", function(data, cb)
     if cb then cb("OK") end
 end)
 --[[                                 END OF NUI                                 ]]
+
+SendNUIMessage({setname = true, metadata = GetCurrentResourceName()}) -- Telling JS of the resource name
+sendMessage("DispatchSystem", {0,0,0}, "DispatchSystem.Client by BlockBa5her loaded")
