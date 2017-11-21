@@ -20,6 +20,8 @@ namespace EZDatabase
         // The file to save the database stuff on
         private readonly string file;
 
+        private const int MAX_FAIL = 10;
+
         /// <summary>
         /// Initializes the class of <see cref="Database"/>
         /// </summary>
@@ -48,10 +50,35 @@ namespace EZDatabase
 
                     using (var uncompressed = new MemoryStream())
                     {
-                        using (var gzip = new GZipStream(compressed, CompressionMode.Decompress, true)) // creating decompresser stream
-                            gzip.CopyTo(uncompressed); // copy stream to the uncompressed stream for manipulation
-                        uncompressed.Position = 0; // Setting the position to 0 for deserialization
-                        return uncompressed.Length != 0 ? new BinaryFormatter().Deserialize(uncompressed) : null; // Deserialization of the bytes given
+                        // while loop to suppress compression errors
+                        int failed = 0;
+                        while (true)
+                        {
+                            try // trying deserialization
+                            {
+                                using (var gzip = new GZipStream(compressed, CompressionMode.Decompress, true)
+                                ) // creating decompresser stream
+                                    gzip.CopyTo(
+                                        uncompressed); // copy stream to the uncompressed stream for manipulation
+                                uncompressed.Seek(0, SeekOrigin.Begin); // Setting the position to 0 for deserialization
+                                return uncompressed.Length != 0
+                                    ? new BinaryFormatter().Deserialize(uncompressed)
+                                    : null; // Deserialization of the bytes given
+                            }
+                            catch (SerializationException) // Catching anything that has to due with serialization
+                            {
+                                failed++;
+                            }
+                            catch (IOException) // Catching anything that has to due with IO streams corrupting
+                            {
+                                failed++;
+                            }
+                            finally // throwing exception if failed too many times
+                            {
+                                if (failed > MAX_FAIL)
+                                    throw new SerializationException("Database failed to serialize items after " + MAX_FAIL + " attempts");
+                            }
+                        }
                     }
                 }
             }
@@ -74,17 +101,40 @@ namespace EZDatabase
                         throw new IOException("Invalid permissions to read or write"); // Throw when perms bad
 
                     byte[] bytes;
-                    using (var ms = new MemoryStream()) // Creating a memory stream for the bytes
-                    using (var gzip = new GZipStream(ms, CompressionMode.Compress)) // Creating a GZip stream for compression
+                    // while loop to supress compression errors
+                    int failed = 0;
+                    while (true)
                     {
-                        new BinaryFormatter().Serialize(gzip, data); // Serializing the bytes to the gzip stream
+                        try // trying serialization
+                        {
+                            using (var ms = new MemoryStream()) // Creating a memory stream for the bytes
+                            using (var gzip = new GZipStream(ms, CompressionMode.Compress)
+                            ) // Creating a GZip stream for compression
+                            {
+                                new BinaryFormatter().Serialize(gzip, data); // Serializing the bytes to the gzip stream
 
-                        // Closing the streams for read
-                        gzip.Close();
-                        ms.Close();
+                                // Closing the streams for read
+                                gzip.Close();
+                                ms.Close();
 
-                        // Setting the bytes in the class to the memorystream
-                        bytes = ms.ToArray();
+                                // Setting the bytes in the class to the memorystream
+                                bytes = ms.ToArray();
+                                break;
+                            }
+                        }
+                        catch (SerializationException) // Catching anything that has to due with serialization
+                        {
+                            failed++;
+                        }
+                        catch (IOException) // Catching anything that has to due with IO streams corrupting
+                        {
+                            failed++;
+                        }
+                        finally // throwing exception if failed too many times
+                        {
+                            if (failed > MAX_FAIL)
+                                throw new SerializationException("Database failed to serialize items after " + MAX_FAIL + " attempts");
+                        }
                     }
 
                     fileStream.Write(bytes, 0, bytes.Length); // Writing the bytes to the stream, starting at 0

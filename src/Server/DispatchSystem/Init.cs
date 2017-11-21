@@ -95,7 +95,7 @@ namespace DispatchSystem.sv
                 async void RunDatabase()
                 {
                     Log.WriteLine("Reading database...");
-                    Data = new Database("dispatchsystem.dontdelete", true); // creating the database instance
+                    Data = new Database("dispatchsystem.dontdelete"); // creating the database instance
                     Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read = Data.Read(); // reading the serialized tuple from the database
                     Civs = read?.Item1 ?? new StorageManager<Civilian>();
                     CivVehs = read?.Item2 ?? new StorageManager<CivilianVeh>();
@@ -110,7 +110,7 @@ namespace DispatchSystem.sv
                         Log.WriteLineSilent("Writing current information to database");
 #endif
                         // creating the tuple to write
-                        Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(Civs, CivVehs);
+                        var write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(Civs, CivVehs);
                         // writing the information
                         Data.Write(write);
                         // waiting 3 minutes before doing it again

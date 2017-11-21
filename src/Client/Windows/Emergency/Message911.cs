@@ -27,8 +27,8 @@ namespace DispatchSystem.cl.Windows.Emergency
 
             Text += $"{civ.First} {civ.Last}";
 
-            Program.Client.LocalCallbacks.Events.Add(call.Id.ToString(), new LocalEvent(Msg911));
-            Program.Client.LocalCallbacks.Events.Add("end" + call.Id, new LocalEvent(End911));
+            Program.Client.LocalCallbacks.Events.Add(call.Id.ToString(), new LocalEvent(new Func<ConnectedPeer, string, Task>(Msg911)));
+            Program.Client.LocalCallbacks.Events.Add("end" + call.Id, new LocalEvent(new Func<ConnectedPeer, Task>(End911)));
 
             Closed += async delegate
             {
@@ -39,13 +39,13 @@ namespace DispatchSystem.cl.Windows.Emergency
             };
         }
 
-        private async Task Msg911(ConnectedPeer peer, object[] data)
+        private async Task Msg911(ConnectedPeer peer, string incomingMsg)
         {
             await Task.FromResult(0);
 
             ListViewItem item = new ListViewItem(DateTime.Now.ToString("HH:mm:ss"));
             item.SubItems.Add($"{civ.First} {civ.Last}");
-            item.SubItems.Add((string)data[0]);
+            item.SubItems.Add(incomingMsg);
 
             Invoke((MethodInvoker)delegate
             {
@@ -53,7 +53,7 @@ namespace DispatchSystem.cl.Windows.Emergency
             });
         }
 
-        private async Task End911(ConnectedPeer peer, object[] data)
+        private async Task End911(ConnectedPeer peer)
         {
             await Task.FromResult(0);
 

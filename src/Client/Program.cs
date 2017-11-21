@@ -9,6 +9,7 @@ using DispatchSystem.cl.Windows.Emergency;
 
 using CloNET;
 using CloNET.LocalCallbacks;
+using DispatchSystem.Common.DataHolders.Storage;
 
 namespace DispatchSystem.cl
 {
@@ -39,25 +40,18 @@ namespace DispatchSystem.cl
             {
                 Client.Encryption = new EncryptionOptions
                 {
-                    Encrypt = false,
+                    Encrypt = true,
+                    Overridable = true
+                };
+                Client.Compression = new CompressionOptions
+                {
+                    Compress = false,
                     Overridable = true
                 };
 
-                Client.LocalCallbacks.Events.Add("911alert", new LocalEvent(async (peer, objects) =>
-                {
-                    await Task.FromResult(0);
+                Client.LocalCallbacks.Events.Add("911alert", new LocalEvent(new Func<ConnectedPeer, Civilian, EmergencyCall, Task>(Alert911)));
 
-                    mainWindow.Invoke((MethodInvoker)delegate
-                    {
-                        new Accept911(objects[0], objects[1]).Show();
-                    });
-                }));
-
-                try
-                {
-                    Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
-                }
-                catch (SocketException)
+                if (!Client.Connect(Config.Ip.ToString(), Config.Port).Result)
                 {
                     MessageBox.Show("Connection refused or failed!\nPlease contact the owner of your server",
                         "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -126,6 +120,16 @@ namespace DispatchSystem.cl
 
                 Environment.Exit(0);
             }
+        }
+
+        private static async Task Alert911(ConnectedPeer peer, Civilian civ, EmergencyCall call)
+        {
+            await Task.FromResult(0);
+
+            mainWindow.Invoke((MethodInvoker)delegate
+            {
+                new Accept911(civ, call).Show();
+            });
         }
     }
 }

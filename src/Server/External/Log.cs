@@ -26,7 +26,7 @@ internal static class Log
         lock (_lock)
         {
             // creating the string formatted with date
-            string formatted = $"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}]: {line}";
+            string formatted = $"[{DateTime.Now.ToString("HH:mm:ss.fff")}]: {line}";
             // writing the formatted line to the log
             writer.WriteLine(formatted);
             writer.Flush();
@@ -43,7 +43,7 @@ internal static class Log
         lock (_lock)
         {
             // creating the string formatted with date
-            string formatted = $"[{DateTime.Now.ToString(CultureInfo.InvariantCulture)}]: {line}";
+            string formatted = $"[{DateTime.Now.ToString("HH:mm:ss.fff")}]: {line}";
             // writing the formatted line to the log
             writer.WriteLine(formatted);
             writer.Flush();
