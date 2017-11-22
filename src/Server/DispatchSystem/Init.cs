@@ -95,7 +95,7 @@ namespace DispatchSystem.sv
                 async void RunDatabase()
                 {
                     Log.WriteLine("Reading database...");
-                    Data = new Database("dispatchsystem.dontdelete"); // creating the database instance
+                    Data = new Database("dispatchsystem.data"); // creating the database instance
                     Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read = Data.Read(); // reading the serialized tuple from the database
                     Civs = read?.Item1 ?? new StorageManager<Civilian>();
                     CivVehs = read?.Item2 ?? new StorageManager<CivilianVeh>();
