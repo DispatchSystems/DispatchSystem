@@ -21,6 +21,7 @@ namespace DispatchSystem.sv
             // adding the main events
             EventHandlers["chatMessage"] += new Action<int, string, string>(OnChatMessage);
             EventHandlers["dispatchsystem:dsreset"] += new Action<string>(DispatchReset);
+            EventHandlers["dispatchsystem:requestClientInfo"] += new Action<string>(PushbackClientInfo);
 
             // civilian events
             #region Civilian Commands
@@ -31,7 +32,6 @@ namespace DispatchSystem.sv
             EventHandlers["dispatchsystem:911init"] += new Action<string>(InitializeEmergency);
             EventHandlers["dispatchsystem:911msg"] += new Action<string, string>(MessageEmergency);
             EventHandlers["dispatchsystem:911end"] += new Action<string>(EndEmergency);
-            EventHandlers["dispatchsystem:requestClientInfo"] += new Action<string>(PushbackClientInfo);
             #endregion
 
             // events for vehicles

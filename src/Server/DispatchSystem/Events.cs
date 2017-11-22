@@ -9,7 +9,6 @@ using CitizenFX.Core;
 using CloNET;
 using DispatchSystem.Common;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.sv.External;
 
 using static DispatchSystem.sv.Common;
 
@@ -45,6 +44,38 @@ namespace DispatchSystem.sv
             }
 
             SendMessage(p, "DispatchSystem", new[] { 0, 0, 0 }, "All profiles reset"); // displaying the reset message
+        }
+        public static void PushbackClientInfo(string handle)
+        {
+            Player p = GetPlayerByHandle(handle); // find player from handle
+            var civ = GetCivilian(handle); // find civ from handle
+            var civVeh = GetCivilianVeh(handle); // find veh from handle
+            var ofc = GetOfficer(handle); // find ofc from handle
+
+            // set all of the civ arr for event
+            string[] civArr =
+            {
+                // Civilian information
+                civ?.First ?? "None",
+                civ?.Last ?? "None",
+                civ?.CitationCount.ToString() ?? "None",
+                civ?.WarrantStatus.ToString() ?? "None",
+                // Vehicle information
+                civVeh?.Plate ?? "None",
+                civVeh?.StolenStatus.ToString() ?? "None",
+                civVeh?.Registered.ToString() ?? "None",
+                civVeh?.Insured.ToString() ?? "None"
+            };
+            // set all of the ofc arr for event
+            string[] ofcArr =
+            {
+                ofc?.Callsign ?? "None",
+                ofc?.Status == null ? "None" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : "Busy",
+                ofc == null ? "None" : OfcAssignments.ContainsKey(ofc) ? OfcAssignments[ofc].Summary : "None"
+            };
+
+            // passing event of data to client
+            TriggerClientEvent(p, "dispatchsystem:pushbackData", civArr, ofcArr);
         }
 
         #region Civilian Events
@@ -207,38 +238,6 @@ namespace DispatchSystem.sv
             SendMessage(p, "Dispatch911", new[] { 255, 0, 0 }, "Ended the 911 call");
 
             if (!(task is null)) await task; // await the task
-        }
-        public static void PushbackClientInfo(string handle)
-        {
-            Player p = GetPlayerByHandle(handle); // find player from handle
-            var civ = GetCivilian(handle); // find civ from handle
-            var civVeh = GetCivilianVeh(handle); // find veh from handle
-            var ofc = GetOfficer(handle); // find ofc from handle
-
-            // set all of the civ arr for event
-            string[] civArr =
-            {
-                // Civilian information
-                civ?.First ?? "None",
-                civ?.Last ?? "None",
-                civ?.CitationCount.ToString() ?? "None",
-                civ?.WarrantStatus.ToString() ?? "None",
-                // Vehicle information
-                civVeh?.Plate ?? "None",
-                civVeh?.StolenStatus.ToString() ?? "None",
-                civVeh?.Registered.ToString() ?? "None",
-                civVeh?.Insured.ToString() ?? "None"
-            };
-            // set all of the ofc arr for event
-            string[] ofcArr =
-            {
-                ofc?.Callsign ?? "None",
-                ofc?.Status == null ? "None" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : "Busy",
-                ofc == null ? "None" : OfcAssignments.ContainsKey(ofc) ? OfcAssignments[ofc].Summary : "None"
-            };
-
-            // passing event of data to client
-            TriggerClientEvent(p, "dispatchsystem:pushbackData", civArr, ofcArr);
         }
         #endregion
 
