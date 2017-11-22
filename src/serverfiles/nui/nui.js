@@ -11,60 +11,93 @@ $( function() {
         var item = event.data;
         
         if ( item.showleomenu ) {
-            civContainer.hide();
+            $("div").hide();
             ofcContainer.show();
+            $("#ofcinfo").show();
             lastmenu = ofcContainer;
         }
         if ( item.showcivmenu ) {
-            ofcContainer.hide();
+            $("div").hide();
             civContainer.show();
+            $("#civinfo").show();
             lastmenu = ofcContainer;
         }
         if (item.openlastmenu) {
             lastmenu.show();
         }
         if ( item.hidemenus ) {
-            $("div").hide();
+            lastmenu.hide();
         }
         if ( item.setname ) {
             resourcename = item.metadata;
         }
+        if ( item.pushback ) {
+            // getting info arr
+            var civinfo = item.data[0];
+            var ofcinfo = item.data[1];
+
+            // getting civ elements
+            var civname = $("#civname");
+            var civwarrant = $("#civwarrant");
+            var civcitations = $("#civcit");
+            // getting veh elements
+            var vehplate = $("#vehplate");
+            var vehstolen = $("#vehstolen");
+            var vehregi = $("#vehregi");
+            var vehinsured = $("#vehinsured");
+            // getting ofc elements
+            var ofcsign = $("#ofcsign");
+            var ofcstatus = $("#ofcstatus");
+            var ofcass = $("#ofcass");
+            
+            // setting civ stuff
+            civname.text(civinfo[1] + ", " + civinfo[0]);
+            civwarrant.text(civinfo[3]);
+            civcitations.text(civinfo[2]);
+            // setting veh stuff
+            vehplate.text(civinfo[4]);
+            vehstolen.text(civinfo[5]);
+            vehregi.text(civinfo[6]);
+            vehinsured.text(civinfo[7]);
+            // setting ofc stuff
+            ofcsign.text(ofcinfo[0]);
+            ofcstatus.text(ofcinfo[1]);
+            ofcass.text(ofcinfo[2]);
+        }
     } );
 } )
 
-function back() {
-    $( "div" ).each( function( i, obj ) {
-        if ( !$(this).is(":visible") ) {
-            return;
-        }
-        
-        if ($(this).attr("data-parent")) {
-            var parent = $(this).data("parent");
+function back(sender) {
+    var item = $(sender).parent();
 
-            $(this).hide();
-            var parentMenu = $("#" + parent);
-            parentMenu.show();
-            lastmenu = parentMenu;
-        }
-    } );
+    var parent = item.data("parent");
+
+    item.hide();
+    var parentMenu = $("#" + parent);
+    parentMenu.show();
+    lastmenu = parentMenu;
 }
 
 function exit() {
-    $("div").each(function(i,obj) {
-        if (!$(this).is(":visible")) {
-            return;
-        }
+    $("div").hide();
 
-        $(this).hide();
-        
-        send("common", ["exit"]);
-    });
+    send("common", ['exit'])
+}
+
+function arrSkip(arr, count) {
+    var data = [];
+
+    for (var i = count; i < arr.length; i++) {
+        data[i - count] = arr[i];
+    }
+
+    return data;
 }
 
 function init() {
     $(".menu").each(function(i,obj) {
         if ( $(this).attr("data-parent")) {
-            $(this).append("<button class='option back' onclick='back()'>Back</button>");
+            $(this).append("<button class='option back' onclick='back(this)'>Back</button>");
         }
         $(this).append("<button class='option x' onclick='exit()'>Exit</button>");
     });
@@ -74,13 +107,8 @@ function init() {
         if ( $( this ).attr( "data-action" ) ) {
             $( this ).click( function() { 
                 var dataArr = $( this ).data( "action" ).split(" ");
-                var data = [];
-                
-                for (var i = 1; i < dataArr.length; i++) {
-                    data[i - 1] = dataArr[i];
-                }
 
-                send( dataArr[0], data ); 
+                send( dataArr[0], arrSkip(dataArr, 1) ); 
             } )
         }
 
@@ -101,6 +129,6 @@ function send( name, data ) {
     $.post( "http://" + resourcename + "/" + name, JSON.stringify(data), function( datab ) {
         if ( datab != "OK" ) {
             console.log( datab );
-        }            
+        }
     } );
 }

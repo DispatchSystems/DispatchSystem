@@ -4,14 +4,19 @@
 RegisterNetEvent("dispatchsystem:toggleLeoNUI")
 RegisterNetEvent("dispatchsystem:toggleCivNUI")
 RegisterNetEvent("dispatchsystem:resetNUI")
+RegisterNetEvent("dispatchsystem:pushbackData")
 
 local menu = nil
 function turnOnCivMenu()
+	TriggerServerEvent("dispatchsystem:requestClientInfo", getHandle())
+
 	menu = "civ"
 	SetNuiFocus(true, true)
 	SendNUIMessage({showcivmenu = true})
 end
 function turnOnLeoMenu()
+	TriggerServerEvent("dispatchsystem:requestClientInfo", getHandle())
+
 	menu = "leo"
 	SetNuiFocus(true, true)
 	SendNUIMessage({showleomenu = true})
@@ -57,5 +62,8 @@ AddEventHandler("dispatchsystem:toggleLeoNUI", function()
 end)
 AddEventHandler("dispatchsystem:resetNUI", function()
     exitAllMenus()
+end)
+AddEventHandler("dispatchsystem:pushbackData", function(civData, ofcData)
+	SendNUIMessage({pushback = true, data = {civData, ofcData}})
 end)
 --[[                                 END OF MENU STUFF                                 ]]

@@ -31,6 +31,7 @@ namespace DispatchSystem.sv
             EventHandlers["dispatchsystem:911init"] += new Action<string>(InitializeEmergency);
             EventHandlers["dispatchsystem:911msg"] += new Action<string, string>(MessageEmergency);
             EventHandlers["dispatchsystem:911end"] += new Action<string>(EndEmergency);
+            EventHandlers["dispatchsystem:requestClientInfo"] += new Action<string>(PushbackClientInfo);
             #endregion
 
             // events for vehicles

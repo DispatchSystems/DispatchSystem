@@ -32,6 +32,8 @@ RegisterNUICallback("civ", function(data, cb)
         displayVeh()
     end
 
+    TriggerServerEvent("dispatchsystem:requestClientInfo", getHandle())
+
 	if cb then cb("OK") end
 end)
 --[[ADDING LEO CALLBACKS]]
@@ -67,6 +69,8 @@ RegisterNUICallback("leo", function(data, cb)
             leoViewBolos()
         end
     end
+
+    TriggerServerEvent("dispatchsystem:requestClientInfo", getHandle())
 
     if cb then cb("OK") end
 end)
