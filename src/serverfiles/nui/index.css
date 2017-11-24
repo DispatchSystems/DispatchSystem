@@ -53,18 +53,18 @@ button.back:after {
     padding: 0;
     position: absolute;
     top: 50%;
-    left: 50%;
+    left: 45%;
     background: #000000;
-    width: 35%;
-    height: 30%;
+    width: 672px;
+    height: 324px;
     display: none;
     font-family: 'Lato', sans-serif;
     color: white;
     border-radius: 10px;
 }
 #ofcinfo {
-    width: 20%;
-    height: 40%;
+    width: 384px;
+    height: 432px;
 }
 
 p {
