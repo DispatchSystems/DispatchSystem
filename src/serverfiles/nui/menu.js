@@ -1,5 +1,5 @@
 var lastmenu;
-var resourcename = "dispatchsystem";
+var resourcename;
 
 $( function() {
     init();

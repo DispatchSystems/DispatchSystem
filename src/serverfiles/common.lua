@@ -48,9 +48,20 @@ function getHandle()
 end
 function tablelength(T)
     local count = 0
-    for _ in pairs(T) do count = count + 1 end
+        for _ in pairs(T) do count = count + 1 end
     return count
-  end
+end
+function terminateMenu()
+    Citizen.CreateThread(function()
+        Citizen.Wait(500)
+        turnOnCivMenu = nil
+        turnOnLeoMenu = nil
+        turnOnLastMenu = nil
+        exitAllMenus = nil
+        resetMenu = nil
+        safeExit = nil
+    end)
+end
 --[[                                 END OF COMMON                                 ]]
 
 --[[
@@ -58,6 +69,18 @@ function tablelength(T)
 ]]
 Citizen.CreateThread(function()
     Citizen.Wait(500)
+    local resource = GetCurrentResourceName()
+    if (resource ~= string.lower(resource)) then
+        terminateMenu()
+
+        while true do
+            if DoesEntityExist(PlayerPedId()) then
+                drawNotification("DispatchSystem:~n~~r~PLEASE CHANGE RESOURCE NAME TO ALL LOWER")
+            end
+            Wait(10)
+        end
+        return
+    end
     SendNUIMessage({setname = true, metadata = GetCurrentResourceName()}) -- Telling JS of the resource name
     sendMessage("DispatchSystem", {0,0,0}, "DispatchSystem.Client by BlockBa5her loaded")    
 end)

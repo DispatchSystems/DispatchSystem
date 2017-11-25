@@ -84,8 +84,6 @@ RegisterNUICallback("common", function(data, cb)
         TriggerServerEvent("dispatchsystem:dsreset", getHandle())
     end
 
-    TriggerServerEvent("dispatchsystem:requestClientInfo", getHandle())
-
     if cb then cb("OK") end
 end)
 --[[                                 END OF NUI                                 ]]
