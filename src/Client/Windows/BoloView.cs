@@ -58,12 +58,13 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Tuple<NetRequestResult, StorageManager<Bolo>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Bolos"]
+                .Get<StorageManager<Bolo>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    bolos = result.Item2;
+                    bolos = result;
                     UpdateCurrentInformation();
                 });
             }
@@ -101,7 +102,7 @@ namespace DispatchSystem.cl.Windows
         {
             if (bolosView.SelectedItems.Count > 0)
             {
-                await Program.Client.TryTriggerNetEvent("RemoveBolo", 0);
+                await Program.Client.Peer.RemoteCallbacks.Events["RemoveBolo"].Invoke(bolosView.Items.IndexOf(bolosView.SelectedItems[0]));
                 await Resync(true);
             }
             else

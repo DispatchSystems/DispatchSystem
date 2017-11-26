@@ -2,101 +2,133 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 using Config.Reader;
+
 using DispatchSystem.Common.DataHolders.Storage;
 
 using CloNET;
 using CloNET.Callbacks;
-using CloNET.Interfaces;
+using CloNET.LocalCallbacks;
 
 using CitizenFX.Core;
+using DispatchSystem.Common;
 
 namespace DispatchSystem.sv.External
 {
     public class DispatchServer
     {
-        private Server server;
-        private readonly iniconfig cfg;
-        private readonly Permissions perms;
-        private int Port { get; }
+        private Server server; // server from CloNET
+        private readonly string ip; // ip of the server
+        private readonly int port; // port of the server
 
-        public ConnectedPeer[] ConnectedDispatchers => server.ConnectedPeers.Where(x => x.IsConnected).ToArray();
+        /// <summary>
+        /// <see cref="Array"/> of <see cref="ConnectedPeer"/> that are currently connected to the server
+        /// </summary>
+        public ConnectedPeer[] ConnectedDispatchers => server.ConnectedPeers.ToArray();
 
+        // 911calls items, for keeping track of dispatchers connected to which 911 call
         internal Dictionary<Guid, string> Calls;
 
-        internal DispatchServer(iniconfig cfg)
+        /// <summary>
+        /// Initializes the <see cref="DispatchSystem"/> class from a config
+        /// </summary>
+        /// <param name="cfg"></param>
+        internal DispatchServer(ServerConfig cfg)
         {
-            Calls = new Dictionary<Guid, string>();
-            this.cfg = cfg;
-            perms = Permissions.Get;
-            Port = this.cfg.GetIntValue("server", "port", 33333);
-            Log.WriteLine("Setting port to " + Port);
-            Start();
+            Calls = new Dictionary<Guid, string>(); // creating the calls item
+            ip = cfg.GetStringValue("server", "ip", "0.0.0.0"); // setting the ip
+            Log.WriteLine("Setting ip to " + ip);
+            port = cfg.GetIntValue("server", "port", 33333); // setting the port
+            Log.WriteLine("Setting port to " + port);
+            Start(); // starting the server
         }
 
         private void Start()
         {
-            Log.WriteLine("Creating TCP Device");
-            server = new Server(cfg.GetStringValue("server", "ip", "0.0.0.0"), Port)
+            Log.WriteLine("Creating TCP Device"); // moar logs
+            server = new Server(ip, port) // creating the server from the port ant ip
             {
-                Encryption = new EncryptionOptions
+                Encryption = new EncryptionOptions // setting encryption off
                 {
-                    Encrypt = false,
+                    Encrypt = true,
+                    Overridable = false
+                },
+                Compression = new CompressionOptions // setting compression off
+                {
+                    Compress = false,
                     Overridable = false
                 }
             };
 
+            // server events
             server.Connected += OnConnect;
             server.Disconnected += OnDisconnect;
             Log.WriteLine("TCP Created, starting TCP");
-            try { server.Start(); }
+            // starting the server
+            try { server.Listening = true; }
+            // catching a port in use exception
             catch (SocketException)
             {
-                Log.WriteLine("The specified port (" + Port + ") is already in use.");
+                Log.WriteLine("The specified port (" + port + ") is already in use.");
                 return;
             }
             Log.WriteLine("TCP Started, Listening for connections...");
 
-            AddCallbacks();
+            AddCallbacks(); // adding the callbacks to the server for use from client
         }
 
         private void AddCallbacks()
         {
-            server.Functions.Add("GetCivilian", new NetFunction(GetCivilian));
-            server.Functions.Add("GetCivilianVeh", new NetFunction(GetCivilianVeh));
-            server.Functions.Add("GetBolos", new NetFunction(GetBolos));
-            server.Functions.Add("GetOfficers", new NetFunction(GetOfficers));
-            server.Functions.Add("GetOfficer", new NetFunction(GetOfficer));
-            server.Functions.Add("GetAssignments", new NetFunction(GetAssignments));
-            server.Functions.Add("CreateAssignment", new NetFunction(NewAssignment));
-            server.Functions.Add("GetOfficerAssignment", new NetFunction(GetOfcAssignment));
-            server.Functions.Add("Accept911", new NetFunction(AcceptEmergency));
-            server.Events.Add("911End", new NetEvent(EndEmergency));
-            server.Events.Add("911Msg", new NetEvent(MessageEmergency));
-            server.Events.Add("AddOfficerAssignment", new NetEvent(AddOfcAssignment));
-            server.Events.Add("RemoveAssignment", new NetEvent(RemoveAssignment));
-            server.Events.Add("RemoveOfficerAssignment", new NetEvent(RemoveOfcAssignment));
-            server.Events.Add("SetStatus", new NetEvent(ChangeOfficerStatus));
-            server.Events.Add("RemoveOfficer", new NetEvent(RemoveOfficer));
-            server.Events.Add("AddBolo", new NetEvent(AddBolo));
-            server.Events.Add("RemoveBolo", new NetEvent(RemoveBolo));
-            server.Events.Add("AddNote", new NetEvent(AddNote));
+            // funcs that return objects from params given
+            server.LocalCallbacks.Functions = new MemberDictionary<string, LocalFunction>
+            {
+                {"GetCivilian", new LocalFunction(new Func<ConnectedPeer, string, string, Civilian>(GetCivilian))},
+                {"GetCivilianVeh", new LocalFunction(new Func<ConnectedPeer, string, CivilianVeh>(GetCivilianVeh))},
+                {"GetOfficer", new LocalFunction(new Func<ConnectedPeer, Guid, Officer>(GetOfficer))},
+                {"CreateAssignment", new LocalFunction(new Func<ConnectedPeer, string, Guid>(NewAssignment))},
+                {"GetOfficerAssignment", new LocalFunction(new Func<ConnectedPeer, Guid, Assignment>(GetOfcAssignment))},
+                {"Accept911", new LocalFunction(new Func<ConnectedPeer, Guid, bool>(AcceptEmergency))}
+            };
+            // properties that only have a return, and no set
+            server.LocalCallbacks.Properties = new MemberDictionary<string, LocalProperty>
+            {
+                {"Bolos", new LocalProperty(GetBolos, null)},
+                {"Officers", new LocalProperty(GetOfficers, null)},
+                {"Assignments", new LocalProperty(GetAssignments, null)}
+            };
+            // events that have params but no return
+            server.LocalCallbacks.Events = new MemberDictionary<string, LocalEvent>
+            {
+                {"911End", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(EndEmergency))},
+                {"911Msg", new LocalEvent(new Func<ConnectedPeer, Guid, string, Task>(MessageEmergency))},
+                {"AddOfficerAssignment", new LocalEvent(new Func<ConnectedPeer, Guid, Guid, Task>(AddOfcAssignment))},
+                {"RemoveAssignment", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(RemoveAssignment))},
+                {"RemoveOfficerAssignment", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(RemoveOfcAssignment))},
+                {"SetStatus", new LocalEvent(new Func<ConnectedPeer, Guid, OfficerStatus, Task>(ChangeOfficerStatus))},
+                {"RemoveOfficer", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(RemoveOfficer))},
+                {"AddBolo", new LocalEvent(new Func<ConnectedPeer, string, string, Task>(AddBolo))},
+                {"RemoveBolo", new LocalEvent(new Func<ConnectedPeer, int, Task>(RemoveBolo))},
+                {"AddNote", new LocalEvent(new Func<ConnectedPeer, Guid, string, Task>(AddNote))}
+            };
         }
 
         private static async Task OnConnect(ConnectedPeer user)
         {
             await Task.Run(delegate
             {
+                // logging the ip connected
 #if DEBUG
                 Log.WriteLine($"[{user.RemoteIP}] Connected");
 #else
                 Log.WriteLineSilent($"[{user.RemoteIP}] Connected");
 #endif
+
+                // dispose if the permissions bad
+                if (_(user))
+                    user.Dispose();
             });
         }
 
@@ -104,6 +136,7 @@ namespace DispatchSystem.sv.External
         {
             await Task.Run(delegate
             {
+                // logging the ip disconnected
 #if DEBUG
                 Log.WriteLine($"[{user.RemoteIP}] Disconnected");
 #else
@@ -112,162 +145,90 @@ namespace DispatchSystem.sv.External
             });
         }
 
-        private async Task<object> GetCivilian(ConnectedPeer sender, object[] args)
+        /*
+           _____              _        _        ____                _____   _  __   _____     
+          / ____|     /\     | |      | |      |  _ \      /\      / ____| | |/ /  / ____|  _ 
+         | |         /  \    | |      | |      | |_) |    /  \    | |      | ' /  | (___   (_)
+         | |        / /\ \   | |      | |      |  _ <    / /\ \   | |      |  <    \___ \     
+         | |____   / ____ \  | |____  | |____  | |_) |  / ____ \  | |____  | . \   ____) |  _ 
+          \_____| /_/    \_\ |______| |______| |____/  /_/    \_\  \_____| |_|\_\ |_____/  (_)
+
+        */
+
+        private Civilian GetCivilian(ConnectedPeer sender, string first, string last)
         {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Get civilian Request Recieved");
 #else
             Log.WriteLineSilent("[{sender.RemoteIP}] Get civilian Request Recieved");
 #endif
 
-            string first = (string)args[0];
-            string last = (string)args[1];
-
+            // tryna find civ using common
             Civilian civ = Common.GetCivilianByName(first, last);
-            if (civ != null)
-            {
 #if DEBUG
-                Log.WriteLine($"[{sender.RemoteIP}] Sending Civilian information to Client");
+            Log.WriteLine($"[{sender.RemoteIP}] Sending Civilian information to Client");
 #else
-                Log.WriteLineSilent($"[{sender.RemoteIP}] Sending Civilian information to Client");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Sending Civilian information to Client");
 #endif
-                return civ;
-            }
-            else
-            {
-#if DEBUG
-                Log.WriteLine($"[{sender.RemoteIP}] Civilian not found, sending null");
-#else
-                Log.WriteLineSilent($"[{sender.RemoteIP}] Civilian not found, sending null");
-#endif
-                return Civilian.Empty;
-            }
+            return civ;
         }
-        private async Task<object> GetCivilianVeh(ConnectedPeer sender, object[] args)
+        private CivilianVeh GetCivilianVeh(ConnectedPeer sender, string plate)
         {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Get civilian veh Request Recieved");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Get civilian veh Request Recieved");
 #endif
 
-            string plate = (string)args[0];
-
+            // tryna find the vehicle
             CivilianVeh civVeh = Common.GetCivilianVehByPlate(plate);
-            if (civVeh != null)
-            {
 #if DEBUG
-                Log.WriteLine($"[{sender.RemoteIP}] Sending Civilian Veh information to Client");
+            Log.WriteLine($"[{sender.RemoteIP}] Sending Civilian Veh information to Client");
 #else
-                Log.WriteLineSilent($"[{sender.RemoteIP}] Sending Civilian Veh information to Client");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Sending Civilian Veh information to Client");
 #endif
-                return civVeh;
-            }
-#if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Civilian Veh not found, sending null");
-#else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Civilian Veh not found, sending null");
-#endif
-            return CivilianVeh.Empty;
+            return civVeh;
         }
-        private async Task<object> GetBolos(ConnectedPeer sender, object[] args)
+        private Officer GetOfficer(ConnectedPeer sender, Guid id)
         {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
-#if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Get bolos Request Recieved");
-#else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Get bolos Request Recieved");
-#endif
-
-            return DispatchSystem.ActiveBolos;
-        }
-        private async Task<object> GetOfficers(ConnectedPeer sender, object[] args)
-        {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
-
-#if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Get officers Request Received");
-#else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Get officers Request Received");
-#endif
-
-            return DispatchSystem.officers;
-        }
-        private async Task<object> GetOfficer(ConnectedPeer sender, object[] args)
-        {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
-
-            Guid id = (Guid)args[0];
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Get officer Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Get officer Request Received");
 #endif
 
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == id);
-            ofc = ofc ?? Officer.Empty;
+            // finding the officer from the list
+            Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == id);
             return ofc;
         }
-        private async Task<object> GetAssignments(ConnectedPeer sender, object[] args)
+        private Assignment GetOfcAssignment(ConnectedPeer sender, Guid id)
         {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
-
-#if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Get assignments Request Received");
-#else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Get assignments Request Received");
-#endif
-
-            return DispatchSystem.assignments.AsEnumerable();
-        }
-        private async Task<object> GetOfcAssignment(ConnectedPeer sender, object[] args)
-        {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Get officer assignments Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Get officer assignments Request Received");
 #endif
-            Guid id = (Guid)args[0];
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == id);
+            
+            // finding the officer in the list
+            Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == id);
 
+            // finding assignment in common
             return Common.GetOfficerAssignment(ofc);
         }
-        private async Task<object> AcceptEmergency(ConnectedPeer sender, object[] args)
+        private bool AcceptEmergency(ConnectedPeer sender, Guid id)
         {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Accept emergency Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Accept emergency Request Received");
 #endif
 
-            Guid id = (Guid)args[0];
-            EmergencyCall acceptedCall = DispatchSystem.currentCalls.Find(x => x.Id == id);
+            // finding the call in the current calls
+            EmergencyCall acceptedCall = DispatchSystem.CurrentCalls.FirstOrDefault(x => x.Id == id);
             if (Calls.ContainsKey(id) || acceptedCall == null) return false; // Checking null and accepted in same expression
 
-            Calls.Add(id, sender.RemoteIP);
+            Calls.Add(id, sender.RemoteIP); // adding the call and dispatcher to the call list
+            // setting a message for invocation on the main thread
             DispatchSystem.Invoke(delegate
             {
                 Player p = Common.GetPlayerByIp(acceptedCall.SourceIP);
@@ -278,24 +239,53 @@ namespace DispatchSystem.sv.External
             });
             return true;
         }
-        private async Task EndEmergency(ConnectedPeer sender, object[] args)
+        private async Task<object> GetBolos(ConnectedPeer sender)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
+#if DEBUG
+            Log.WriteLine($"[{sender.RemoteIP}] Get bolos Request Recieved");
+#else
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get bolos Request Recieved");
+#endif
 
+            return DispatchSystem.ActiveBolos;
+        }
+        private async Task<object> GetOfficers(ConnectedPeer sender)
+        {
+            await Task.FromResult(0);
+#if DEBUG
+            Log.WriteLine($"[{sender.RemoteIP}] Get officers Request Received");
+#else
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get officers Request Received");
+#endif
+
+            return DispatchSystem.Officers;
+        }
+        private async Task<object> GetAssignments(ConnectedPeer sender)
+        {
+            await Task.FromResult(0);
+#if DEBUG
+            Log.WriteLine($"[{sender.RemoteIP}] Get assignments Request Received");
+#else
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get assignments Request Received");
+#endif
+
+            return DispatchSystem.Assignments;
+        }
+        private async Task EndEmergency(ConnectedPeer sender, Guid id)
+        {
+            await Task.FromResult(0);
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] End emergency Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] End emergency Request Received");
 #endif
 
-            Guid id = (Guid) args[0];
-            Calls.Remove(id);
+            Calls.Remove(id); // removing the id from the calls
 
-            EmergencyCall call = DispatchSystem.currentCalls.Find(x => x.Id == id);
+            EmergencyCall call = DispatchSystem.CurrentCalls.FirstOrDefault(x => x.Id == id); // obtaining the call from the civ
 
-            if (DispatchSystem.currentCalls.Remove(call))
+            if (DispatchSystem.CurrentCalls.Remove(call)) // remove, if successful, then notify
             {
                 DispatchSystem.Invoke(delegate
                 {
@@ -308,26 +298,20 @@ namespace DispatchSystem.sv.External
                 });
             }
         }
-        private async Task MessageEmergency(ConnectedPeer sender, object[] args)
+        private async Task MessageEmergency(ConnectedPeer sender, Guid id, string msg)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Message emergency Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Message emergency Request Received");
 #endif
 
-            Guid id = (Guid) args[0];
-            string msg = args[1] as string;
-
-            EmergencyCall call = DispatchSystem.currentCalls.Find(x => x.Id == id);
+            EmergencyCall call = DispatchSystem.CurrentCalls.FirstOrDefault(x => x.Id == id); // finding the call
 
             DispatchSystem.Invoke(() =>
             {
-                Player p = Common.GetPlayerByIp(call?.SourceIP);
+                Player p = Common.GetPlayerByIp(call?.SourceIP); // getting the player from the call's ip
 
                 if (p != null)
                 {
@@ -335,32 +319,27 @@ namespace DispatchSystem.sv.External
                 }
             });
         }
-        private async Task AddOfcAssignment(ConnectedPeer sender, object[] args)
+        private async Task AddOfcAssignment(ConnectedPeer sender, Guid id, Guid ofcId)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Add officer assignment Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add officer assignment Request Received");
 #endif
 
-            Guid id = (Guid)args[0];
-            Guid ofcId = (Guid)args[1];
-
-            Assignment assignment = DispatchSystem.assignments.Find(x => x.Id == id);
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcId);
-            if (assignment is null || ofc is null)
+            Assignment assignment = DispatchSystem.Assignments.Find(x => x.Id == id); // finding assignment from the id
+            Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == ofcId); // finding the officer from the id
+            if (assignment is null || ofc is null) // returning if either is null
                 return;
-            if (DispatchSystem.ofcAssignments.ContainsKey(ofc))
+            if (DispatchSystem.OfcAssignments.ContainsKey(ofc)) // returning if the officer already contains the assignment
                 return;
 
-            DispatchSystem.ofcAssignments.Add(ofc, assignment);
+            DispatchSystem.OfcAssignments.Add(ofc, assignment); // adding the assignment to the officer
 
             ofc.Status = OfficerStatus.OffDuty;
 
+            // notify of assignment
             DispatchSystem.Invoke(() =>
             {
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
@@ -368,61 +347,47 @@ namespace DispatchSystem.sv.External
                     Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, $"New assignment added: \"{assignment.Summary}\"");
             });
         } 
-        private async Task<object> NewAssignment(ConnectedPeer sender, object[] args)
+        private Guid NewAssignment(ConnectedPeer sender, string summary)
         {
-            await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return null;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] New assignment Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] New assignment Request Received");
 #endif
 
-            string summary = args[0] as string;
-
             Assignment assignment = new Assignment(summary);
-            DispatchSystem.assignments.Add(assignment);
-            return assignment.Id;
+            DispatchSystem.Assignments.Add(assignment);
+            return assignment.Id; // returning the assingment id
         }
-        private async Task RemoveAssignment(ConnectedPeer sender, object[] args)
+        private async Task RemoveAssignment(ConnectedPeer sender, Guid id)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Remove assignment Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Remove assignment Request Received");
 #endif
 
-            Guid item = (Guid) args[0];
-
-            Assignment item2 = DispatchSystem.assignments.ToList().Find(x => x.Id == item);
-            Common.RemoveAllInstancesOfAssignment(item2);
+            Assignment item2 = DispatchSystem.Assignments.Find(x => x.Id == id); // finding the assignment from the id
+            Common.RemoveAllInstancesOfAssignment(item2); // removing using common
         }
-        private async Task RemoveOfcAssignment(ConnectedPeer sender, object[] args)
+        private async Task RemoveOfcAssignment(ConnectedPeer sender, Guid ofcId)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Remove officer assignment Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Remove officer assignment Request Received");
 #endif
 
-            Guid ofcId = (Guid)args[0];
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcId);
+            // finding the ofc
+            Officer ofc = DispatchSystem.Officers.FirstOrDefault(x => x.Id == ofcId);
             if (ofc == null) return;
 
-            if (!DispatchSystem.ofcAssignments.ContainsKey(ofc)) return;
-            DispatchSystem.ofcAssignments.Remove(ofc);
+            if (!DispatchSystem.OfcAssignments.ContainsKey(ofc)) return;
+            DispatchSystem.OfcAssignments.Remove(ofc); // removing the assignment from the officer
 
-            ofc.Status = OfficerStatus.OnDuty;
+            ofc.Status = OfficerStatus.OnDuty; // set on duty
 
             DispatchSystem.Invoke(() =>
             {
@@ -431,40 +396,32 @@ namespace DispatchSystem.sv.External
                     Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "Your assignment has been removed by a dispatcher");
             });
         }
-        private async Task ChangeOfficerStatus(ConnectedPeer sender, object[] args)
+        private async Task ChangeOfficerStatus(ConnectedPeer sender, Guid id, OfficerStatus status)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Change officer status Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Change officer status Request Received");
 #endif
 
-            Officer ofc = (Officer)args[0];
-            OfficerStatus status = (OfficerStatus)args[1];
+            // finding the officer
+            Officer ofc = DispatchSystem.Officers.FirstOrDefault(x => x.Id == id);
 
-            ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofc.Id);
-            var index = DispatchSystem.officers.IndexOf(ofc);
-            if (index == -1)
-                return;
+            if (ofc is null) return; // checking for null
 
-            Officer ourOfc = DispatchSystem.officers[index];
-
-            if (ourOfc.Status != status)
+            if (ofc.Status != status)
             {
-                ourOfc.Status = status;
+                ofc.Status = status; // changing the status
 #if DEBUG
-                Log.WriteLine($"[{sender.RemoteIP}] Setting officer status to " + status.ToString());
+                Log.WriteLine($"[{sender.RemoteIP}] Setting officer status to " + status);
 #else
-                Log.WriteLineSilent($"[{sender.RemoteIP}] Setting officer status to " + status.ToString());
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Setting officer status to " + status);
 #endif
 
                 DispatchSystem.Invoke(() =>
                 {
-                    Player p = Common.GetPlayerByIp(ourOfc.SourceIP);
+                    Player p = Common.GetPlayerByIp(ofc.SourceIP);
                     if (p != null)
                         Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 },
                             $"Dispatcher set status to {(ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy")}");
@@ -479,23 +436,20 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task RemoveOfficer(ConnectedPeer sender, object[] args)
+        private async Task RemoveOfficer(ConnectedPeer sender, Guid id)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
-
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Remove officer Request Received");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Received");
 #endif
 
-            Guid ofcGiven = (Guid)args[0];
-
-            Officer ofc = DispatchSystem.officers.ToList().Find(x => x.Id == ofcGiven);
+            // getting the officer
+            Officer ofc = DispatchSystem.Officers.FirstOrDefault(x => x.Id == id);
             if (ofc != null)
             {
+                // notify of removing of role
                 DispatchSystem.Invoke(delegate
                 {
                     Player p = Common.GetPlayerByIp(ofc.SourceIP);
@@ -504,7 +458,8 @@ namespace DispatchSystem.sv.External
                         Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "You have been removed from your officer role by a dispatcher");
                 });
 
-                DispatchSystem.officers.Remove(ofc);
+                // actually remove the officer from the list
+                DispatchSystem.Officers.Remove(ofc);
 
 #if DEBUG
                 Log.WriteLine($"[{sender.RemoteIP}] Removed the officer from the list of officers");
@@ -521,42 +476,32 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task AddBolo(ConnectedPeer sender, object[] args)
+        private async Task AddBolo(ConnectedPeer sender, string player, string bolo)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Add bolo Request Recieved");
-#else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Recieved");
-#endif
-
-            string player = (string)args[0];
-            string bolo = (string)args[1];
-
-#if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
 #else
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Recieved");
             Log.WriteLineSilent($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
 #endif
+
+            // adding bolo
             DispatchSystem.ActiveBolos.Add(new Bolo(player, string.Empty, bolo));
         }
-        private async Task RemoveBolo(ConnectedPeer sender, object[] args)
+        private async Task RemoveBolo(ConnectedPeer sender, int parse)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Remove bolo Request Recieved");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Remove bolo Request Recieved");
 #endif
 
-            int parse = (int)args[0];
-
             try
             {
+                // removing at the specified index
                 DispatchSystem.ActiveBolos.RemoveAt(parse);
 #if DEBUG
                 Log.WriteLine($"[{sender.RemoteIP}] Removed Active BOLO from the List");
@@ -564,6 +509,7 @@ namespace DispatchSystem.sv.External
                 Log.WriteLineSilent($"[{sender.RemoteIP}] Removed Active BOLO from the List");
 #endif
             }
+            // thrown when argument is out of range
             catch (ArgumentOutOfRangeException)
             {
 #if DEBUG
@@ -573,21 +519,16 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task AddNote(ConnectedPeer sender, object[] args)
+        private async Task AddNote(ConnectedPeer sender, Guid id, string note)
         {
             await Task.FromResult(0);
-            if (CheckAndDispose(sender))
-                return;
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Add Civilian note Request Recieved");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add Civilian note Request Recieved");
 #endif
 
-            string[] name = { (string)args[0], (string)args[1] };
-            string note = (string)args[2];
-
-            Civilian civ = Common.GetCivilianByName(name[0], name[1]);
+            Civilian civ = DispatchSystem.Civs.FirstOrDefault(x => x.Id == id); // finding the civ from the id
 
             if (civ != null)
             {
@@ -596,7 +537,7 @@ namespace DispatchSystem.sv.External
 #else
                 Log.WriteLineSilent($"[{sender.RemoteIP}] Adding the note \"{note}\" to Civilian {civ.First} {civ.Last}");
 #endif
-                civ.Notes.Add(note);
+                civ.Notes.Add(note); // adding the note for the civilian
             }
             else
 #if DEBUG
@@ -606,17 +547,26 @@ namespace DispatchSystem.sv.External
 #endif
         }
 
-        private bool CheckAndDispose(IBaseNet sender)
+        private static bool _(ConnectedPeer sender)
         {
-            switch (perms.DispatchPermission)
+            switch (Permissions.Get.DispatchPermission)
             {
-                case Permission.Specific:
-                    if (!perms.DispatchContains(IPAddress.Parse(sender.RemoteIP))) { Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true; }
+                case Permission.Specific: // checking for specific permissions
+                    if (!Permissions.Get.DispatchContains(IPAddress.Parse(sender.RemoteIP))) // checking if the ip is in the perms
+                    {
+                        Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); // log if not
+                        return true;
+                    }
                     break;
                 case Permission.None:
-                    Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); return true;
+                    Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS");
+                    return true; // automatically return not
+                case Permission.Everyone:
+                    break; // continue through
+                default:
+                    throw new ArgumentOutOfRangeException(); // throw because there is no other options
             }
-            return false;
+            return false; // return false by default
         }
     }
 }

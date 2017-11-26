@@ -65,7 +65,7 @@ namespace DispatchSystem.cl.Windows
             Invoke((MethodInvoker)delegate
             {
                 AddRemoveView view;
-                (view = new AddRemoveView(AddRemoveView.Type.AddNote, data.First, data.Last)).Show();
+                (view = new AddRemoveView(AddRemoveView.Type.AddNote, data.Id)).Show();
                 view.FormClosed += async delegate
                 {
                     await Resync(true);
@@ -87,12 +87,13 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstNameView.Text) || string.IsNullOrWhiteSpace(lastNameView.Text))
                 return;
 
-            Tuple<NetRequestResult, Civilian> result = await Program.Client.TryTriggerNetFunction<Civilian>("GetCivilian", data.First, data.Last);
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetCivilian"]
+                .Invoke<Civilian>(data.First, data.Last);
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    data = result.Item2;
+                    data = result;
                     UpdateCurrentInformation();
                 });
             }

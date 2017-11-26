@@ -51,12 +51,13 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plateView.Text))
                 return;
 
-            Tuple<NetRequestResult, CivilianVeh> result = await Program.Client.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", data.Plate);
-            if (result.Item2 != null)
+            CivilianVeh result = await Program.Client.Peer.RemoteCallbacks.Functions["GetCivilianVeh"]
+                .Invoke<CivilianVeh>(data.Plate);
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    data = result.Item2;
+                    data = result;
                     UpdateCurrentInformation();
                 });
             }

@@ -74,7 +74,7 @@ namespace DispatchSystem.cl.Windows
                 case Type.AddBolo:
                 {
                     if (!(string.IsNullOrWhiteSpace(line1.Text) || string.IsNullOrWhiteSpace(line2.Text)))
-                        await Program.Client.TryTriggerNetEvent("AddBolo", line2.Text, line1.Text);
+                        await Program.Client.Peer.RemoteCallbacks.Events["AddBolo"].Invoke(line2.Text, line1.Text);
                     line1.ResetText();
                     line2.ResetText();
                     break;
@@ -82,14 +82,15 @@ namespace DispatchSystem.cl.Windows
                 case Type.RemoveBolo:
                 {
                     if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
-                    await Program.Client.TryTriggerNetEvent("RemoveBolo", result);
+                    await Program.Client.Peer.RemoteCallbacks.Events["RemoveBolo"].Invoke(result);
                     line1.ResetText();
                     break;
                 }
                 case Type.AddNote:
                 {
                     if (!string.IsNullOrEmpty(line1.Text))
-                        await Program.Client.TryTriggerNetEvent("AddNote", arguments[0], arguments[1], line1.Text);
+                        await Program.Client.Peer.RemoteCallbacks.Events["AddNote"]
+                            .Invoke(arguments[0], line1.Text);
                     line1.ResetText();
                     break;
                 }
@@ -97,8 +98,9 @@ namespace DispatchSystem.cl.Windows
                 {
                     if (!string.IsNullOrEmpty(line1.Text))
                     {
-                        Tuple<NetRequestResult, Guid> result = await Program.Client.TryTriggerNetFunction<Guid>("CreateAssignment", line1.Text);
-                        LastGuid = result.Item2;
+                        Guid result = await Program.Client.Peer.RemoteCallbacks.Functions["CreateAssignment"]
+                            .Invoke<Guid>(line1.Text);
+                        LastGuid = result;
                     }
                     break;
                 }

@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataHolders\Database.cs" />
     <Compile Include="DataHolders\IOwnable.cs" />
     <Compile Include="DataHolders\IDataHolder.cs" />
     <Compile Include="DataHolders\Storage\Assignment.cs" />
@@ -50,9 +51,8 @@
     <Compile Include="DataHolders\Storage\CivilianVeh.cs" />
     <Compile Include="DataHolders\Storage\Officer.cs" />
     <Compile Include="DataHolders\Storage\StorageManager.cs" />
-    <Compile Include="DataHolders\StorageVariable.cs" />
     <Compile Include="DataHolders\Storage\Ticket.cs" />
-    <Compile Include="Functions.cs" />
+    <Compile Include="Permissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

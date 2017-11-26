@@ -8,8 +8,6 @@ using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
 
-using CloNET;
-
 namespace DispatchSystem.cl.Windows
 {
     public partial class DispatchMain : MaterialForm
@@ -32,21 +30,17 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(firstName.Text) || string.IsNullOrWhiteSpace(lastName.Text))
                 return;
 
-            Tuple<NetRequestResult, Civilian> result = await Program.Client.TryTriggerNetFunction<Civilian>("GetCivilian", firstName.Text, lastName.Text);
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetCivilian"]
+                .Invoke<Civilian>(firstName.Text, lastName.Text);
+            if (result != null)
             {
-                if (!(string.IsNullOrEmpty(result.Item2?.First) || string.IsNullOrEmpty(result.Item2?.Last))) // Checking if the civilian is empty bc for some reason == and .Equals are not working for this situation
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        new CivView(result.Item2).Show();
-                    });
-                }
-                else
-                    MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    new CivView(result).Show();
+                });
             }
             else
-                MessageBox.Show("Invalid request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("That name doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             firstName.ResetText();
             lastName.ResetText();
@@ -57,21 +51,17 @@ namespace DispatchSystem.cl.Windows
             if (string.IsNullOrWhiteSpace(plate.Text))
                 return;
 
-            Tuple<NetRequestResult, CivilianVeh> result = await Program.Client.TryTriggerNetFunction<CivilianVeh>("GetCivilianVeh", plate.Text);
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Functions["GetCivilianVeh"]
+                .Invoke<CivilianVeh>(plate.Text);
+            if (result != null)
             {
-                if (!(string.IsNullOrEmpty(result.Item2.Plate)))
+                Invoke((MethodInvoker)delegate
                 {
-                    Invoke((MethodInvoker)delegate
-                    {
-                        new CivVehView(result.Item2).Show();
-                    });
-                }
-                else
-                    MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    new CivVehView(result).Show();
+                });
             }
             else
-                MessageBox.Show("Invalid Request", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("That plate doesn't exist in the system!", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
             plate.ResetText();
         }
@@ -85,12 +75,12 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            Tuple<NetRequestResult, StorageManager<Bolo>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Bolo>>("GetBolos");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Bolos"].Get<StorageManager<Bolo>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    (boloWindow = new BoloView(result.Item2)).Show();
+                    (boloWindow = new BoloView(result)).Show();
                     boloWindow.FormClosed += delegate { boloWindow = null; };
                 });
             }
@@ -106,12 +96,12 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            Tuple<NetRequestResult, StorageManager<Officer>> result = await Program.Client.TryTriggerNetFunction<StorageManager<Officer>>("GetOfficers");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Officers"].Get<StorageManager<Officer>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    (officersWindow = new MultiOfficerView(result.Item2)).Show();
+                    (officersWindow = new MultiOfficerView(result)).Show();
                     officersWindow.FormClosed += delegate { officersWindow = null; };
                 });
             }
@@ -127,12 +117,13 @@ namespace DispatchSystem.cl.Windows
                 return;
             }
 
-            var result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Assignments"]
+                .Get<List<Assignment>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    (assignmentsWindow = new AssignmentsView(result.Item2)).Show();
+                    (assignmentsWindow = new AssignmentsView(result)).Show();
                     assignmentsWindow.FormClosed += delegate { assignmentsWindow = null; };
                 });
             }
@@ -145,7 +136,7 @@ namespace DispatchSystem.cl.Windows
             if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
                 e.Handled = true;
             if (char.IsLetter(e.KeyChar))
-                e.KeyChar = char.ToUpper(e.KeyChar);
+                e.KeyChar = firstName.Text.Length == 0 ? char.ToUpper(e.KeyChar) : char.ToLower(e.KeyChar);
         }
 
         private void OnLastNameKeyPress(object sender, KeyPressEventArgs e)
@@ -153,7 +144,8 @@ namespace DispatchSystem.cl.Windows
             if (!char.IsControl(e.KeyChar) && !char.IsLetter(e.KeyChar))
                 e.Handled = true;
             if (char.IsLetter(e.KeyChar))
-                e.KeyChar = char.ToUpper(e.KeyChar);
+                e.KeyChar = lastName.Text.Length == 0 ? char.ToUpper(e.KeyChar) : char.ToLower(e.KeyChar);
+                
         }
 
         private void OnPlateKeyPress(object sender, KeyPressEventArgs e)
