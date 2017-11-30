@@ -26,7 +26,7 @@ namespace DispatchSystem.sv
         /// </summary>
         /// <param name="p"></param>
         /// <param name="args"></param>
-        [Command(CommandType.Civilian, "/civ")]
+        [Command(CommandType.Civilian, "/dsciv")]
         public void CivilianNuiInit(Player p, string[] args)
         {
             TriggerClientEvent(p, "dispatchsystem:toggleCivNUI");
@@ -37,7 +37,7 @@ namespace DispatchSystem.sv
         /// </summary>
         /// <param name="p"></param>
         /// <param name="args"></param>
-        [Command(CommandType.Leo, "/leo")]
+        [Command(CommandType.Leo, "/dsleo")]
         public void LeoNuiInit(Player p, string[] args)
         {
             TriggerClientEvent(p, "dispatchsystem:toggleLeoNUI");
