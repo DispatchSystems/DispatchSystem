@@ -11,12 +11,12 @@ namespace DispatchSystem.cl
 {
     public class Config
     {
-        public static IPAddress IP { get; private set; }
+        public static IPAddress Ip { get; private set; }
         public static int Port { get; private set; }
 
-        public static void Create(string FilePath)
+        public static void Create(string filePath)
         {
-            string[] lines = File.ReadAllLines(FilePath);
+            string[] lines = File.ReadAllLines(filePath);
 
             foreach (string[] line in lines.Where(x => !x.StartsWith(";")).Select(x => x.Split('=').Select(y => y.Trim()).ToArray()))
                 switch (line[0])
@@ -24,27 +24,30 @@ namespace DispatchSystem.cl
                     case "IP":
                         if (line[1] == "changeme")
                         {
-                            MessageBox.Show("Looks like you forgot to change the config.\nPlease edit your config and then come back ༼ つ ◕_◕ ༽つ", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(
+                                "Looks like you forgot to change the config.\nPlease edit your config and then come back ༼ つ ◕_◕ ༽つ",
+                                "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             Environment.Exit(0);
                         }
 
                         if (!IPAddress.TryParse(line[1], out IPAddress address))
                         {
-                            MessageBox.Show("The ip address is invalid.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("The ip address is invalid.", "DispatchSystem", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error);
                             Environment.Exit(0);
                         }
 
-                        IP = address;
+                        Ip = address;
                         break;
-
                     case "Port":
-                        if (!int.TryParse(line[1], out int _Port) || _Port < 1024 || _Port > 65536)
+                        if (!int.TryParse(line[1], out int port) || port < 1024 || port > 65536)
                         {
-                            MessageBox.Show("The port is invalid.\nMake sure it is a positive integer within 1025-65535.", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("The port is invalid.\nMake sure it is a positive integer within 1025-65535.",
+                                "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             Environment.Exit(0);
                         }
 
-                        Port = _Port;
+                        Port = port;
                         break;
                 }
         }

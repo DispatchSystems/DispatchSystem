@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CloNET;
 using CloNET.Callbacks;
+using CloNET.LocalCallbacks;
 using DispatchSystem.Common.DataHolders.Storage;
 using MaterialSkin.Controls;
 
@@ -25,25 +27,25 @@ namespace DispatchSystem.cl.Windows.Emergency
 
             Text += $"{civ.First} {civ.Last}";
 
-            Program.Client.Events.Add(call.Id.ToString(), new NetEvent(Msg911));
-            Program.Client.Events.Add("end" + call.Id, new NetEvent(End911));
+            Program.Client.LocalCallbacks.Events.Add(call.Id.ToString(), new LocalEvent(new Func<ConnectedPeer, string, Task>(Msg911)));
+            Program.Client.LocalCallbacks.Events.Add("end" + call.Id, new LocalEvent(new Func<ConnectedPeer, Task>(End911)));
 
             Closed += async delegate
             {
-                await Program.Client.TryTriggerNetEvent("911End", call.Id);
+                await Program.Client.Peer.RemoteCallbacks.Events["911End"].Invoke(call.Id);
 
-                Program.Client.Events.Remove("end" + call.Id);
-                Program.Client.Events.Remove(call.Id.ToString());
+                Program.Client.LocalCallbacks.Events.Remove("end" + call.Id);
+                Program.Client.LocalCallbacks.Events.Remove(call.Id.ToString());
             };
         }
 
-        private async Task Msg911(ConnectedPeer peer, object[] data)
+        private async Task Msg911(ConnectedPeer peer, string incomingMsg)
         {
             await Task.FromResult(0);
 
             ListViewItem item = new ListViewItem(DateTime.Now.ToString("HH:mm:ss"));
             item.SubItems.Add($"{civ.First} {civ.Last}");
-            item.SubItems.Add((string)data[0]);
+            item.SubItems.Add(incomingMsg);
 
             Invoke((MethodInvoker)delegate
             {
@@ -51,7 +53,7 @@ namespace DispatchSystem.cl.Windows.Emergency
             });
         }
 
-        private async Task End911(ConnectedPeer peer, object[] data)
+        private async Task End911(ConnectedPeer peer)
         {
             await Task.FromResult(0);
 
@@ -68,25 +70,26 @@ namespace DispatchSystem.cl.Windows.Emergency
 
         private async void SendMsg(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(msgBox.Text))
+            if (string.IsNullOrWhiteSpace(msgBox.Text)) return;
+
+            await Program.Client.Peer.RemoteCallbacks.Events["911Msg"].Invoke(call.Id, msgBox.Text);
+
+            ListViewItem item = new ListViewItem(DateTime.Now.ToString("HH:mm:ss"));
+            item.SubItems.Add("You");
+            item.SubItems.Add(msgBox.Text);
+
+            Invoke((MethodInvoker) delegate
             {
-                await Program.Client.TryTriggerNetEvent("911Msg", call.Id, msgBox.Text);
-
-                ListViewItem item = new ListViewItem(DateTime.Now.ToString("HH:mm:ss"));
-                item.SubItems.Add("You");
-                item.SubItems.Add(msgBox.Text);
-
-                Invoke((MethodInvoker) delegate
-                {
-                    msgs.Items.Add(item);
-                    msgBox.Clear();
-                });
-            }
+                msgs.Items.Add(item);
+                msgBox.Clear();
+            });
         }
         private void SendMsg(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-                SendMsg(sender, (EventArgs)e);
+            if (e.KeyCode != Keys.Enter) return;
+
+            e.SuppressKeyPress = true;
+            SendMsg(sender, (EventArgs)e);
         }
     }
 }

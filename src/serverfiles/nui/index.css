@@ -4,7 +4,7 @@ button.option {
     background-color: #000000; 
     border: 1px solid #000000;
     color: white;
-    font-family: 'Roboto', sans-serif;
+    font-family: sans-serif;
     font-size: 16px;
     padding: 10px 24px; 
     margin: 8px 0px 8px 0px;
@@ -41,8 +41,79 @@ button.back:after {
     content: "<<";
 }
 
-div {
-    position: fixed; /* or absolute */
+.menu {
+    position: fixed;
     top: 50%;
     left: 30%;
+    display: none;
+}
+
+#civinfo, #ofcinfo {
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 50%;
+    left: 45%;
+    background: #000000;
+    width: 672px;
+    height: 324px;
+    display: none;
+    font-family: 'Lato', sans-serif;
+    color: white;
+    border-radius: 10px;
+}
+#ofcinfo {
+    width: 384px;
+    height: 432px;
+}
+
+p {
+    float: center;
+    text-align: center;
+    display: inherit;
+    padding: 5px 15px;
+    margin: 0;
+    background: #bbbbbb;
+    color: black;
+    border-radius: 25px;
+    font-size: 16px;
+}
+
+.wrapper {
+    display: flex !important;
+    height: inherit;
+}
+.wrapper > div {
+    display: block !important;
+    padding: 20px 0;
+    width: 100%;
+}
+#civinfo .wrapper > div {
+    width: 50%;
+}
+.wrapper > div > span {
+    display: flex;
+}
+span {
+    margin: 15px 0;
+    margin-right: 5px;
+}
+h1 {
+    display: block;
+    text-align: center;
+    margin: 0;
+    margin-top: 10px;
+}
+h2 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 400;
+}
+h3 {
+    margin: 0;
+    margin-right: 5px;
+    margin-left: 10px;
+
+    font-weight: 400;
+    font-size: 18px;
 }

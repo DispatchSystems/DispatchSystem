@@ -3,11 +3,12 @@ using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+
 using DispatchSystem.cl.Windows;
+using DispatchSystem.cl.Windows.Emergency;
 
 using CloNET;
-using CloNET.Callbacks;
-using DispatchSystem.cl.Windows.Emergency;
+using CloNET.LocalCallbacks;
 using DispatchSystem.Common.DataHolders.Storage;
 
 namespace DispatchSystem.cl
@@ -30,89 +31,105 @@ namespace DispatchSystem.cl
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            Run();
+        }
+
+        private static async void Run()
+        {
             using (Client = new Client())
             {
                 Client.Encryption = new EncryptionOptions
                 {
-                    Encrypt = false,
+                    Encrypt = true,
+                    Overridable = true
+                };
+                Client.Compression = new CompressionOptions
+                {
+                    Compress = false,
                     Overridable = true
                 };
 
+                Client.LocalCallbacks.Events.Add("911alert", new LocalEvent(new Func<ConnectedPeer, Civilian, EmergencyCall, Task>(Alert911)));
 
-                new Action(async () =>
+                if (!Client.Connect(Config.Ip.ToString(), Config.Port).Result)
                 {
-                    try { await Client.Connect(Config.IP.ToString(), Config.Port); }
-                    catch (SocketException) { MessageBox.Show("Connection refused or failed!\nPlease contact the owner of your server", "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error); Environment.Exit(-1); }
-                })();
+                    MessageBox.Show("Connection refused or failed!\nPlease contact the owner of your server",
+                        "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(-1);
+                }
 
-                Client.Events.Add("911alert", new NetEvent(async (peer, objects) =>
+                if (Client.Peer != null) // If no perms, peer will be null
                 {
-                    await Task.FromResult(0);
-
-                    mainWindow.Invoke((MethodInvoker) delegate
+                    new Thread(async delegate ()
                     {
-                        new Accept911((Civilian) objects[0], (EmergencyCall) objects[1]).Show();
-                    });
-                }));
-
-                Client.Connected += delegate
-                {
-                    new Thread((ThreadStart)async delegate
+                        while (true)
                         {
-                            while (true)
+                            Thread.Sleep(100);
+                            if (Client.IsConnected) continue;
+                            if (mainWindow == null) continue;
+
+                            bool[] executing = { true };
+                            new Thread(() =>
                             {
-                                Thread.Sleep(100);
-                                if (Client.IsConnected) continue;
-                                if (mainWindow == null) continue;
-
-                                bool executing = true;
-                                new Thread(() =>
-                                    {
-                                        mainWindow.Invoke((MethodInvoker)delegate
-                                        {
-                                            while (executing)
-                                            {
-                                                Thread.Sleep(50);
-                                            }
-                                        });
-                                    })
-                                    { Name = "WindowFreezeThread" }.Start();
-
-                                for (int i = 0; i < RECONNECT_COUNT; i++)
+                                mainWindow.Invoke((MethodInvoker)delegate
                                 {
-                                    try
+                                    while (executing[0])
                                     {
-                                        await Client.Disconnect();
-                                        await Client.Connect(Config.IP.ToString(), Config.Port);
+                                        Thread.Sleep(50);
                                     }
-                                    catch (SocketException)
-                                    {
-                                    }
+                                });
+                            })
+                            { Name = "WindowFreezeThread" }.Start();
 
-                                    Thread.Sleep(1000);
-                                    if (Client.IsConnected) break;
+                            for (int i = 0; i < RECONNECT_COUNT; i++)
+                            {
+                                try
+                                {
+                                    await Client.Disconnect();
+                                    Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
+                                }
+                                catch (SocketException)
+                                {
                                 }
 
-                                if (Client.IsConnected)
-                                {
-                                    executing = false;
-                                }
-                                else
-                                {
-                                    MessageBox.Show($"Failed to connect to the server after {RECONNECT_COUNT} attempts", "DispatchSystem",
-                                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    Environment.Exit(-1);
-                                }
+                                Thread.Sleep(1000);
+                                if (Client.IsConnected) break;
                             }
-                        })
-                        { Name = "ConnectionDetection" }.Start();
-                };
 
-                Application.Run(mainWindow = new DispatchMain());
+                            if (Client.IsConnected)
+                            {
+                                executing[0] = false;
+                            }
+                            else
+                            {
+                                MessageBox.Show($"Failed to connect to the server after {RECONNECT_COUNT} attempts",
+                                    "DispatchSystem",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                Environment.Exit(-1);
+                            }
+                        }
+                    })
+                    { Name = "ConnectionDetection" }.Start();
 
-                new Action(async delegate { await Client.Disconnect(); })();
+                    Application.Run(mainWindow = new DispatchMain());
+                    await Client.Disconnect();
+                }
+                else
+                    MessageBox.Show("You seem to have invalid permissions with the server", "DispatchSystem",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                Environment.Exit(0);
             }
-            Environment.Exit(0);
+        }
+
+        private static async Task Alert911(ConnectedPeer peer, Civilian civ, EmergencyCall call)
+        {
+            await Task.FromResult(0);
+
+            mainWindow.Invoke((MethodInvoker)delegate
+            {
+                new Accept911(civ, call).Show();
+            });
         }
     }
 }

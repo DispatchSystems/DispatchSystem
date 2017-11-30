@@ -36,8 +36,7 @@
       <HintPath>..\..\ref\cfx_server\CitizenFX.Core.dll</HintPath>
     </Reference>
     <Reference Include="CloNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CloneCommando.CloNET.0.4.2\lib\net461\CloNET.dll</HintPath>
+      <HintPath>..\packages\CloneCommando.CloNET.0.5.4\lib\net461\CloNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -58,9 +57,7 @@
     <Compile Include="DispatchSystem\Init.cs" />
     <Compile Include="DispatchSystem\Items.cs" />
     <Compile Include="Commands.cs" />
-    <Compile Include="External\Database.cs" />
     <Compile Include="External\Log.cs" />
-    <Compile Include="External\Permissions.cs" />
     <Compile Include="External\Config.cs" />
     <Compile Include="DispatchSystem\Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

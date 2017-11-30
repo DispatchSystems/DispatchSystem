@@ -9,8 +9,6 @@ using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
 
-using CloNET;
-
 namespace DispatchSystem.cl.Windows
 {
     public partial class AssignmentsView : MaterialForm, ISyncable
@@ -51,12 +49,13 @@ namespace DispatchSystem.cl.Windows
             LastSyncTime = DateTime.Now;
             IsCurrentlySyncing = true;
 
-            Tuple<NetRequestResult, IEnumerable<Assignment>> result = await Program.Client.TryTriggerNetFunction<IEnumerable<Assignment>>("GetAssignments");
-            if (result.Item2 != null)
+            var result = await Program.Client.Peer.RemoteCallbacks.Properties["Assignments"]
+                .Get<List<Assignment>>();
+            if (result != null)
             {
                 Invoke((MethodInvoker)delegate
                 {
-                    assignments = result.Item2;
+                    assignments = result;
                     UpdateCurrentInformation();
                 });
             }
@@ -96,12 +95,10 @@ namespace DispatchSystem.cl.Windows
 
         private void OnAssignmentsClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            if (e.Button != MouseButtons.Right) return;
+            if (theAssignments.FocusedItem.Bounds.Contains(e.Location))
             {
-                if (theAssignments.FocusedItem.Bounds.Contains(e.Location))
-                {
-                    rightClickMenu.Show(Cursor.Position);
-                }
+                rightClickMenu.Show(Cursor.Position);
             }
         }
 
@@ -110,7 +107,7 @@ namespace DispatchSystem.cl.Windows
             int index = theAssignments.Items.IndexOf(theAssignments.FocusedItem);
             Assignment assignment = assignments.ToList()[index];
 
-            await Program.Client.TryTriggerNetEvent("RemoveAssignment", assignment.Id);
+            await Program.Client.Peer.RemoteCallbacks.Events["RemoveAssignment"].Invoke(assignment.Id);
 
             await Resync(true);
         }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using CitizenFX.Core.Native;
 using System.IO;
 
@@ -31,7 +30,7 @@ using System.IO;
     HOW TO USE ---------------------------------------------------------------------------------
     1. ADD THIS CS FILE TO YOUR CLIENT SCRIPT
     2. ADD A REFERENCE TO THIS SCRIPT LIKE SO: using Config.Reader;
-    3. CREATE INSTANCE LIKE SO: iniconfig config = new iniconfig("resourceName","file");
+    3. CREATE INSTANCE LIKE SO: ServerConfig config = new ServerConfig("resourceName","file");
     4. ACCESS INI VALUES USING GET VALUE FUNCTIONS E.G. config.GetStringValue;
     
     NOTES --------------------------------------------------------------------------------------
@@ -50,23 +49,22 @@ using System.IO;
 
 */ // INFORMATION ABOUT THIS SCRIPT CAN BE FOUND BY EXPANDING THIS COMMENT...
 
-#pragma warning disable IDE1006 // Name rule violation
-
 namespace Config
 {
     namespace Reader
     {
         #region INI CONFIG
-        public class iniconfig
+        [Serializable]
+        public class ServerConfig
         {
-            public iniconfig(string resourceName, string file)
+            public ServerConfig(string resourceName, string file)
             {
                 // CALLS THE INI READER / PARSER TO MOVE INI DATA INTO A DICTIONARY
                 Read(resourceName, file);
             }
 
             // DICTIONARY TO HOLD THE INI DATA
-            private Dictionary<string, string> dict = new Dictionary<string, string>();
+            private readonly Dictionary<string, string> dict = new Dictionary<string, string>();
 
             // READS A RESOURCE FILE AND "CONVERTS" THE INI DATA INTO A DICTIONARY: DICT<"[SECTION]KEY","VALUE">
             #region INI PARSER
@@ -77,71 +75,65 @@ namespace Config
                 string data = Function.Call<string>(Hash.LOAD_RESOURCE_FILE, resourceName, file);
 
                 // ENSURE THE RESOURCE FILE IS FOUND AND NOT EMPTY
-                if (data != null && data != "")
+                if (string.IsNullOrEmpty(data)) return;
+
+                // READS LOADED RESOURCE FILE
+                using (StringReader reader = new StringReader(data))
                 {
-                    // READS LOADED RESOURCE FILE
-                    using (StringReader reader = new StringReader(data))
+                    string line, section = ""; // TEMP STORAGE FOR CURRENT LINE BEING READ AND SECTION FOUND
+                    while ((line = reader.ReadLine()) != null) // LOOP THROUGH INI UNTILL THE END (NULL)
                     {
-                        string line = null, section = ""; // TEMP STORAGE FOR CURRENT LINE BEING READ AND SECTION FOUND
-                        while ((line = reader.ReadLine()) != null) // LOOP THROUGH INI UNTILL THE END (NULL)
+                        // ENSURES LINE IS CLEANED UP AND IS NOT A COMMENT OR IS EMPTY
+                        #region LINE SETUP, COMMENT CHECKER AND EMPTY LINE CHECKER
+                        line = line.Trim(); // REMOVE EMPTY SPACE AROUND THE CURRENT LINE
+                        if (line.Length == 0) continue;  // LINE IS EMPTY SO SKIP IT
+                        if (!string.IsNullOrEmpty(";") && line.StartsWith(";")) continue; // LINE IS A COMMENT AS IT CONTAINS ";" SO IGNORE IT
+                        #endregion
+
+                        // CHECKS FOR CURRENT SECTION AND STORES IT IN THE TEMP SECTION STRING FOR LATER STORAGE
+                        #region SECTION CHECKER
+                        // CHECK IF THE LINE CONTAINS A [SECTION]
+                        if (line.StartsWith("[") && line.Contains("]"))  // [SECTION] FOUND!
                         {
-                            // ENSURES LINE IS CLEANED UP AND IS NOT A COMMENT OR IS EMPTY
-                            #region LINE SETUP, COMMENT CHECKER AND EMPTY LINE CHECKER
-                            line = line.Trim(); // REMOVE EMPTY SPACE AROUND THE CURRENT LINE
-                            if (line.Length == 0) continue;  // LINE IS EMPTY SO SKIP IT
-                            if (!string.IsNullOrEmpty(";") && line.StartsWith(";")) continue; // LINE IS A COMMENT AS IT CONTAINS ";" SO IGNORE IT
-                            #endregion
+                            section = line.Substring(1, line.IndexOf(']') - 1).Trim(); // STORE SECTION IN THE TEMP STRING
+                            continue; // SKIP TO NEXT LINE NOW THE SECTION HAS BEEN SAVED
+                        }
+                        #endregion
 
-                            // CHECKS FOR CURRENT SECTION AND STORES IT IN THE TEMP SECTION STRING FOR LATER STORAGE
-                            #region SECTION CHECKER
-                            // CHECK IF THE LINE CONTAINS A [SECTION]
-                            if (line.StartsWith("[") && line.Contains("]"))  // [SECTION] FOUND!
+                        // CHECK IF THE LINE CONTAINS A KEY & A VALUE
+                        if (!line.Contains("=")) continue;
+
+                        string key = line.Substring(0, line.IndexOf('=')).Trim(); // GET KEY BY GETTING ALL OF THE STRING BEFORE THE EQUALS SIGN THEN REMOVE SPACES
+                        string value = line.Substring(line.IndexOf('=') + 1).Trim(); // GET THE VALUE FROM EVERYTHING AFTER THE EQUALS SIGN THEN REMOVE SPACES
+                        string sectionKey = $"[{section}]{key}".ToLower(); // FORMAT INTO A COMPACT FORM WHERE THE SECTION AND KEY ARE HELD IN THE SAME CONTAINER
+
+                        // SINCE A KEY AND A VALUE HAVE BEEN FOUND STORE THEM IN A DICTIONARY
+                        #region DATA STORAGE AND INDEXING
+
+                        // CHECK INI DATA DOESENT ALREADY EXSIST
+                        if (dict.ContainsKey(sectionKey))
+                        {
+                            // DICTIONARY ALREADY CONTAINS THE SAME SECTION AND KEY SO MODIFY IT TO HAVE AN INDEX ADDED TO IT:
+                            // E.G. [section]key-1
+                            int index = 1;
+
+                            // LOOP UNTIL A CORRECT NAME FOR THE DATA HAS BEEN FOUND
+                            while (true)
                             {
-                                section = line.Substring(1, line.IndexOf(']') - 1).Trim(); // STORE SECTION IN THE TEMP STRING
-                                continue; // SKIP TO NEXT LINE NOW THE SECTION HAS BEEN SAVED
-                            }
-                            #endregion
-
-                            // CHECK IF THE LINE CONTAINS A KEY & A VALUE
-                            if (line.Contains("="))  // KEY=VALUE
-                            {
-                                string key = line.Substring(0, line.IndexOf('=')).Trim(); // GET KEY BY GETTING ALL OF THE STRING BEFORE THE EQUALS SIGN THEN REMOVE SPACES
-                                string value = line.Substring(line.IndexOf('=') + 1).Trim(); // GET THE VALUE FROM EVERYTHING AFTER THE EQUALS SIGN THEN REMOVE SPACES
-                                string sectionKey = string.Format("[{0}]{1}", section, key).ToLower(); // FORMAT INTO A COMPACT FORM WHERE THE SECTION AND KEY ARE HELD IN THE SAME CONTAINER
-
-                                // SINCE A KEY AND A VALUE HAVE BEEN FOUND STORE THEM IN A DICTIONARY
-                                #region DATA STORAGE AND INDEXING
-
-                                // CHECK INI DATA DOESENT ALREADY EXSIST
-                                if (dict.ContainsKey(sectionKey))
-                                {
-                                    // DICTIONARY ALREADY CONTAINS THE SAME SECTION AND KEY SO MODIFY IT TO HAVE AN INDEX ADDED TO IT:
-                                    // E.G. [section]key-1
-                                    int index = 1;
-                                    string sectionKey2;
-
-                                    // LOOP UNTIL A CORRECT NAME FOR THE DATA HAS BEEN FOUND
-                                    while (true)
-                                    {
-                                        sectionKey2 = string.Format("{0}-{1}", sectionKey, ++index); // ON EACH LOOP ADD ONE TO THE INDEX TO FIND A NEW NAME
-                                        if (!dict.ContainsKey(sectionKey2))
-                                        {
-                                            // ADD DATA TO DICTIONARY THEN EXIT OUT OF THE LOOP
-                                            dict.Add(sectionKey2, value);
-                                            break;
-                                        }
-                                    }
-                                }
-                                else // STORE INI DATA IN DICTIONARY SINCE IT DOES NOT ALREADT EXSIST
-                                {
-                                    dict.Add(sectionKey, value);
-                                }
-                                #endregion
+                                var sectionKey2 = $"{sectionKey}-{++index}";
+                                if (dict.ContainsKey(sectionKey2)) continue;
+                                // ADD DATA TO DICTIONARY THEN EXIT OUT OF THE LOOP
+                                dict.Add(sectionKey2, value);
+                                break;
                             }
                         }
+                        else // STORE INI DATA IN DICTIONARY SINCE IT DOES NOT ALREADT EXSIST
+                        {
+                            dict.Add(sectionKey, value);
+                        }
+                        #endregion
                     }
                 }
-
             }
             #endregion
 
@@ -158,11 +150,7 @@ namespace Config
             /// <returns></returns>
             public string GetStringValue(string section, string key, string fallBack)
             {
-                if (dict.ContainsKey("[" + section + "]" + key))
-                {
-                    return dict["[" + section + "]" + key];
-                }
-                return fallBack;
+                return dict.ContainsKey("[" + section + "]" + key) ? dict["[" + section + "]" + key] : fallBack;
             }
 
             /// <summary>
@@ -175,17 +163,9 @@ namespace Config
             /// <returns></returns>
             public double GetDoubleValue(string section, string key, double fallBack)
             {
-                if (dict.ContainsKey("[" + section + "]" + key))
-                {
-                    // TRYS TO CONVERT A STRING TO AN INT
-                    if (double.TryParse(dict["[" + section + "]" + key], out double result))
-                    {
-                        // STRING CONVERSION SUCCEEDED
-                        return result;
-                    }
-                    else { return fallBack; } // CONVERSION FAILED: RETURN FALLBACK
-                }
-                return fallBack;
+                if (!dict.ContainsKey("[" + section + "]" + key)) return fallBack;
+                // TRYS TO CONVERT A STRING TO AN INT
+                return double.TryParse(dict["[" + section + "]" + key], out double result) ? result : fallBack;
             }
 
             /// <summary>
@@ -198,17 +178,9 @@ namespace Config
             /// <returns></returns>
             public float GetFloatValue(string section, string key, float fallBack)
             {
-                if (dict.ContainsKey("[" + section + "]" + key))
-                {
-                    // TRYS TO CONVERT A STRING TO A FLOAT
-                    if (float.TryParse(dict["[" + section + "]" + key], out float result))
-                    {
-                        // STRING CONVERSION SUCCEEDED
-                        return result;
-                    }
-                    else { return fallBack; } // CONVERSION FAILED: RETURN FALLBACK
-                }
-                return fallBack;
+                if (!dict.ContainsKey("[" + section + "]" + key)) return fallBack;
+                // TRYS TO CONVERT A STRING TO A FLOAT
+                return float.TryParse(dict["[" + section + "]" + key], out float result) ? result : fallBack;
             }
 
             /// <summary>
@@ -221,17 +193,9 @@ namespace Config
             /// <returns></returns>
             public int GetIntValue(string section, string key, int fallBack)
             {
-                if (dict.ContainsKey("[" + section + "]" + key))
-                {
-                    // TRYS TO CONVERT A STRING TO AN INT
-                    if (int.TryParse(dict["[" + section + "]" + key], out int result))
-                    {
-                        // STRING CONVERSION SUCCEEDED
-                        return result;
-                    }
-                    else { return fallBack; } // CONVERSION FAILED: RETURN FALLBACK
-                }
-                return fallBack;
+                if (!dict.ContainsKey("[" + section + "]" + key)) return fallBack;
+                // TRYS TO CONVERT A STRING TO AN INT
+                return int.TryParse(dict["[" + section + "]" + key], out int result) ? result : fallBack;
             }
 
             #endregion
