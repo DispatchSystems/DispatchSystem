@@ -8,6 +8,7 @@ These errors have not occured with anyone, but I just want to make sure that the
 
 * Both project file say that there are missing dependencies/references
   1. Just add both of the references back to the right project, the references can be found in the `ref` folder in the clone
+  2. Sometimes the NuGet packages are weird and don't follow the clone, so just download the package CloNET & MaterialSkin again.
 > TODO: More to add once more errors popup
 
 ## Build location
