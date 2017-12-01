@@ -58,70 +58,77 @@ namespace DispatchSystem.cl
                     Environment.Exit(-1);
                 }
 
-                if (Client.Peer != null) // If no perms, peer will be null
+                #region Connection Detection Thread
+                var cd = new Thread(delegate ()
                 {
-                    #region Connection Detection Thread
-
-                    var cd = new Thread(delegate()
+                    while (true)
                     {
-                        while (true)
+                        Thread.Sleep(100);
+                        if (Client.IsConnected) continue;
+                        if (mainWindow == null) continue;
+
+                        bool[] executing = { true };
+                        new Thread(() =>
                         {
-                            Thread.Sleep(100);
-                            if (Client.IsConnected) continue;
-                            if (mainWindow == null) continue;
-
-                            bool[] executing = { true };
-                            new Thread(() =>
+                            mainWindow.Invoke((MethodInvoker)delegate
                             {
-                                mainWindow.Invoke((MethodInvoker)delegate
-                                {
-                                    while (executing[0])
-                                        Thread.Sleep(50);
-                                });
-                            })
-                            { Name = "WindowFreezeThread" }.Start();
+                                while (executing[0])
+                                    Thread.Sleep(50);
+                            });
+                        })
+                        { Name = "WindowFreezeThread" }.Start();
 
-                            for (var i = 0; i < RECONNECT_COUNT; i++)
+                        for (var i = 0; i < RECONNECT_COUNT; i++)
+                        {
+                            try
                             {
-                                try
-                                {
-                                    Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
-                                }
-                                catch (SocketException)
-                                {
-                                }
-
-                                Thread.Sleep(2000);
-                                if (Client.IsConnected) break;
+                                Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
+                            }
+                            catch (SocketException)
+                            {
                             }
 
-                            if (Client.IsConnected)
-                            {
-                                executing[0] = false;
-                            }
-                            else
-                            {
-                                MessageBox.Show($"Failed to connect to the server after {RECONNECT_COUNT} attempts",
-                                    "DispatchSystem",
-                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                Environment.Exit(-1);
-                            }
+                            Thread.Sleep(2000);
+                            if (Client.IsConnected) break;
                         }
+
+                        if (Client.IsConnected)
+                        {
+                            executing[0] = false;
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Failed to connect to the server after {RECONNECT_COUNT} attempts",
+                                "DispatchSystem",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Environment.Exit(-1);
+                        }
+                    }
+                })
+                { Name = "ConnectionDetection" };
+                cd.Start();
+                #endregion
+                #region Initial Connection Detection Thread
+                // checking for no perms
+                // server still drops the client from connecting anyway
+                // it will just disable the message
+                new Thread(delegate()
+                    {
+                        Thread.Sleep(300);
+
+                        if (Client.IsConnected) return;
+
+                        cd.Abort();
+                        MessageBox.Show("You seem to have invalid permissions with the server", "DispatchSystem",
+                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        Environment.Exit(-13);
                     })
-                    {Name = "ConnectionDetection"};
+                    {Name = "InitConnectionDetection"}.Start();
+                #endregion
 
-                    cd.Start();
-                    #endregion
-
-                    Application.Run(mainWindow = new DispatchMain());
-                    cd.Abort();
-                    await Client.Disconnect();
-                }
-                else
-                {
-                    MessageBox.Show("You seem to have invalid permissions with the server", "DispatchSystem",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
+                Application.Run(mainWindow = new DispatchMain());
+                cd.Abort();
+                await Client.Disconnect();
 
                 Environment.Exit(0);
             }
