@@ -8,7 +8,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
     {
         public EmergencyCall(string ip, string playerName)
         {
-            Id = Guid.NewGuid();
+            Id = BareGuid.NewBareGuid();
             SourceIP = ip;
             Creation = DateTime.Now;
             PlayerName = playerName;
@@ -19,6 +19,6 @@ namespace DispatchSystem.Common.DataHolders.Storage
 
         public string SourceIP { get; }
         public DateTime Creation { get; }
-        public Guid Id { get; }
+        public BareGuid Id { get; }
     }
 }

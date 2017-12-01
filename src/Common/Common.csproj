@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BareGuid.cs" />
     <Compile Include="DataHolders\Database.cs" />
     <Compile Include="DataHolders\IOwnable.cs" />
     <Compile Include="DataHolders\IDataHolder.cs" />

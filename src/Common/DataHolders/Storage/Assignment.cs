@@ -9,7 +9,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
     [Serializable]
     public class Assignment : IDataHolder
     {
-        public Guid Id { get; }
+        public BareGuid Id { get; }
         public string Summary { get; }
         public DateTime Creation { get; }
 
@@ -17,7 +17,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
         {
             Summary = summary;
             Creation = DateTime.Now;
-            Id = Guid.NewGuid();
+            Id = BareGuid.NewBareGuid();
         }
         private Assignment() : this(string.Empty) { }
 

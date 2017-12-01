@@ -13,7 +13,7 @@ using DispatchSystem.Common.DataHolders.Storage;
 
 namespace DispatchSystem.cl
 {
-    static class Program
+    internal static class Program
     {
         internal static Client Client;
         private static DispatchMain mainWindow;
@@ -60,7 +60,9 @@ namespace DispatchSystem.cl
 
                 if (Client.Peer != null) // If no perms, peer will be null
                 {
-                    new Thread(async delegate ()
+                    #region Connection Detection Thread
+
+                    var cd = new Thread(delegate()
                     {
                         while (true)
                         {
@@ -74,25 +76,22 @@ namespace DispatchSystem.cl
                                 mainWindow.Invoke((MethodInvoker)delegate
                                 {
                                     while (executing[0])
-                                    {
                                         Thread.Sleep(50);
-                                    }
                                 });
                             })
                             { Name = "WindowFreezeThread" }.Start();
 
-                            for (int i = 0; i < RECONNECT_COUNT; i++)
+                            for (var i = 0; i < RECONNECT_COUNT; i++)
                             {
                                 try
                                 {
-                                    await Client.Disconnect();
                                     Client.Connect(Config.Ip.ToString(), Config.Port).Wait();
                                 }
                                 catch (SocketException)
                                 {
                                 }
 
-                                Thread.Sleep(1000);
+                                Thread.Sleep(2000);
                                 if (Client.IsConnected) break;
                             }
 
@@ -109,14 +108,20 @@ namespace DispatchSystem.cl
                             }
                         }
                     })
-                    { Name = "ConnectionDetection" }.Start();
+                    {Name = "ConnectionDetection"};
+
+                    cd.Start();
+                    #endregion
 
                     Application.Run(mainWindow = new DispatchMain());
+                    cd.Abort();
                     await Client.Disconnect();
                 }
                 else
+                {
                     MessageBox.Show("You seem to have invalid permissions with the server", "DispatchSystem",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
 
                 Environment.Exit(0);
             }

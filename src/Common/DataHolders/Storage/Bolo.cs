@@ -17,7 +17,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
         public string Player => _player;
         public string Reason => _reason;
         public DateTime Creation => _creation;
-        public Guid Id { get; }
+        public BareGuid Id { get; }
 
         public Bolo(string playerName, string createrIp, string reason)
         {
@@ -25,7 +25,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
             SourceIP = string.IsNullOrWhiteSpace(createrIp) ? string.Empty : createrIp;
             _reason = reason;
             _creation = DateTime.Now;
-            Id = Guid.NewGuid();
+            Id = BareGuid.NewBareGuid();
         }
 
         public object[] ToObjectArray()

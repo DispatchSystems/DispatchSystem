@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 
 using CloNET;
-
+using DispatchSystem.Common;
 using MaterialSkin.Controls;
 
 namespace DispatchSystem.cl.Windows
@@ -19,7 +19,7 @@ namespace DispatchSystem.cl.Windows
         }
 
         public Type FormType { get; }
-        public Guid LastGuid { get; protected set; }
+        public BareGuid LastGuid { get; protected set; }
         public bool OperationDone { get; private set; }
         private readonly object[] arguments;
 
@@ -98,8 +98,8 @@ namespace DispatchSystem.cl.Windows
                 {
                     if (!string.IsNullOrEmpty(line1.Text))
                     {
-                        Guid result = await Program.Client.Peer.RemoteCallbacks.Functions["CreateAssignment"]
-                            .Invoke<Guid>(line1.Text);
+                        BareGuid result = await Program.Client.Peer.RemoteCallbacks.Functions["CreateAssignment"]
+                            .Invoke<BareGuid>(line1.Text);
                         LastGuid = result;
                     }
                     break;

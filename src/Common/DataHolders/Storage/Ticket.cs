@@ -14,7 +14,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
         public float Amount { get; }
 
         public DateTime Creation { get; }
-        public Guid Id { get; }
+        public BareGuid Id { get; }
 
         public Ticket(string reason, float amount)
         {
@@ -22,7 +22,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
             Amount = amount;
 
             Creation = DateTime.Now;
-            Id = Guid.NewGuid();
+            Id = BareGuid.NewBareGuid();
         }
     }
 }

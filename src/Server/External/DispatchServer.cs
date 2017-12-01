@@ -30,7 +30,7 @@ namespace DispatchSystem.sv.External
         public ConnectedPeer[] ConnectedDispatchers => server.ConnectedPeers.ToArray();
 
         // 911calls items, for keeping track of dispatchers connected to which 911 call
-        internal Dictionary<Guid, string> Calls;
+        internal Dictionary<BareGuid, string> Calls;
 
         /// <summary>
         /// Initializes the <see cref="DispatchSystem"/> class from a config
@@ -38,7 +38,7 @@ namespace DispatchSystem.sv.External
         /// <param name="cfg"></param>
         internal DispatchServer(ServerConfig cfg)
         {
-            Calls = new Dictionary<Guid, string>(); // creating the calls item
+            Calls = new Dictionary<BareGuid, string>(); // creating the calls item
             ip = cfg.GetStringValue("server", "ip", "0.0.0.0"); // setting the ip
             Log.WriteLine("Setting ip to " + ip);
             port = cfg.GetIntValue("server", "port", 33333); // setting the port
@@ -87,10 +87,10 @@ namespace DispatchSystem.sv.External
             {
                 {"GetCivilian", new LocalFunction(new Func<ConnectedPeer, string, string, Civilian>(GetCivilian))},
                 {"GetCivilianVeh", new LocalFunction(new Func<ConnectedPeer, string, CivilianVeh>(GetCivilianVeh))},
-                {"GetOfficer", new LocalFunction(new Func<ConnectedPeer, Guid, Officer>(GetOfficer))},
-                {"CreateAssignment", new LocalFunction(new Func<ConnectedPeer, string, Guid>(NewAssignment))},
-                {"GetOfficerAssignment", new LocalFunction(new Func<ConnectedPeer, Guid, Assignment>(GetOfcAssignment))},
-                {"Accept911", new LocalFunction(new Func<ConnectedPeer, Guid, bool>(AcceptEmergency))}
+                {"GetOfficer", new LocalFunction(new Func<ConnectedPeer, BareGuid, Officer>(GetOfficer))},
+                {"CreateAssignment", new LocalFunction(new Func<ConnectedPeer, string, BareGuid>(NewAssignment))},
+                {"GetOfficerAssignment", new LocalFunction(new Func<ConnectedPeer, BareGuid, Assignment>(GetOfcAssignment))},
+                {"Accept911", new LocalFunction(new Func<ConnectedPeer, BareGuid, bool>(AcceptEmergency))}
             };
             // properties that only have a return, and no set
             server.LocalCallbacks.Properties = new MemberDictionary<string, LocalProperty>
@@ -102,16 +102,16 @@ namespace DispatchSystem.sv.External
             // events that have params but no return
             server.LocalCallbacks.Events = new MemberDictionary<string, LocalEvent>
             {
-                {"911End", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(EndEmergency))},
-                {"911Msg", new LocalEvent(new Func<ConnectedPeer, Guid, string, Task>(MessageEmergency))},
-                {"AddOfficerAssignment", new LocalEvent(new Func<ConnectedPeer, Guid, Guid, Task>(AddOfcAssignment))},
-                {"RemoveAssignment", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(RemoveAssignment))},
-                {"RemoveOfficerAssignment", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(RemoveOfcAssignment))},
-                {"SetStatus", new LocalEvent(new Func<ConnectedPeer, Guid, OfficerStatus, Task>(ChangeOfficerStatus))},
-                {"RemoveOfficer", new LocalEvent(new Func<ConnectedPeer, Guid, Task>(RemoveOfficer))},
+                {"911End", new LocalEvent(new Func<ConnectedPeer, BareGuid, Task>(EndEmergency))},
+                {"911Msg", new LocalEvent(new Func<ConnectedPeer, BareGuid, string, Task>(MessageEmergency))},
+                {"AddOfficerAssignment", new LocalEvent(new Func<ConnectedPeer, BareGuid, BareGuid, Task>(AddOfcAssignment))},
+                {"RemoveAssignment", new LocalEvent(new Func<ConnectedPeer, BareGuid, Task>(RemoveAssignment))},
+                {"RemoveOfficerAssignment", new LocalEvent(new Func<ConnectedPeer, BareGuid, Task>(RemoveOfcAssignment))},
+                {"SetStatus", new LocalEvent(new Func<ConnectedPeer, BareGuid, OfficerStatus, Task>(ChangeOfficerStatus))},
+                {"RemoveOfficer", new LocalEvent(new Func<ConnectedPeer, BareGuid, Task>(RemoveOfficer))},
                 {"AddBolo", new LocalEvent(new Func<ConnectedPeer, string, string, Task>(AddBolo))},
                 {"RemoveBolo", new LocalEvent(new Func<ConnectedPeer, int, Task>(RemoveBolo))},
-                {"AddNote", new LocalEvent(new Func<ConnectedPeer, Guid, string, Task>(AddNote))}
+                {"AddNote", new LocalEvent(new Func<ConnectedPeer, BareGuid, string, Task>(AddNote))}
             };
         }
 
@@ -189,7 +189,7 @@ namespace DispatchSystem.sv.External
 #endif
             return civVeh;
         }
-        private Officer GetOfficer(ConnectedPeer sender, Guid id)
+        private Officer GetOfficer(ConnectedPeer sender, BareGuid id)
         {
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Get officer Request Received");
@@ -201,7 +201,7 @@ namespace DispatchSystem.sv.External
             Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == id);
             return ofc;
         }
-        private Assignment GetOfcAssignment(ConnectedPeer sender, Guid id)
+        private Assignment GetOfcAssignment(ConnectedPeer sender, BareGuid id)
         {
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Get officer assignments Request Received");
@@ -215,7 +215,7 @@ namespace DispatchSystem.sv.External
             // finding assignment in common
             return Common.GetOfficerAssignment(ofc);
         }
-        private bool AcceptEmergency(ConnectedPeer sender, Guid id)
+        private bool AcceptEmergency(ConnectedPeer sender, BareGuid id)
         {
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Accept emergency Request Received");
@@ -272,7 +272,7 @@ namespace DispatchSystem.sv.External
 
             return DispatchSystem.Assignments;
         }
-        private async Task EndEmergency(ConnectedPeer sender, Guid id)
+        private async Task EndEmergency(ConnectedPeer sender, BareGuid id)
         {
             await Task.FromResult(0);
 #if DEBUG
@@ -298,7 +298,7 @@ namespace DispatchSystem.sv.External
                 });
             }
         }
-        private async Task MessageEmergency(ConnectedPeer sender, Guid id, string msg)
+        private async Task MessageEmergency(ConnectedPeer sender, BareGuid id, string msg)
         {
             await Task.FromResult(0);
 #if DEBUG
@@ -319,7 +319,7 @@ namespace DispatchSystem.sv.External
                 }
             });
         }
-        private async Task AddOfcAssignment(ConnectedPeer sender, Guid id, Guid ofcId)
+        private async Task AddOfcAssignment(ConnectedPeer sender, BareGuid id, BareGuid ofcId)
         {
             await Task.FromResult(0);
 #if DEBUG
@@ -347,7 +347,7 @@ namespace DispatchSystem.sv.External
                     Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, $"New assignment added: \"{assignment.Summary}\"");
             });
         } 
-        private Guid NewAssignment(ConnectedPeer sender, string summary)
+        private BareGuid NewAssignment(ConnectedPeer sender, string summary)
         {
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] New assignment Request Received");
@@ -359,7 +359,7 @@ namespace DispatchSystem.sv.External
             DispatchSystem.Assignments.Add(assignment);
             return assignment.Id; // returning the assingment id
         }
-        private async Task RemoveAssignment(ConnectedPeer sender, Guid id)
+        private async Task RemoveAssignment(ConnectedPeer sender, BareGuid id)
         {
             await Task.FromResult(0);
 #if DEBUG
@@ -371,7 +371,7 @@ namespace DispatchSystem.sv.External
             Assignment item2 = DispatchSystem.Assignments.Find(x => x.Id == id); // finding the assignment from the id
             Common.RemoveAllInstancesOfAssignment(item2); // removing using common
         }
-        private async Task RemoveOfcAssignment(ConnectedPeer sender, Guid ofcId)
+        private async Task RemoveOfcAssignment(ConnectedPeer sender, BareGuid ofcId)
         {
             await Task.FromResult(0);
 #if DEBUG
@@ -396,7 +396,7 @@ namespace DispatchSystem.sv.External
                     Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "Your assignment has been removed by a dispatcher");
             });
         }
-        private async Task ChangeOfficerStatus(ConnectedPeer sender, Guid id, OfficerStatus status)
+        private async Task ChangeOfficerStatus(ConnectedPeer sender, BareGuid id, OfficerStatus status)
         {
             await Task.FromResult(0);
 #if DEBUG
@@ -436,7 +436,7 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task RemoveOfficer(ConnectedPeer sender, Guid id)
+        private async Task RemoveOfficer(ConnectedPeer sender, BareGuid id)
         {
             await Task.FromResult(0);
 #if DEBUG
@@ -519,7 +519,7 @@ namespace DispatchSystem.sv.External
 #endif
             }
         }
-        private async Task AddNote(ConnectedPeer sender, Guid id, string note)
+        private async Task AddNote(ConnectedPeer sender, BareGuid id, string note)
         {
             await Task.FromResult(0);
 #if DEBUG

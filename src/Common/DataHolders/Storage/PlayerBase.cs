@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DispatchSystem.Common.DataHolders.Storage
 {
@@ -11,12 +7,12 @@ namespace DispatchSystem.Common.DataHolders.Storage
     {
         public virtual string SourceIP { get; protected set; }
         public virtual DateTime Creation { get; }
-        public virtual Guid Id { get; }
+        public virtual BareGuid Id { get; }
 
         public PlayerBase(string ip)
         {
             Creation = DateTime.Now;
-            Id = Guid.NewGuid();
+            Id = BareGuid.NewBareGuid();
 
             SourceIP = string.IsNullOrWhiteSpace(ip) ? string.Empty : ip;
         }
@@ -24,7 +20,7 @@ namespace DispatchSystem.Common.DataHolders.Storage
         public override bool Equals(object obj)
         {
             if (!(obj is PlayerBase))
-                throw new ArgumentException("Your argument must be of PlayerBase Type", "obj");
+                throw new ArgumentException("Your argument must be of PlayerBase Type", nameof(obj));
 
             PlayerBase _base = (PlayerBase)obj;
             return _base.Id == Id;
