@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DispatchSystem.Common.DataHolders.Storage
 {
     [Serializable]
-    public class StorageManager<T> : ICollection, IList<T>, IEquatable<StorageManager<T>>, IEquatable<IEnumerable<T>> where T : IOwnable
+    public class StorageManager<T> : ICollection, IList<T>, IEquatable<StorageManager<T>>, IEquatable<IEnumerable<T>> where T : IDataHolder
     {
         #region Fields and Properties
         protected List<T> m_list = new List<T>();
@@ -25,9 +25,9 @@ namespace DispatchSystem.Common.DataHolders.Storage
             if (other.Count() == this.Count())
                 for (int i = 0; i < this.Count(); i++)
                 {
-                    IOwnable _item = this[i];
+                    IDataHolder _item = this[i];
 
-                    if (_item.SourceIP != other.ToList()[i].SourceIP)
+                    if (_item.Id != other.ToList()[i].Id)
                         return false;
                 }
             else

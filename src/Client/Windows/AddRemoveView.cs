@@ -81,7 +81,11 @@ namespace DispatchSystem.cl.Windows
                 }
                 case Type.RemoveBolo:
                 {
-                    if (!int.TryParse(line1.Text, out int result)) { MessageBox.Show("The index of the BOLO must be a valid number"); return; }
+                    if (!int.TryParse(line1.Text, out int result))
+                    {
+                        MessageBox.Show("The index of the BOLO must be a valid number");
+                        return;
+                    }
                     await Program.Client.Peer.RemoteCallbacks.Events["RemoveBolo"].Invoke(result);
                     line1.ResetText();
                     break;

@@ -65,7 +65,7 @@ namespace DispatchSystem.sv
             // creating new instances of objects
             callbacks = new ConcurrentQueue<Action>();
             Officers = new StorageManager<Officer>();
-            Assignments = new List<Assignment>();
+            Assignments = new StorageManager<Assignment>();
             OfcAssignments = new Dictionary<Officer, Assignment>();
             Bolos = new StorageManager<Bolo>();
             Civs = new StorageManager<Civilian>();

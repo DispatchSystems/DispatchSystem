@@ -93,11 +93,11 @@ namespace DispatchSystem.sv.External
                 {"Accept911", new LocalFunction(new Func<ConnectedPeer, BareGuid, bool>(AcceptEmergency))}
             };
             // properties that only have a return, and no set
-            server.LocalCallbacks.Properties = new MemberDictionary<string, LocalProperty>
+            server.LocalCallbacks.Properties = new MemberDictionary<string, ILocalProperty>
             {
-                {"Bolos", new LocalProperty(GetBolos, null)},
-                {"Officers", new LocalProperty(GetOfficers, null)},
-                {"Assignments", new LocalProperty(GetAssignments, null)}
+                {"Bolos", new LocalProperty<object>(GetBolos, null)},
+                {"Officers", new LocalProperty<object>(GetOfficers, null)},
+                {"Assignments", new LocalProperty<object>(GetAssignments, null)}
             };
             // events that have params but no return
             server.LocalCallbacks.Events = new MemberDictionary<string, LocalEvent>
@@ -117,19 +117,24 @@ namespace DispatchSystem.sv.External
 
         private static async Task OnConnect(ConnectedPeer user)
         {
-            await Task.Run(delegate
-            {
-                // logging the ip connected
+            // logging the ip connected
 #if DEBUG
-                Log.WriteLine($"[{user.RemoteIP}] Connected");
+            Log.WriteLine($"[{user.RemoteIP}] Connected");
 #else
                 Log.WriteLineSilent($"[{user.RemoteIP}] Connected");
 #endif
 
-                // dispose if the permissions bad
-                if (_(user))
-                    user.Dispose();
-            });
+            // dispose if the permissions bad
+            if (!_(user)) return;
+            try
+            {
+                await user.RemoteCallbacks.Events["SendInvalidPerms"].Invoke("");
+            }
+            catch
+            {
+                // ignored
+            }
+            user.Dispose();
         }
 
         private static async Task OnDisconnect(ConnectedPeer user)
@@ -328,7 +333,7 @@ namespace DispatchSystem.sv.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add officer assignment Request Received");
 #endif
 
-            Assignment assignment = DispatchSystem.Assignments.Find(x => x.Id == id); // finding assignment from the id
+            Assignment assignment = DispatchSystem.Assignments.FirstOrDefault(x => x.Id == id); // finding assignment from the id
             Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == ofcId); // finding the officer from the id
             if (assignment is null || ofc is null) // returning if either is null
                 return;
@@ -355,9 +360,16 @@ namespace DispatchSystem.sv.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] New assignment Request Received");
 #endif
 
-            Assignment assignment = new Assignment(summary);
-            DispatchSystem.Assignments.Add(assignment);
-            return assignment.Id; // returning the assingment id
+            try
+            {
+                Assignment assignment = new Assignment(summary);
+                DispatchSystem.Assignments.Add(assignment);
+                return assignment.Id; // returning the assingment id
+            }
+            catch
+            {
+                return null;
+            }
         }
         private async Task RemoveAssignment(ConnectedPeer sender, BareGuid id)
         {
@@ -368,7 +380,7 @@ namespace DispatchSystem.sv.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Remove assignment Request Received");
 #endif
 
-            Assignment item2 = DispatchSystem.Assignments.Find(x => x.Id == id); // finding the assignment from the id
+            Assignment item2 = DispatchSystem.Assignments.FirstOrDefault(x => x.Id == id); // finding the assignment from the id
             Common.RemoveAllInstancesOfAssignment(item2); // removing using common
         }
         private async Task RemoveOfcAssignment(ConnectedPeer sender, BareGuid ofcId)

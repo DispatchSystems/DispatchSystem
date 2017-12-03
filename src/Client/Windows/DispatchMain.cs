@@ -118,7 +118,7 @@ namespace DispatchSystem.cl.Windows
             }
 
             var result = await Program.Client.Peer.RemoteCallbacks.Properties["Assignments"]
-                .Get<List<Assignment>>();
+                .Get<StorageManager<Assignment>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate

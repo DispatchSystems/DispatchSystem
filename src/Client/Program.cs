@@ -49,7 +49,10 @@ namespace DispatchSystem.cl
                     Overridable = true
                 };
 
+                Client.LocalCallbacks.Events.Add("SendInvalidPerms", new LocalEvent(new Func<ConnectedPeer, dynamic, Task>(InvalidPerms)));
                 Client.LocalCallbacks.Events.Add("911alert", new LocalEvent(new Func<ConnectedPeer, Civilian, EmergencyCall, Task>(Alert911)));
+                // Server still disconnects even if event is canceled
+                
 
                 if (!Client.Connect(Config.Ip.ToString(), Config.Port).Result)
                 {
@@ -108,23 +111,6 @@ namespace DispatchSystem.cl
                 { Name = "ConnectionDetection" };
                 cd.Start();
                 #endregion
-                #region Initial Connection Detection Thread
-                // checking for no perms
-                // server still drops the client from connecting anyway
-                // it will just disable the message
-                new Thread(delegate()
-                    {
-                        Thread.Sleep(300);
-
-                        if (Client.IsConnected) return;
-
-                        cd.Abort();
-                        MessageBox.Show("You seem to have invalid permissions with the server", "DispatchSystem",
-                            MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                        Environment.Exit(-13);
-                    })
-                    {Name = "InitConnectionDetection"}.Start();
-                #endregion
 
                 Application.Run(mainWindow = new DispatchMain());
                 cd.Abort();
@@ -134,6 +120,14 @@ namespace DispatchSystem.cl
             }
         }
 
+        private static async Task InvalidPerms(ConnectedPeer peer, dynamic i)
+        {
+            await Task.FromResult(0);
+
+            MessageBox.Show("You seem to have invalid permissions", "DispatchSystem", MessageBoxButtons.OK,
+                MessageBoxIcon.Asterisk);
+            Environment.Exit(-13);
+        }
         private static async Task Alert911(ConnectedPeer peer, Civilian civ, EmergencyCall call)
         {
             await Task.FromResult(0);

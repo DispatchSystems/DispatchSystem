@@ -50,7 +50,7 @@ namespace DispatchSystem.cl.Windows
             IsCurrentlySyncing = true;
 
             var result = await Program.Client.Peer.RemoteCallbacks.Properties["Assignments"]
-                .Get<List<Assignment>>();
+                .Get<StorageManager<Assignment>>();
             if (result != null)
             {
                 Invoke((MethodInvoker)delegate
