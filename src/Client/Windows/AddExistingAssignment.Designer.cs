@@ -1,4 +1,4 @@
-﻿namespace DispatchSystem.cl.Windows
+﻿namespace DispatchSystem.Client.Windows
 {
     partial class AddExistingAssignment
     {

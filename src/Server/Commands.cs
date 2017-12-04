@@ -1,12 +1,12 @@
 ﻿using System;
 using CitizenFX.Core;
 using DispatchSystem.Common.DataHolders.Storage;
-using DispatchSystem.sv.External;
+using DispatchSystem.Server.External;
 using static CitizenFX.Core.BaseScript;
 
 using EZDatabase;
 
-namespace DispatchSystem.sv
+namespace DispatchSystem.Server
 {
     public class Commands
     {

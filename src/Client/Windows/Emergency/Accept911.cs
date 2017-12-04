@@ -6,7 +6,7 @@ using CloNET;
 using DispatchSystem.Common.DataHolders.Storage;
 using MaterialSkin.Controls;
 
-namespace DispatchSystem.cl.Windows.Emergency
+namespace DispatchSystem.Client.Windows.Emergency
 {
     public partial class Accept911 : MaterialForm
     {

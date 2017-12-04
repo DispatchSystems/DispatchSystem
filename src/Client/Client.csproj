@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{660385A1-F53D-4B13-97FD-C8E9EC8D9FA0}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>DispatchSystem.cl</RootNamespace>
-    <AssemblyName>DispatchSystem</AssemblyName>
+    <RootNamespace>DispatchSystem.Client</RootNamespace>
+    <AssemblyName>Terminal</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-
-using DispatchSystem.sv.External;
 using DispatchSystem.Common.DataHolders.Storage;
 
 using Config.Reader;
@@ -11,8 +9,9 @@ using EZDatabase;
 
 using CitizenFX.Core.Native;
 using DispatchSystem.Common;
+using DispatchSystem.Server.External;
 
-namespace DispatchSystem.sv
+namespace DispatchSystem.Server
 {
     public partial class DispatchSystem
     {

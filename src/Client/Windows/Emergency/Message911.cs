@@ -10,7 +10,7 @@ using CloNET.LocalCallbacks;
 using DispatchSystem.Common.DataHolders.Storage;
 using MaterialSkin.Controls;
 
-namespace DispatchSystem.cl.Windows.Emergency
+namespace DispatchSystem.Client.Windows.Emergency
 {
     public partial class Message911 : MaterialForm
     {

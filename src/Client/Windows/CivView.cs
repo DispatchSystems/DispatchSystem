@@ -10,7 +10,7 @@ using DispatchSystem.Common.DataHolders.Storage;
 
 using CloNET;
 
-namespace DispatchSystem.cl.Windows
+namespace DispatchSystem.Client.Windows
 {
     public partial class CivView : MaterialForm, ISyncable
     {

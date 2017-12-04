@@ -9,10 +9,10 @@ using CitizenFX.Core.Native;
 
 using DispatchSystem.Common.DataHolders.Storage;
 
-using static DispatchSystem.sv.DispatchSystem;
+using static DispatchSystem.Server.DispatchSystem;
 using static CitizenFX.Core.BaseScript;
 
-namespace DispatchSystem.sv
+namespace DispatchSystem.Server
 {
     public static class Common
     {

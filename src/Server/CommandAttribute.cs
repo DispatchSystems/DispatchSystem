@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DispatchSystem.sv
+namespace DispatchSystem.Server
 {
     /// <summary>
     /// The type of command 

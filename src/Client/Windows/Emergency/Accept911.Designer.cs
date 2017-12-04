@@ -1,4 +1,4 @@
-﻿namespace DispatchSystem.cl.Windows.Emergency
+﻿namespace DispatchSystem.Client.Windows.Emergency
 {
     partial class Accept911
     {

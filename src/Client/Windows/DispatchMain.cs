@@ -8,7 +8,7 @@ using MaterialSkin.Controls;
 
 using DispatchSystem.Common.DataHolders.Storage;
 
-namespace DispatchSystem.cl.Windows
+namespace DispatchSystem.Client.Windows
 {
     public partial class DispatchMain : MaterialForm
     {

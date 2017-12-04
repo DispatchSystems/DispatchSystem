@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("The dispatch terminal to pair with the server side version")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Dispatch System")]
-[assembly: AssemblyProduct("Dispatch Terminal1")]
+[assembly: AssemblyProduct("Dispatch Terminal")]
 [assembly: AssemblyCopyright("Copyright © BlockBa5her 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

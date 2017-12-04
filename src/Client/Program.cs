@@ -3,19 +3,17 @@ using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-
-using DispatchSystem.cl.Windows;
-using DispatchSystem.cl.Windows.Emergency;
-
 using CloNET;
 using CloNET.LocalCallbacks;
+using DispatchSystem.Client.Windows;
+using DispatchSystem.Client.Windows.Emergency;
 using DispatchSystem.Common.DataHolders.Storage;
 
-namespace DispatchSystem.cl
+namespace DispatchSystem.Client
 {
     internal static class Program
     {
-        internal static Client Client;
+        internal static CloNET.Client Client;
         private static DispatchMain mainWindow;
 
         private const ushort RECONNECT_COUNT = 3;
@@ -36,7 +34,7 @@ namespace DispatchSystem.cl
 
         private static async void Run()
         {
-            using (Client = new Client())
+            using (Client = new CloNET.Client())
             {
                 Client.Encryption = new EncryptionOptions
                 {

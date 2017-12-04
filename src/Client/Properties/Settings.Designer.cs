@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DispatchSystem.cl.Properties {
+namespace DispatchSystem.Client.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

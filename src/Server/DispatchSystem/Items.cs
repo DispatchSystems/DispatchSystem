@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
-using DispatchSystem.sv.External;
 using DispatchSystem.Common.DataHolders.Storage;
 
 using Config.Reader;
 using DispatchSystem.Common;
+using DispatchSystem.Server.External;
 using EZDatabase;
 
-namespace DispatchSystem.sv
+namespace DispatchSystem.Server
 {
     public partial class DispatchSystem
     {

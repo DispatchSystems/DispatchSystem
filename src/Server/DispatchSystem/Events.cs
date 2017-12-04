@@ -10,9 +10,9 @@ using CloNET;
 using DispatchSystem.Common;
 using DispatchSystem.Common.DataHolders.Storage;
 
-using static DispatchSystem.sv.Common;
+using static DispatchSystem.Server.Common;
 
-namespace DispatchSystem.sv
+namespace DispatchSystem.Server
 {
     public partial class DispatchSystem
     {

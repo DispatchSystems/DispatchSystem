@@ -6,7 +6,7 @@ using CloNET;
 using DispatchSystem.Common;
 using MaterialSkin.Controls;
 
-namespace DispatchSystem.cl.Windows
+namespace DispatchSystem.Client.Windows
 {
     public partial class AddRemoveView : MaterialForm
     {

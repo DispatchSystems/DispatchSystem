@@ -16,11 +16,11 @@ using CloNET.LocalCallbacks;
 using CitizenFX.Core;
 using DispatchSystem.Common;
 
-namespace DispatchSystem.sv.External
+namespace DispatchSystem.Server.External
 {
     public class DispatchServer
     {
-        private Server server; // server from CloNET
+        private CloNET.Server server; // server from CloNET
         private readonly string ip; // ip of the server
         private readonly int port; // port of the server
 
@@ -49,7 +49,7 @@ namespace DispatchSystem.sv.External
         private void Start()
         {
             Log.WriteLine("Creating TCP Device"); // moar logs
-            server = new Server(ip, port) // creating the server from the port ant ip
+            server = new CloNET.Server(ip, port) // creating the server from the port ant ip
             {
                 Encryption = new EncryptionOptions // setting encryption off
                 {
@@ -163,9 +163,9 @@ namespace DispatchSystem.sv.External
         private Civilian GetCivilian(ConnectedPeer sender, string first, string last)
         {
 #if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Get civilian Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Get civilian Request Received");
 #else
-            Log.WriteLineSilent("[{sender.RemoteIP}] Get civilian Request Recieved");
+            Log.WriteLineSilent("[{sender.RemoteIP}] Get civilian Request Received");
 #endif
 
             // tryna find civ using common
@@ -180,9 +180,9 @@ namespace DispatchSystem.sv.External
         private CivilianVeh GetCivilianVeh(ConnectedPeer sender, string plate)
         {
 #if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Get civilian veh Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Get civilian veh Request Received");
 #else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Get civilian veh Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get civilian veh Request Received");
 #endif
 
             // tryna find the vehicle
@@ -248,9 +248,9 @@ namespace DispatchSystem.sv.External
         {
             await Task.FromResult(0);
 #if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Get bolos Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Get bolos Request Received");
 #else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Get bolos Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Get bolos Request Received");
 #endif
 
             return DispatchSystem.ActiveBolos;
@@ -364,7 +364,7 @@ namespace DispatchSystem.sv.External
             {
                 Assignment assignment = new Assignment(summary);
                 DispatchSystem.Assignments.Add(assignment);
-                return assignment.Id; // returning the assingment id
+                return assignment.Id; // returning the assignment id
             }
             catch
             {
@@ -492,10 +492,10 @@ namespace DispatchSystem.sv.External
         {
             await Task.FromResult(0);
 #if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Add bolo Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Add bolo Request Received");
             Log.WriteLine($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
 #else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Received");
             Log.WriteLineSilent($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
 #endif
 
@@ -506,9 +506,9 @@ namespace DispatchSystem.sv.External
         {
             await Task.FromResult(0);
 #if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Remove bolo Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Remove bolo Request Received");
 #else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Remove bolo Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Remove bolo Request Received");
 #endif
 
             try
@@ -535,9 +535,9 @@ namespace DispatchSystem.sv.External
         {
             await Task.FromResult(0);
 #if DEBUG
-            Log.WriteLine($"[{sender.RemoteIP}] Add Civilian note Request Recieved");
+            Log.WriteLine($"[{sender.RemoteIP}] Add Civilian note Request Received");
 #else
-            Log.WriteLineSilent($"[{sender.RemoteIP}] Add Civilian note Request Recieved");
+            Log.WriteLineSilent($"[{sender.RemoteIP}] Add Civilian note Request Received");
 #endif
 
             Civilian civ = DispatchSystem.Civs.FirstOrDefault(x => x.Id == id); // finding the civ from the id
