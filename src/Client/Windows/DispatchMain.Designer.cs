@@ -32,16 +32,45 @@
             this.firstName = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.lastName = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.btnViewCiv = new MaterialSkin.Controls.MaterialRaisedButton();
-            this.civVehLabel = new MaterialSkin.Controls.MaterialLabel();
-            this.plate = new MaterialSkin.Controls.MaterialSingleLineTextField();
             this.btnViewCivVeh = new MaterialSkin.Controls.MaterialRaisedButton();
-            this.materialDivider1 = new MaterialSkin.Controls.MaterialDivider();
-            this.btnViewBolos = new MaterialSkin.Controls.MaterialRaisedButton();
-            this.boloLabel = new MaterialSkin.Controls.MaterialLabel();
-            this.materialDivider2 = new MaterialSkin.Controls.MaterialDivider();
-            this.cadLabel = new MaterialSkin.Controls.MaterialLabel();
-            this.viewOfficers = new MaterialSkin.Controls.MaterialRaisedButton();
-            this.btnViewAssignments = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.assignments = new MaterialSkin.Controls.MaterialListView();
+            this.creation = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.itemSummary = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.assignmentsRightClick = new MaterialSkin.Controls.MaterialContextMenuStrip();
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.civvehLabel = new MaterialSkin.Controls.MaterialLabel();
+            this.toggleDark = new MaterialSkin.Controls.MaterialCheckBox();
+            this.plate = new MaterialSkin.Controls.MaterialSingleLineTextField();
+            this.tabSelector = new MaterialSkin.Controls.MaterialTabSelector();
+            this.tabs = new MaterialSkin.Controls.MaterialTabControl();
+            this.tab1 = new System.Windows.Forms.TabPage();
+            this.btnAssignmentAdd = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.tab2 = new System.Windows.Forms.TabPage();
+            this.officers = new MaterialSkin.Controls.MaterialListView();
+            this.ofcCallsign = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ofcStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.officersRightClick = new MaterialSkin.Controls.MaterialContextMenuStrip();
+            this.viewStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setStatusStripItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rightClickOfficerOnDuty = new System.Windows.Forms.ToolStripMenuItem();
+            this.rightClickOfficerOffDuty = new System.Windows.Forms.ToolStripMenuItem();
+            this.rightClickOfficerBusy = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tab3 = new System.Windows.Forms.TabPage();
+            this.btnBoloAdd = new MaterialSkin.Controls.MaterialRaisedButton();
+            this.bolos = new MaterialSkin.Controls.MaterialListView();
+            this.author = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.bolo = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.bolosRightClick = new MaterialSkin.Controls.MaterialContextMenuStrip();
+            this.btnRemoveSelected = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnResync = new MaterialSkin.Controls.MaterialFlatButton();
+            this.assignmentsRightClick.SuspendLayout();
+            this.tabs.SuspendLayout();
+            this.tab1.SuspendLayout();
+            this.tab2.SuspendLayout();
+            this.officersRightClick.SuspendLayout();
+            this.tab3.SuspendLayout();
+            this.bolosRightClick.SuspendLayout();
             this.SuspendLayout();
             // 
             // civLabel
@@ -80,7 +109,7 @@
             // 
             this.lastName.Depth = 0;
             this.lastName.Hint = "Last Name";
-            this.lastName.Location = new System.Drawing.Point(16, 153);
+            this.lastName.Location = new System.Drawing.Point(151, 108);
             this.lastName.MaxLength = 32767;
             this.lastName.MouseState = MaterialSkin.MouseState.HOVER;
             this.lastName.Name = "lastName";
@@ -101,7 +130,7 @@
             this.btnViewCiv.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnViewCiv.Depth = 0;
             this.btnViewCiv.Icon = null;
-            this.btnViewCiv.Location = new System.Drawing.Point(16, 197);
+            this.btnViewCiv.Location = new System.Drawing.Point(286, 108);
             this.btnViewCiv.MouseState = MaterialSkin.MouseState.HOVER;
             this.btnViewCiv.Name = "btnViewCiv";
             this.btnViewCiv.Primary = true;
@@ -111,25 +140,108 @@
             this.btnViewCiv.UseVisualStyleBackColor = true;
             this.btnViewCiv.Click += new System.EventHandler(this.OnViewCivClick);
             // 
-            // civVehLabel
+            // btnViewCivVeh
             // 
-            this.civVehLabel.AutoSize = true;
-            this.civVehLabel.Depth = 0;
-            this.civVehLabel.Font = new System.Drawing.Font("Roboto", 11F);
-            this.civVehLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.civVehLabel.Location = new System.Drawing.Point(310, 77);
-            this.civVehLabel.MouseState = MaterialSkin.MouseState.HOVER;
-            this.civVehLabel.Name = "civVehLabel";
-            this.civVehLabel.Size = new System.Drawing.Size(116, 19);
-            this.civVehLabel.TabIndex = 4;
-            this.civVehLabel.Text = "Civilian Vehicle:";
+            this.btnViewCivVeh.AutoSize = true;
+            this.btnViewCivVeh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnViewCivVeh.BackColor = System.Drawing.SystemColors.Control;
+            this.btnViewCivVeh.Depth = 0;
+            this.btnViewCivVeh.Icon = null;
+            this.btnViewCivVeh.Location = new System.Drawing.Point(1125, 108);
+            this.btnViewCivVeh.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnViewCivVeh.Name = "btnViewCivVeh";
+            this.btnViewCivVeh.Primary = true;
+            this.btnViewCivVeh.Size = new System.Drawing.Size(171, 36);
+            this.btnViewCivVeh.TabIndex = 6;
+            this.btnViewCivVeh.Text = "View Civilian Vehicle";
+            this.btnViewCivVeh.UseVisualStyleBackColor = false;
+            this.btnViewCivVeh.Click += new System.EventHandler(this.OnViewCivVehClick);
+            // 
+            // assignments
+            // 
+            this.assignments.BackColor = System.Drawing.SystemColors.Control;
+            this.assignments.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.assignments.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.creation,
+            this.itemSummary});
+            this.assignments.ContextMenuStrip = this.assignmentsRightClick;
+            this.assignments.Depth = 0;
+            this.assignments.Font = new System.Drawing.Font("Roboto", 32F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.assignments.FullRowSelect = true;
+            this.assignments.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.assignments.Location = new System.Drawing.Point(6, 6);
+            this.assignments.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.assignments.MouseState = MaterialSkin.MouseState.OUT;
+            this.assignments.Name = "assignments";
+            this.assignments.OwnerDraw = true;
+            this.assignments.Size = new System.Drawing.Size(1263, 497);
+            this.assignments.TabIndex = 9;
+            this.assignments.UseCompatibleStateImageBehavior = false;
+            this.assignments.View = System.Windows.Forms.View.Details;
+            // 
+            // creation
+            // 
+            this.creation.Text = "Creation Date";
+            this.creation.Width = 163;
+            // 
+            // itemSummary
+            // 
+            this.itemSummary.Text = "Summary";
+            this.itemSummary.Width = 1200;
+            // 
+            // assignmentsRightClick
+            // 
+            this.assignmentsRightClick.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.assignmentsRightClick.Depth = 0;
+            this.assignmentsRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeToolStripMenuItem});
+            this.assignmentsRightClick.MouseState = MaterialSkin.MouseState.HOVER;
+            this.assignmentsRightClick.Name = "rightClickMenu";
+            this.assignmentsRightClick.Size = new System.Drawing.Size(118, 26);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.removeToolStripMenuItem.Text = "Remove";
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.OnAssignmentRemoveClick);
+            // 
+            // civvehLabel
+            // 
+            this.civvehLabel.AutoSize = true;
+            this.civvehLabel.Depth = 0;
+            this.civvehLabel.Font = new System.Drawing.Font("Roboto", 11F);
+            this.civvehLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.civvehLabel.Location = new System.Drawing.Point(940, 77);
+            this.civvehLabel.MouseState = MaterialSkin.MouseState.HOVER;
+            this.civvehLabel.Name = "civvehLabel";
+            this.civvehLabel.Size = new System.Drawing.Size(116, 19);
+            this.civvehLabel.TabIndex = 10;
+            this.civvehLabel.Text = "Civilian Vehicle:";
+            // 
+            // toggleDark
+            // 
+            this.toggleDark.AutoSize = true;
+            this.toggleDark.Depth = 0;
+            this.toggleDark.Font = new System.Drawing.Font("Roboto", 10F);
+            this.toggleDark.Location = new System.Drawing.Point(20, 806);
+            this.toggleDark.Margin = new System.Windows.Forms.Padding(0);
+            this.toggleDark.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.toggleDark.MouseState = MaterialSkin.MouseState.HOVER;
+            this.toggleDark.Name = "toggleDark";
+            this.toggleDark.Ripple = true;
+            this.toggleDark.Size = new System.Drawing.Size(97, 30);
+            this.toggleDark.TabIndex = 12;
+            this.toggleDark.Text = "Dark Mode";
+            this.toggleDark.UseVisualStyleBackColor = true;
+            this.toggleDark.CheckedChanged += new System.EventHandler(this.OnToggleDark);
             // 
             // plate
             // 
             this.plate.Depth = 0;
-            this.plate.Hint = "License Plate";
-            this.plate.Location = new System.Drawing.Point(314, 108);
-            this.plate.MaxLength = 37282;
+            this.plate.Hint = "Number Plate";
+            this.plate.Location = new System.Drawing.Point(944, 108);
+            this.plate.MaxLength = 32767;
             this.plate.MouseState = MaterialSkin.MouseState.HOVER;
             this.plate.Name = "plate";
             this.plate.PasswordChar = '\0';
@@ -138,122 +250,256 @@
             this.plate.SelectionLength = 0;
             this.plate.SelectionStart = 0;
             this.plate.Size = new System.Drawing.Size(175, 23);
-            this.plate.TabIndex = 5;
+            this.plate.TabIndex = 13;
             this.plate.TabStop = false;
             this.plate.UseSystemPasswordChar = false;
             this.plate.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.OnPlateKeyPress);
             // 
-            // btnViewCivVeh
+            // tabSelector
             // 
-            this.btnViewCivVeh.AutoSize = true;
-            this.btnViewCivVeh.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnViewCivVeh.Depth = 0;
-            this.btnViewCivVeh.Icon = null;
-            this.btnViewCivVeh.Location = new System.Drawing.Point(314, 197);
-            this.btnViewCivVeh.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnViewCivVeh.Name = "btnViewCivVeh";
-            this.btnViewCivVeh.Primary = true;
-            this.btnViewCivVeh.Size = new System.Drawing.Size(171, 36);
-            this.btnViewCivVeh.TabIndex = 6;
-            this.btnViewCivVeh.Text = "View Civilian Vehicle";
-            this.btnViewCivVeh.UseVisualStyleBackColor = true;
-            this.btnViewCivVeh.Click += new System.EventHandler(this.OnViewCivVehClick);
+            this.tabSelector.BaseTabControl = this.tabs;
+            this.tabSelector.Depth = 0;
+            this.tabSelector.Location = new System.Drawing.Point(16, 155);
+            this.tabSelector.MouseState = MaterialSkin.MouseState.HOVER;
+            this.tabSelector.Name = "tabSelector";
+            this.tabSelector.Size = new System.Drawing.Size(1280, 52);
+            this.tabSelector.TabIndex = 14;
+            this.tabSelector.Text = "Selector";
             // 
-            // materialDivider1
+            // tabs
             // 
-            this.materialDivider1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.materialDivider1.Depth = 0;
-            this.materialDivider1.Location = new System.Drawing.Point(16, 261);
-            this.materialDivider1.MouseState = MaterialSkin.MouseState.HOVER;
-            this.materialDivider1.Name = "materialDivider1";
-            this.materialDivider1.Size = new System.Drawing.Size(473, 17);
-            this.materialDivider1.TabIndex = 7;
-            this.materialDivider1.Text = "materialDivider1";
+            this.tabs.Controls.Add(this.tab1);
+            this.tabs.Controls.Add(this.tab2);
+            this.tabs.Controls.Add(this.tab3);
+            this.tabs.Depth = 0;
+            this.tabs.Location = new System.Drawing.Point(16, 211);
+            this.tabs.MouseState = MaterialSkin.MouseState.HOVER;
+            this.tabs.Name = "tabs";
+            this.tabs.SelectedIndex = 0;
+            this.tabs.Size = new System.Drawing.Size(1283, 577);
+            this.tabs.TabIndex = 15;
             // 
-            // btnViewBolos
+            // tab1
             // 
-            this.btnViewBolos.AutoSize = true;
-            this.btnViewBolos.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnViewBolos.Depth = 0;
-            this.btnViewBolos.Icon = null;
-            this.btnViewBolos.Location = new System.Drawing.Point(16, 334);
-            this.btnViewBolos.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnViewBolos.Name = "btnViewBolos";
-            this.btnViewBolos.Primary = true;
-            this.btnViewBolos.Size = new System.Drawing.Size(100, 36);
-            this.btnViewBolos.TabIndex = 8;
-            this.btnViewBolos.Text = "View Bolos";
-            this.btnViewBolos.UseVisualStyleBackColor = true;
-            this.btnViewBolos.Click += new System.EventHandler(this.OnViewBolosClick);
+            this.tab1.Controls.Add(this.btnAssignmentAdd);
+            this.tab1.Controls.Add(this.assignments);
+            this.tab1.Location = new System.Drawing.Point(4, 22);
+            this.tab1.Name = "tab1";
+            this.tab1.Padding = new System.Windows.Forms.Padding(3);
+            this.tab1.Size = new System.Drawing.Size(1275, 551);
+            this.tab1.TabIndex = 0;
+            this.tab1.Text = "Assignments";
+            this.tab1.UseVisualStyleBackColor = true;
             // 
-            // boloLabel
+            // btnAssignmentAdd
             // 
-            this.boloLabel.AutoSize = true;
-            this.boloLabel.Depth = 0;
-            this.boloLabel.Font = new System.Drawing.Font("Roboto", 11F);
-            this.boloLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.boloLabel.Location = new System.Drawing.Point(12, 297);
-            this.boloLabel.MouseState = MaterialSkin.MouseState.HOVER;
-            this.boloLabel.Name = "boloLabel";
-            this.boloLabel.Size = new System.Drawing.Size(106, 19);
-            this.boloLabel.TabIndex = 11;
-            this.boloLabel.Text = "BOLO Options:";
+            this.btnAssignmentAdd.AutoSize = true;
+            this.btnAssignmentAdd.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnAssignmentAdd.Depth = 0;
+            this.btnAssignmentAdd.Icon = null;
+            this.btnAssignmentAdd.Location = new System.Drawing.Point(6, 509);
+            this.btnAssignmentAdd.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnAssignmentAdd.Name = "btnAssignmentAdd";
+            this.btnAssignmentAdd.Primary = true;
+            this.btnAssignmentAdd.Size = new System.Drawing.Size(138, 36);
+            this.btnAssignmentAdd.TabIndex = 10;
+            this.btnAssignmentAdd.Text = "Add Assignment";
+            this.btnAssignmentAdd.UseVisualStyleBackColor = true;
+            this.btnAssignmentAdd.Click += new System.EventHandler(this.OnAddAssignmentClick);
             // 
-            // materialDivider2
+            // tab2
             // 
-            this.materialDivider2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.materialDivider2.Depth = 0;
-            this.materialDivider2.Location = new System.Drawing.Point(173, 297);
-            this.materialDivider2.MouseState = MaterialSkin.MouseState.HOVER;
-            this.materialDivider2.Name = "materialDivider2";
-            this.materialDivider2.Size = new System.Drawing.Size(17, 73);
-            this.materialDivider2.TabIndex = 12;
-            this.materialDivider2.Text = "materialDivider2";
+            this.tab2.Controls.Add(this.officers);
+            this.tab2.Location = new System.Drawing.Point(4, 22);
+            this.tab2.Name = "tab2";
+            this.tab2.Padding = new System.Windows.Forms.Padding(3);
+            this.tab2.Size = new System.Drawing.Size(1275, 551);
+            this.tab2.TabIndex = 1;
+            this.tab2.Text = "Officers";
+            this.tab2.UseVisualStyleBackColor = true;
             // 
-            // cadLabel
+            // officers
             // 
-            this.cadLabel.AutoSize = true;
-            this.cadLabel.Depth = 0;
-            this.cadLabel.Font = new System.Drawing.Font("Roboto", 11F);
-            this.cadLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(222)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.cadLabel.Location = new System.Drawing.Point(216, 297);
-            this.cadLabel.MouseState = MaterialSkin.MouseState.HOVER;
-            this.cadLabel.Name = "cadLabel";
-            this.cadLabel.Size = new System.Drawing.Size(99, 19);
-            this.cadLabel.TabIndex = 14;
-            this.cadLabel.Text = "CAD Options:";
+            this.officers.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.officers.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.ofcCallsign,
+            this.ofcStatus});
+            this.officers.ContextMenuStrip = this.officersRightClick;
+            this.officers.Depth = 0;
+            this.officers.Font = new System.Drawing.Font("Roboto", 32F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.officers.FullRowSelect = true;
+            this.officers.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.officers.Location = new System.Drawing.Point(6, 6);
+            this.officers.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.officers.MouseState = MaterialSkin.MouseState.OUT;
+            this.officers.MultiSelect = false;
+            this.officers.Name = "officers";
+            this.officers.OwnerDraw = true;
+            this.officers.Size = new System.Drawing.Size(1263, 539);
+            this.officers.TabIndex = 2;
+            this.officers.UseCompatibleStateImageBehavior = false;
+            this.officers.View = System.Windows.Forms.View.Details;
+            this.officers.DoubleClick += new System.EventHandler(this.ViewOfficer);
             // 
-            // viewOfficers
+            // ofcCallsign
             // 
-            this.viewOfficers.AutoSize = true;
-            this.viewOfficers.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.viewOfficers.Depth = 0;
-            this.viewOfficers.Icon = null;
-            this.viewOfficers.Location = new System.Drawing.Point(220, 334);
-            this.viewOfficers.MouseState = MaterialSkin.MouseState.HOVER;
-            this.viewOfficers.Name = "viewOfficers";
-            this.viewOfficers.Primary = true;
-            this.viewOfficers.Size = new System.Drawing.Size(119, 36);
-            this.viewOfficers.TabIndex = 13;
-            this.viewOfficers.Text = "View Officers";
-            this.viewOfficers.UseVisualStyleBackColor = true;
-            this.viewOfficers.Click += new System.EventHandler(this.OnViewOfficersClick);
+            this.ofcCallsign.Text = "Callsign";
+            this.ofcCallsign.Width = 172;
             // 
-            // btnViewAssignments
+            // ofcStatus
             // 
-            this.btnViewAssignments.AutoSize = true;
-            this.btnViewAssignments.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnViewAssignments.Depth = 0;
-            this.btnViewAssignments.Icon = null;
-            this.btnViewAssignments.Location = new System.Drawing.Point(345, 334);
-            this.btnViewAssignments.MouseState = MaterialSkin.MouseState.HOVER;
-            this.btnViewAssignments.Name = "btnViewAssignments";
-            this.btnViewAssignments.Primary = true;
-            this.btnViewAssignments.Size = new System.Drawing.Size(152, 36);
-            this.btnViewAssignments.TabIndex = 15;
-            this.btnViewAssignments.Text = "View Assignments";
-            this.btnViewAssignments.UseVisualStyleBackColor = true;
-            this.btnViewAssignments.Click += new System.EventHandler(this.OnViewAssignmentsClick);
+            this.ofcStatus.Text = "Status";
+            this.ofcStatus.Width = 1200;
+            // 
+            // officersRightClick
+            // 
+            this.officersRightClick.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.officersRightClick.Depth = 0;
+            this.officersRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.viewStripItem,
+            this.setStatusStripItem,
+            this.toolStripMenuItem1});
+            this.officersRightClick.MouseState = MaterialSkin.MouseState.HOVER;
+            this.officersRightClick.Name = "rightClickMenu";
+            this.officersRightClick.Size = new System.Drawing.Size(126, 70);
+            // 
+            // viewStripItem
+            // 
+            this.viewStripItem.Name = "viewStripItem";
+            this.viewStripItem.Size = new System.Drawing.Size(125, 22);
+            this.viewStripItem.Text = "View";
+            this.viewStripItem.Click += new System.EventHandler(this.ViewOfficer);
+            // 
+            // setStatusStripItem
+            // 
+            this.setStatusStripItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.rightClickOfficerOnDuty,
+            this.rightClickOfficerOffDuty,
+            this.rightClickOfficerBusy});
+            this.setStatusStripItem.Name = "setStatusStripItem";
+            this.setStatusStripItem.Size = new System.Drawing.Size(125, 22);
+            this.setStatusStripItem.Text = "Set Status";
+            // 
+            // rightClickOfficerOnDuty
+            // 
+            this.rightClickOfficerOnDuty.Name = "rightClickOfficerOnDuty";
+            this.rightClickOfficerOnDuty.Size = new System.Drawing.Size(119, 22);
+            this.rightClickOfficerOnDuty.Text = "On Duty";
+            this.rightClickOfficerOnDuty.Click += new System.EventHandler(this.OnSelectStatusClick);
+            // 
+            // rightClickOfficerOffDuty
+            // 
+            this.rightClickOfficerOffDuty.Name = "rightClickOfficerOffDuty";
+            this.rightClickOfficerOffDuty.Size = new System.Drawing.Size(119, 22);
+            this.rightClickOfficerOffDuty.Text = "Off Duty";
+            this.rightClickOfficerOffDuty.Click += new System.EventHandler(this.OnSelectStatusClick);
+            // 
+            // rightClickOfficerBusy
+            // 
+            this.rightClickOfficerBusy.Name = "rightClickOfficerBusy";
+            this.rightClickOfficerBusy.Size = new System.Drawing.Size(119, 22);
+            this.rightClickOfficerBusy.Text = "Busy";
+            this.rightClickOfficerBusy.Click += new System.EventHandler(this.OnSelectStatusClick);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(125, 22);
+            this.toolStripMenuItem1.Text = "Remove";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.OnRemoveOfficerClick);
+            // 
+            // tab3
+            // 
+            this.tab3.Controls.Add(this.btnBoloAdd);
+            this.tab3.Controls.Add(this.bolos);
+            this.tab3.Location = new System.Drawing.Point(4, 22);
+            this.tab3.Name = "tab3";
+            this.tab3.Padding = new System.Windows.Forms.Padding(3);
+            this.tab3.Size = new System.Drawing.Size(1275, 551);
+            this.tab3.TabIndex = 2;
+            this.tab3.Text = "BOLOs";
+            this.tab3.UseVisualStyleBackColor = true;
+            // 
+            // btnBoloAdd
+            // 
+            this.btnBoloAdd.AutoSize = true;
+            this.btnBoloAdd.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnBoloAdd.Depth = 0;
+            this.btnBoloAdd.Icon = null;
+            this.btnBoloAdd.Location = new System.Drawing.Point(6, 509);
+            this.btnBoloAdd.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnBoloAdd.Name = "btnBoloAdd";
+            this.btnBoloAdd.Primary = true;
+            this.btnBoloAdd.Size = new System.Drawing.Size(86, 36);
+            this.btnBoloAdd.TabIndex = 2;
+            this.btnBoloAdd.Text = "Add Bolo";
+            this.btnBoloAdd.UseVisualStyleBackColor = true;
+            this.btnBoloAdd.Click += new System.EventHandler(this.OnAddBoloClick);
+            // 
+            // bolos
+            // 
+            this.bolos.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.bolos.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.author,
+            this.bolo});
+            this.bolos.ContextMenuStrip = this.bolosRightClick;
+            this.bolos.Depth = 0;
+            this.bolos.Font = new System.Drawing.Font("Roboto", 32F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.World);
+            this.bolos.FullRowSelect = true;
+            this.bolos.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.bolos.Location = new System.Drawing.Point(6, 6);
+            this.bolos.MouseLocation = new System.Drawing.Point(-1, -1);
+            this.bolos.MouseState = MaterialSkin.MouseState.OUT;
+            this.bolos.Name = "bolos";
+            this.bolos.OwnerDraw = true;
+            this.bolos.Size = new System.Drawing.Size(1263, 497);
+            this.bolos.TabIndex = 1;
+            this.bolos.UseCompatibleStateImageBehavior = false;
+            this.bolos.View = System.Windows.Forms.View.Details;
+            // 
+            // author
+            // 
+            this.author.Text = "Sender";
+            this.author.Width = 191;
+            // 
+            // bolo
+            // 
+            this.bolo.Text = "Description";
+            this.bolo.Width = 1200;
+            // 
+            // bolosRightClick
+            // 
+            this.bolosRightClick.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.bolosRightClick.Depth = 0;
+            this.bolosRightClick.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnRemoveSelected});
+            this.bolosRightClick.MouseState = MaterialSkin.MouseState.HOVER;
+            this.bolosRightClick.Name = "rightClickMenu";
+            this.bolosRightClick.Size = new System.Drawing.Size(118, 26);
+            // 
+            // btnRemoveSelected
+            // 
+            this.btnRemoveSelected.Name = "btnRemoveSelected";
+            this.btnRemoveSelected.Size = new System.Drawing.Size(117, 22);
+            this.btnRemoveSelected.Text = "Remove";
+            this.btnRemoveSelected.Click += new System.EventHandler(this.OnBoloRemoveClick);
+            // 
+            // btnResync
+            // 
+            this.btnResync.AutoSize = true;
+            this.btnResync.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnResync.Depth = 0;
+            this.btnResync.Icon = null;
+            this.btnResync.Location = new System.Drawing.Point(1222, 797);
+            this.btnResync.Margin = new System.Windows.Forms.Padding(4, 6, 4, 6);
+            this.btnResync.MouseState = MaterialSkin.MouseState.HOVER;
+            this.btnResync.Name = "btnResync";
+            this.btnResync.Primary = false;
+            this.btnResync.Size = new System.Drawing.Size(73, 36);
+            this.btnResync.TabIndex = 10;
+            this.btnResync.Text = "Resync";
+            this.btnResync.UseVisualStyleBackColor = true;
+            this.btnResync.Click += new System.EventHandler(this.OnResyncClick);
             // 
             // DispatchMain
             // 
@@ -261,17 +507,14 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(505, 382);
-            this.Controls.Add(this.btnViewAssignments);
-            this.Controls.Add(this.cadLabel);
-            this.Controls.Add(this.viewOfficers);
-            this.Controls.Add(this.materialDivider2);
-            this.Controls.Add(this.boloLabel);
-            this.Controls.Add(this.btnViewBolos);
-            this.Controls.Add(this.materialDivider1);
-            this.Controls.Add(this.btnViewCivVeh);
+            this.ClientSize = new System.Drawing.Size(1308, 845);
+            this.Controls.Add(this.btnResync);
+            this.Controls.Add(this.tabs);
+            this.Controls.Add(this.tabSelector);
             this.Controls.Add(this.plate);
-            this.Controls.Add(this.civVehLabel);
+            this.Controls.Add(this.toggleDark);
+            this.Controls.Add(this.civvehLabel);
+            this.Controls.Add(this.btnViewCivVeh);
             this.Controls.Add(this.btnViewCiv);
             this.Controls.Add(this.lastName);
             this.Controls.Add(this.firstName);
@@ -281,6 +524,15 @@
             this.Sizable = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Dispatcher";
+            this.assignmentsRightClick.ResumeLayout(false);
+            this.tabs.ResumeLayout(false);
+            this.tab1.ResumeLayout(false);
+            this.tab1.PerformLayout();
+            this.tab2.ResumeLayout(false);
+            this.officersRightClick.ResumeLayout(false);
+            this.tab3.ResumeLayout(false);
+            this.tab3.PerformLayout();
+            this.bolosRightClick.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -292,15 +544,37 @@
         private MaterialSkin.Controls.MaterialSingleLineTextField firstName;
         private MaterialSkin.Controls.MaterialSingleLineTextField lastName;
         private MaterialSkin.Controls.MaterialRaisedButton btnViewCiv;
-        private MaterialSkin.Controls.MaterialLabel civVehLabel;
-        private MaterialSkin.Controls.MaterialSingleLineTextField plate;
         private MaterialSkin.Controls.MaterialRaisedButton btnViewCivVeh;
-        private MaterialSkin.Controls.MaterialDivider materialDivider1;
-        private MaterialSkin.Controls.MaterialRaisedButton btnViewBolos;
-        private MaterialSkin.Controls.MaterialLabel boloLabel;
-        private MaterialSkin.Controls.MaterialDivider materialDivider2;
-        private MaterialSkin.Controls.MaterialLabel cadLabel;
-        private MaterialSkin.Controls.MaterialRaisedButton viewOfficers;
-        private MaterialSkin.Controls.MaterialRaisedButton btnViewAssignments;
+        private MaterialSkin.Controls.MaterialListView assignments;
+        private System.Windows.Forms.ColumnHeader creation;
+        private System.Windows.Forms.ColumnHeader itemSummary;
+        private MaterialSkin.Controls.MaterialLabel civvehLabel;
+        private MaterialSkin.Controls.MaterialCheckBox toggleDark;
+        private MaterialSkin.Controls.MaterialSingleLineTextField plate;
+        private MaterialSkin.Controls.MaterialTabSelector tabSelector;
+        private MaterialSkin.Controls.MaterialTabControl tabs;
+        private System.Windows.Forms.TabPage tab1;
+        private System.Windows.Forms.TabPage tab2;
+        private System.Windows.Forms.TabPage tab3;
+        private MaterialSkin.Controls.MaterialListView officers;
+        private System.Windows.Forms.ColumnHeader ofcCallsign;
+        private System.Windows.Forms.ColumnHeader ofcStatus;
+        private MaterialSkin.Controls.MaterialListView bolos;
+        private System.Windows.Forms.ColumnHeader author;
+        private System.Windows.Forms.ColumnHeader bolo;
+        private MaterialSkin.Controls.MaterialFlatButton btnResync;
+        private MaterialSkin.Controls.MaterialRaisedButton btnAssignmentAdd;
+        private MaterialSkin.Controls.MaterialRaisedButton btnBoloAdd;
+        private MaterialSkin.Controls.MaterialContextMenuStrip assignmentsRightClick;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+        private MaterialSkin.Controls.MaterialContextMenuStrip bolosRightClick;
+        private System.Windows.Forms.ToolStripMenuItem btnRemoveSelected;
+        private MaterialSkin.Controls.MaterialContextMenuStrip officersRightClick;
+        private System.Windows.Forms.ToolStripMenuItem viewStripItem;
+        private System.Windows.Forms.ToolStripMenuItem setStatusStripItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem rightClickOfficerOnDuty;
+        private System.Windows.Forms.ToolStripMenuItem rightClickOfficerOffDuty;
+        private System.Windows.Forms.ToolStripMenuItem rightClickOfficerBusy;
     }
 }

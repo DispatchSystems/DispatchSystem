@@ -26,6 +26,8 @@ namespace DispatchSystem.Client.Windows.Emergency
             civ = requester;
             this.call = call;
 
+            SkinManager.AddFormToManage(this);
+
             information.Text = $"Incoming call from {requester.First} {requester.Last} for an UNKNOWN reason...";
             SetForegroundWindow(Handle);
         }

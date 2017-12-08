@@ -110,7 +110,8 @@ namespace DispatchSystem.Client
                 cd.Start();
                 #endregion
 
-                Application.Run(mainWindow = new DispatchMain());
+                mainWindow = new DispatchMain();
+                Application.Run(mainWindow);
                 cd.Abort();
                 await Client.Disconnect();
 

@@ -23,6 +23,8 @@ namespace DispatchSystem.Client.Windows
             Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
+            SkinManager.AddFormToManage(this);
+
             data = civVehData;
             UpdateCurrentInformation();
         }

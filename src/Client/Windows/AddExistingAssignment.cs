@@ -29,6 +29,8 @@ namespace DispatchSystem.Client.Windows
 
             this.ofc = ofc;
 
+            SkinManager.AddFormToManage(this);
+
             ThreadPool.QueueUserWorkItem(async x =>
             {
                 await Resync(true);

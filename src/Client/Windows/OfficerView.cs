@@ -27,6 +27,7 @@ namespace DispatchSystem.Client.Windows
 
             InitializeComponent();
 
+            SkinManager.AddFormToManage(this);
             ofc = data;
             new Action(async delegate { await SetAssignment(); })();
         }

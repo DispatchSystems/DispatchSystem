@@ -71,18 +71,6 @@
     <Compile Include="Windows\AddRemoveView.Designer.cs">
       <DependentUpon>AddRemoveView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\AssignmentsView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Windows\AssignmentsView.Designer.cs">
-      <DependentUpon>AssignmentsView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Windows\BoloView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Windows\BoloView.Designer.cs">
-      <DependentUpon>BoloView.cs</DependentUpon>
-    </Compile>
     <Compile Include="Windows\CivVehView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -117,12 +105,6 @@
     <Compile Include="Windows\Emergency\Message911.Designer.cs">
       <DependentUpon>Message911.cs</DependentUpon>
     </Compile>
-    <Compile Include="Windows\MultiOfficerView.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Windows\MultiOfficerView.Designer.cs">
-      <DependentUpon>MultiOfficerView.cs</DependentUpon>
-    </Compile>
     <Compile Include="Windows\OfficerView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,12 +116,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\AddRemoveView.resx">
       <DependentUpon>AddRemoveView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\AssignmentsView.resx">
-      <DependentUpon>AssignmentsView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\BoloView.resx">
-      <DependentUpon>BoloView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\CivVehView.resx">
       <DependentUpon>CivVehView.cs</DependentUpon>
@@ -165,9 +141,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\Emergency\Message911.resx">
       <DependentUpon>Message911.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Windows\MultiOfficerView.resx">
-      <DependentUpon>MultiOfficerView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Windows\OfficerView.resx">
       <DependentUpon>OfficerView.cs</DependentUpon>

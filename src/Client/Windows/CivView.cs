@@ -26,6 +26,7 @@ namespace DispatchSystem.Client.Windows
 
             data = civData;
 
+            SkinManager.AddFormToManage(this);
             UpdateCurrentInformation();
         }
 
@@ -64,8 +65,8 @@ namespace DispatchSystem.Client.Windows
         {
             Invoke((MethodInvoker)delegate
             {
-                AddRemoveView view;
-                (view = new AddRemoveView(AddRemoveView.Type.AddNote, data.Id)).Show();
+                AddRemoveView view = new AddRemoveView(AddRemoveView.Type.AddNote, data.Id);
+                view.Show();
                 view.FormClosed += async delegate
                 {
                     await Resync(true);

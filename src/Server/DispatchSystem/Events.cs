@@ -229,7 +229,7 @@ namespace DispatchSystem.Server
 #endif
 
             // finding the dispatcher ip
-            var dispatcherIp = Server.Calls[call.Id];
+            string dispatcherIp = Server.Calls.ContainsKey(call.Id) ? Server.Calls[call.Id] : null;
             ConnectedPeer peer = Server.ConnectedDispatchers.FirstOrDefault(x => x.RemoteIP == dispatcherIp); // finding the peer from the ip
             var task = peer?.RemoteCallbacks.Events?["end" + call.Id].Invoke(); // creating the task from the events
 

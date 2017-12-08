@@ -28,6 +28,7 @@ namespace DispatchSystem.Client.Windows
             Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
+            SkinManager.AddFormToManage(this);
             FormType = formType;
             arguments = args;
 

@@ -22,6 +22,8 @@ namespace DispatchSystem.Client.Windows.Emergency
             Icon = Icon.ExtractAssociatedIcon("icon.ico");
             InitializeComponent();
 
+            SkinManager.AddFormToManage(this);
+
             this.civ = civ;
             this.call = call;
 
