@@ -1,0 +1,6 @@
+If you're a developer, ignore this.
+
+You probably downloaded this as a zip and don't understand how to install it.
+This is the source code, not the exes, dlls, and all of that.
+Please visit "https://github.com/blockba5her/dispatchsystem/releases" to download the compiled and production-ready files.
+If you have any questions, gently tap that Discord button in the readme and go to #help-me.
