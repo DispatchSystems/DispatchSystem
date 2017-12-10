@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -33,19 +32,23 @@ namespace DispatchSystem.Client.Windows
                 Primary.DeepPurple400, Accent.DeepPurple200, TextShade.WHITE);
 
             // Starting Timer
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-            timer.Tick += delegate
+            var timer = new Timer();
+
+            void Sync(object sender, EventArgs args)
             {
 #pragma warning disable 4014 // Non-awaited task warning
                 Resync(true);
 #pragma warning restore 4014
-            };
+            }
+            timer.Tick += Sync;
+
+            Sync(this, EventArgs.Empty);
 
             timer.Interval = 15000;
             timer.Start();
         }
 
-        public void UpdateCurrentInformation()
+        private void UpdateAssignmentInformation()
         {
             assignments.Items.Clear();
             foreach (var item in a)
@@ -54,7 +57,9 @@ namespace DispatchSystem.Client.Windows
                 lvi.SubItems.Add(item.Summary);
                 assignments.Items.Add(lvi);
             }
-
+        }
+        private void UpdateOfficerInformation()
+        {
             officers.Items.Clear();
             foreach (Officer ofc in o)
             {
@@ -62,7 +67,9 @@ namespace DispatchSystem.Client.Windows
                 lvi.SubItems.Add(ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy");
                 officers.Items.Add(lvi);
             }
-
+        }
+        private void UpdateBoloInformation()
+        {
             bolos.Items.Clear();
             foreach (Bolo t in b)
             {
@@ -70,6 +77,14 @@ namespace DispatchSystem.Client.Windows
                 lvi.SubItems.Add(t.Reason);
                 bolos.Items.Add(lvi);
             }
+        }
+        public void UpdateCurrentInformation()
+        {
+            UpdateAssignmentInformation();
+
+            UpdateOfficerInformation();
+
+            UpdateBoloInformation();
         }
         private async Task SyncAssignments()
         {
@@ -217,7 +232,7 @@ namespace DispatchSystem.Client.Windows
                 addBtn = null;
                 await SyncAssignments();
 
-                Invoke((MethodInvoker) UpdateCurrentInformation);
+                Invoke((MethodInvoker) UpdateAssignmentInformation);
             };
         }
         private void OnAddBoloClick(object sender, EventArgs e)
@@ -235,7 +250,7 @@ namespace DispatchSystem.Client.Windows
                 addBtn = null;
                 await SyncBolos();
 
-                Invoke((MethodInvoker) UpdateCurrentInformation);
+                Invoke((MethodInvoker) UpdateBoloInformation);
             };
         }
 
@@ -251,7 +266,7 @@ namespace DispatchSystem.Client.Windows
             await Program.Client.Peer.RemoteCallbacks.Events["RemoveAssignment"].Invoke(assignment.Id);
 
             await SyncAssignments();
-            Invoke((MethodInvoker) UpdateCurrentInformation);
+            Invoke((MethodInvoker) UpdateAssignmentInformation);
         }
 
         // BOLOs Right Click Menu
@@ -261,7 +276,9 @@ namespace DispatchSystem.Client.Windows
             {
                 await Program.Client.Peer.RemoteCallbacks.Events["RemoveBolo"]
                     .Invoke(bolos.Items.IndexOf(bolos.SelectedItems[0]));
-                await Resync(true);
+
+                await SyncBolos();
+                Invoke((MethodInvoker) UpdateBoloInformation);
             }
         }
 
@@ -308,7 +325,8 @@ namespace DispatchSystem.Client.Windows
                 }
             } while (false);
 
-            await Resync(true);
+            await SyncOfficers();
+            Invoke((MethodInvoker) UpdateOfficerInformation);
         }
         private void ViewOfficer(object sender, EventArgs e)
         {
@@ -331,7 +349,7 @@ namespace DispatchSystem.Client.Windows
             await Program.Client.Peer.RemoteCallbacks.Events["RemoveOfficer"].Invoke(ofc.Id);
 
             await SyncOfficers();
-            Invoke((MethodInvoker) UpdateCurrentInformation);
+            Invoke((MethodInvoker) UpdateOfficerInformation);
         }
     }
 }

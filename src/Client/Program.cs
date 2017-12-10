@@ -38,7 +38,7 @@ namespace DispatchSystem.Client
             {
                 Client.Encryption = new EncryptionOptions
                 {
-                    Encrypt = true,
+                    Encrypt = false,
                     Overridable = true
                 };
                 Client.Compression = new CompressionOptions

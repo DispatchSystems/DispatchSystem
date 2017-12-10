@@ -522,8 +522,7 @@
             this.MaximizeBox = false;
             this.Name = "DispatchMain";
             this.Sizable = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Dispatcher";
+            this.Text = "Terminal";
             this.assignmentsRightClick.ResumeLayout(false);
             this.tabs.ResumeLayout(false);
             this.tab1.ResumeLayout(false);

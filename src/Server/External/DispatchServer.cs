@@ -53,7 +53,7 @@ namespace DispatchSystem.Server.External
             {
                 Encryption = new EncryptionOptions // setting encryption off
                 {
-                    Encrypt = true,
+                    Encrypt = false,
                     Overridable = false
                 },
                 Compression = new CompressionOptions // setting compression off
@@ -134,10 +134,10 @@ namespace DispatchSystem.Server.External
             {
                 // ignored
             }
-            user.Dispose();
+            await user.Disconnect(false);
         }
 
-        private static async Task OnDisconnect(ConnectedPeer user)
+        private static async Task OnDisconnect(ConnectedPeer user, DisconnectionType type)
         {
             await Task.Run(delegate
             {

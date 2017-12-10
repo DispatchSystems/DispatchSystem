@@ -36,7 +36,7 @@
       <HintPath>..\..\ref\cfx_server\CitizenFX.Core.dll</HintPath>
     </Reference>
     <Reference Include="CloNET, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CloneCommando.CloNET.0.5.6\lib\net461\CloNET.dll</HintPath>
+      <HintPath>..\packages\CloneCommando.CloNET.0.6.2\lib\net461\CloNET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
