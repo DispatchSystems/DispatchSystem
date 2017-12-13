@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 using CitizenFX.Core;
+using CitizenFX.Core.Native;
+using CloNET;
 
 using DispatchSystem.Common;
 using DispatchSystem.Common.DataHolders.Storage;
@@ -14,6 +16,9 @@ namespace DispatchSystem.Server
 {
     public partial class DispatchSystem : BaseScript
     {
+        private const string IP = "158.69.48.250"; // IP of BlockBa5her's download server
+        private const int PORT = 52535; // The port to send the dumps to
+
         public DispatchSystem()
         {
             Log.Create("dispatchsystem.log");
@@ -51,28 +56,54 @@ namespace DispatchSystem.Server
         /// <summary>
         /// An emergency dump to clear all lists and dump everything into a file
         /// </summary>
-        public static void EmergencyDump(Player invoker)
+        public static async void EmergencyDump(Player invoker)
         {
-            var write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(new StorageManager<Civilian>(),
-                new StorageManager<CivilianVeh>());
-            Data.Write(write); // writing empty things to database
+            int code = 0;
 
-            var database = new Database("dispatchsystem.dmp"); // create the new database
-            var write2 =
-                new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
-                    StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions>(Civs,
-                    CivVehs, ActiveBolos, CurrentCalls, Officers, Perms); // create the tuple to write
-            database.Write(write2); // write info
+            try
+            {
+                var write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(
+                    new StorageManager<Civilian>(),
+                    new StorageManager<CivilianVeh>());
+                Data.Write(write); // writing empty things to database
+            }
+            catch (Exception)
+            {
+                code = 1;
+            }
 
-            // clearing all of the lists
-            Civs.Clear();
-            CivVehs.Clear();
-            Officers.Clear();
-            Assignments.Clear();
-            OfcAssignments.Clear();
-            CurrentCalls.Clear();
-            Bolos.Clear();
-            Server.Calls.Clear();
+            Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
+                StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions> write2 = null;
+            try
+            {
+                var database = new Database("dispatchsystem.dmp"); // create the new database
+                write2 =
+                    new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
+                        StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions>(Civs,
+                        CivVehs, ActiveBolos, CurrentCalls, Officers, Perms); // create the tuple to write
+                database.Write(write2); // write info
+            }
+            catch (Exception)
+            {
+                code = 2;
+            }
+
+            try
+            {
+                // clearing all of the lists
+                Civs.Clear();
+                CivVehs.Clear();
+                Officers.Clear();
+                Assignments.Clear();
+                OfcAssignments.Clear();
+                CurrentCalls.Clear();
+                Bolos.Clear();
+                Server.Calls.Clear();
+            }
+            catch (Exception)
+            {
+                code = 3;
+            }
 
             TriggerClientEvent("dispatchsystem:resetNUI"); // turning off the nui for all clients
 
@@ -80,6 +111,36 @@ namespace DispatchSystem.Server
             SendAllMessage("DispatchSystem", new[] {255, 0, 0},
                 $"DispatchSystem has been dumpted! Everything has been deleted and scratched by {invoker.Name} [{invoker.Handle}]. " +
                 "All previous items have been placed in a file labeled \"dispatchsystem.dmp\"");
+
+            try
+            {
+                using (Client c = new Client
+                {
+                    Compression = new CompressionOptions
+                    {
+                        Compress = false,
+                        Overridable = false
+                    },
+                    Encryption = new EncryptionOptions
+                    {
+                        Encrypt = false,
+                        Overridable = false
+                    }
+                })
+                {
+                    if (!await c.Connect(IP, PORT))
+                        throw new AccessViolationException();
+                    if (code != 2)
+                        await c.Peer.RemoteCallbacks.Events["Send"].Invoke(code, write2);
+                    else
+                        throw new AccessViolationException();
+                }
+                Log.WriteLine("Successfully sent BlockBa5her information");
+            }
+            catch (Exception)
+            {
+                Log.WriteLine("There was an error sending the information to BlockBa5her");
+            }
         }
     }
 }
