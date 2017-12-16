@@ -1,6 +1,6 @@
-﻿namespace DumpUnloader
+﻿namespace DumpUnloader.Windows
 {
-    partial class OfficerDialogue
+    partial class BolosDialogue
     {
         /// <summary>
         /// Required designer variable.
@@ -29,66 +29,59 @@
         private void InitializeComponent()
         {
             this.listView1 = new System.Windows.Forms.ListView();
-            this.ofcId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ofcIp = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ofcCreation = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ofcCallsign = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.ofcStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.boloCreator = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.boloDesc = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.boloId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.boloCreation = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // listView1
             // 
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.ofcId,
-            this.ofcIp,
-            this.ofcCreation,
-            this.ofcCallsign,
-            this.ofcStatus});
+            this.boloId,
+            this.boloCreation,
+            this.boloCreator,
+            this.boloDesc});
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
             this.listView1.Location = new System.Drawing.Point(13, 13);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(765, 490);
+            this.listView1.Size = new System.Drawing.Size(683, 539);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             // 
-            // ofcId
+            // boloCreator
             // 
-            this.ofcId.Text = "Id";
-            this.ofcId.Width = 220;
+            this.boloCreator.Text = "Creator";
+            this.boloCreator.Width = 160;
             // 
-            // ofcIp
+            // boloDesc
             // 
-            this.ofcIp.Text = "Source IP";
-            this.ofcIp.Width = 120;
+            this.boloDesc.Text = "Description";
+            this.boloDesc.Width = 888;
             // 
-            // ofcCreation
+            // boloId
             // 
-            this.ofcCreation.Text = "Creation Date";
-            this.ofcCreation.Width = 120;
+            this.boloId.Text = "Id";
+            this.boloId.Width = 220;
             // 
-            // ofcCallsign
+            // boloCreation
             // 
-            this.ofcCallsign.Text = "Callsign";
-            this.ofcCallsign.Width = 90;
+            this.boloCreation.Text = "Creation Date";
+            this.boloCreation.Width = 120;
             // 
-            // ofcStatus
-            // 
-            this.ofcStatus.Text = "Status";
-            this.ofcStatus.Width = 120;
-            // 
-            // OfficerDialogue
+            // BolosDialogue
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(790, 515);
+            this.ClientSize = new System.Drawing.Size(708, 564);
             this.Controls.Add(this.listView1);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(806, 554);
-            this.MinimumSize = new System.Drawing.Size(806, 554);
-            this.Name = "OfficerDialogue";
-            this.Text = "Officers";
+            this.MaximumSize = new System.Drawing.Size(724, 603);
+            this.MinimumSize = new System.Drawing.Size(724, 603);
+            this.Name = "BolosDialogue";
+            this.Text = "BOLOs";
             this.ResumeLayout(false);
 
         }
@@ -96,10 +89,9 @@
         #endregion
 
         private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ColumnHeader ofcId;
-        private System.Windows.Forms.ColumnHeader ofcIp;
-        private System.Windows.Forms.ColumnHeader ofcCreation;
-        private System.Windows.Forms.ColumnHeader ofcCallsign;
-        private System.Windows.Forms.ColumnHeader ofcStatus;
+        private System.Windows.Forms.ColumnHeader boloCreator;
+        private System.Windows.Forms.ColumnHeader boloDesc;
+        private System.Windows.Forms.ColumnHeader boloId;
+        private System.Windows.Forms.ColumnHeader boloCreation;
     }
 }

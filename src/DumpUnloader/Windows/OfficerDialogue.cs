@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using DispatchSystem.Common.DataHolders.Storage;
 
-namespace DumpUnloader
+namespace DumpUnloader.Windows
 {
     public partial class OfficerDialogue : Form
     {

@@ -63,7 +63,14 @@ namespace Dump_Server
             while (File.Exists($"dumps/{path}.json"))
                 path = $"{peer.RemoteIP.Replace(".", "-")}.{++i}";
 
-            new Saver(path, info, code);
+            try
+            {
+                new Saver(path, info, code);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error saving files: \n" + e); // logging the problem (only available to BlockBa5her)
+            }
         }
     }
 }

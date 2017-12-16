@@ -44,6 +44,7 @@ luac.out
 src/Client/obj/*
 src/Server/obj/*
 src/Common/obj/*
+src/DumpServer/obj/*
 src/DumpUnloader/obj/*
 src/bin/*
 .vs/*

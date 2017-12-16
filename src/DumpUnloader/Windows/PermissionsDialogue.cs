@@ -1,7 +1,7 @@
 ﻿using System.Windows.Forms;
 using DispatchSystem.Common;
 
-namespace DumpUnloader
+namespace DumpUnloader.Windows
 {
     public partial class PermissionsDialogue : Form
     {

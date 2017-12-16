@@ -1,6 +1,6 @@
-﻿namespace DumpUnloader
+﻿namespace DumpUnloader.Windows
 {
-    partial class CallDialogue
+    partial class OfficerDialogue
     {
         /// <summary>
         /// Required designer variable.
@@ -29,63 +29,66 @@
         private void InitializeComponent()
         {
             this.listView1 = new System.Windows.Forms.ListView();
-            this.callId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.callIp = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.callPlayer = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.callAccepted = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.callDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ofcId = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ofcIp = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ofcCreation = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ofcCallsign = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ofcStatus = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // listView1
             // 
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.callId,
-            this.callIp,
-            this.callDate,
-            this.callPlayer,
-            this.callAccepted});
+            this.ofcId,
+            this.ofcIp,
+            this.ofcCreation,
+            this.ofcCallsign,
+            this.ofcStatus});
             this.listView1.FullRowSelect = true;
             this.listView1.GridLines = true;
             this.listView1.Location = new System.Drawing.Point(13, 13);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(796, 543);
+            this.listView1.Size = new System.Drawing.Size(765, 490);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             // 
-            // callId
+            // ofcId
             // 
-            this.callId.Text = "Id";
-            this.callId.Width = 220;
+            this.ofcId.Text = "Id";
+            this.ofcId.Width = 220;
             // 
-            // callIp
+            // ofcIp
             // 
-            this.callIp.Text = "Source IP";
-            this.callIp.Width = 120;
+            this.ofcIp.Text = "Source IP";
+            this.ofcIp.Width = 120;
             // 
-            // callPlayer
+            // ofcCreation
             // 
-            this.callPlayer.Text = "Player";
-            this.callPlayer.Width = 120;
+            this.ofcCreation.Text = "Creation Date";
+            this.ofcCreation.Width = 120;
             // 
-            // callAccepted
+            // ofcCallsign
             // 
-            this.callAccepted.Text = "Accepted";
-            this.callAccepted.Width = 80;
+            this.ofcCallsign.Text = "Callsign";
+            this.ofcCallsign.Width = 90;
             // 
-            // callDate
+            // ofcStatus
             // 
-            this.callDate.Text = "Creation Date";
-            this.callDate.Width = 120;
+            this.ofcStatus.Text = "Status";
+            this.ofcStatus.Width = 120;
             // 
-            // CallDialogue
+            // OfficerDialogue
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(821, 568);
+            this.ClientSize = new System.Drawing.Size(790, 515);
             this.Controls.Add(this.listView1);
-            this.Name = "CallDialogue";
-            this.Text = "Calls";
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(806, 554);
+            this.MinimumSize = new System.Drawing.Size(806, 554);
+            this.Name = "OfficerDialogue";
+            this.Text = "Officers";
             this.ResumeLayout(false);
 
         }
@@ -93,10 +96,10 @@
         #endregion
 
         private System.Windows.Forms.ListView listView1;
-        private System.Windows.Forms.ColumnHeader callId;
-        private System.Windows.Forms.ColumnHeader callIp;
-        private System.Windows.Forms.ColumnHeader callPlayer;
-        private System.Windows.Forms.ColumnHeader callAccepted;
-        private System.Windows.Forms.ColumnHeader callDate;
+        private System.Windows.Forms.ColumnHeader ofcId;
+        private System.Windows.Forms.ColumnHeader ofcIp;
+        private System.Windows.Forms.ColumnHeader ofcCreation;
+        private System.Windows.Forms.ColumnHeader ofcCallsign;
+        private System.Windows.Forms.ColumnHeader ofcStatus;
     }
 }

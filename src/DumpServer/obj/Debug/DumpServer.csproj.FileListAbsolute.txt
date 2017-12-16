@@ -1,7 +1,0 @@
-C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\DumpServer\obj\Debug\DumpServer.csprojResolveAssemblyReference.cache
-C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\DumpServer\obj\Debug\DumpServer.csproj.CoreCompileInputs.cache
-C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\bin\DumpServer\Debug\DumpServer.exe.config
-C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\bin\DumpServer\Debug\DumpServer.exe
-C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\bin\DumpServer\Debug\DumpServer.pdb
-C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\DumpServer\obj\Debug\DumpServer.exe
-C:\Users\BlockBa5her\Documents\Visual Studio 2017\Projects\!repos\dispatchsystem\src\DumpServer\obj\Debug\DumpServer.pdb

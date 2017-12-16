@@ -45,69 +45,69 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BolosDialogue.cs">
+    <Compile Include="Windows\BolosDialogue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BolosDialogue.Designer.cs">
+    <Compile Include="Windows\BolosDialogue.Designer.cs">
       <DependentUpon>BolosDialogue.cs</DependentUpon>
     </Compile>
-    <Compile Include="CallDialogue.cs">
+    <Compile Include="Windows\CallDialogue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CallDialogue.Designer.cs">
+    <Compile Include="Windows\CallDialogue.Designer.cs">
       <DependentUpon>CallDialogue.cs</DependentUpon>
     </Compile>
-    <Compile Include="CivilianDialogue.cs">
+    <Compile Include="Windows\CivilianDialogue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CivilianDialogue.Designer.cs">
+    <Compile Include="Windows\CivilianDialogue.Designer.cs">
       <DependentUpon>CivilianDialogue.cs</DependentUpon>
     </Compile>
     <Compile Include="Dump.cs" />
     <Compile Include="DumpParser.cs" />
-    <Compile Include="DumpDialogue.cs">
+    <Compile Include="Windows\DumpDialogue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DumpDialogue.Designer.cs">
+    <Compile Include="Windows\DumpDialogue.Designer.cs">
       <DependentUpon>DumpDialogue.cs</DependentUpon>
     </Compile>
     <Compile Include="DumpResult.cs" />
-    <Compile Include="OfficerDialogue.cs">
+    <Compile Include="Windows\OfficerDialogue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="OfficerDialogue.Designer.cs">
+    <Compile Include="Windows\OfficerDialogue.Designer.cs">
       <DependentUpon>OfficerDialogue.cs</DependentUpon>
     </Compile>
-    <Compile Include="PermissionsDialogue.cs">
+    <Compile Include="Windows\PermissionsDialogue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="PermissionsDialogue.Designer.cs">
+    <Compile Include="Windows\PermissionsDialogue.Designer.cs">
       <DependentUpon>PermissionsDialogue.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VehicleDialogue.cs">
+    <Compile Include="Windows\VehicleDialogue.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="VehicleDialogue.Designer.cs">
+    <Compile Include="Windows\VehicleDialogue.Designer.cs">
       <DependentUpon>VehicleDialogue.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="BolosDialogue.resx">
+    <EmbeddedResource Include="Windows\BolosDialogue.resx">
       <DependentUpon>BolosDialogue.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CallDialogue.resx">
+    <EmbeddedResource Include="Windows\CallDialogue.resx">
       <DependentUpon>CallDialogue.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="CivilianDialogue.resx">
+    <EmbeddedResource Include="Windows\CivilianDialogue.resx">
       <DependentUpon>CivilianDialogue.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="DumpDialogue.resx">
+    <EmbeddedResource Include="Windows\DumpDialogue.resx">
       <DependentUpon>DumpDialogue.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="OfficerDialogue.resx">
+    <EmbeddedResource Include="Windows\OfficerDialogue.resx">
       <DependentUpon>OfficerDialogue.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="PermissionsDialogue.resx">
+    <EmbeddedResource Include="Windows\PermissionsDialogue.resx">
       <DependentUpon>PermissionsDialogue.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -119,7 +119,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="VehicleDialogue.resx">
+    <EmbeddedResource Include="Windows\VehicleDialogue.resx">
       <DependentUpon>VehicleDialogue.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">

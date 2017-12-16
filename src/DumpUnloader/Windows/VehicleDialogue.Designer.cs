@@ -1,4 +1,4 @@
-﻿namespace DumpUnloader
+﻿namespace DumpUnloader.Windows
 {
     partial class VehicleDialogue
     {
