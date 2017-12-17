@@ -1,12 +1,12 @@
-﻿// Created by Clone Commando: https://github.com/Clone-Commando
+﻿//Created by Clone Commando: https://github.com/Clone-Commando
 
-// FEATURES:
-// Low memory usage
-// Least looping as possible to be heckin' CPU effecient
-// Parsing
-// Custom serialization for maximum data compression
-// Method documentation
-// XTREME COMMENTING
+//FEATURES:
+//Low memory usage
+//Least looping as possible to be heckin' CPU effecient
+//Parsing
+//Custom serialization for maximum data compression
+//Method documentation
+//XTREME COMMENTING
 
 using System;
 using System.Collections.Generic;
@@ -18,26 +18,18 @@ namespace DispatchSystem.Common
     [Serializable]
     public class BareGuid
     {
-        private byte[] bytes;
+        private byte[] Bytes;
 
         #region Constructors
-
         private BareGuid() =>
-            bytes = new byte[16];
+            Bytes = new byte[16];
+
         /// <summary>
         /// Creates a new BareGuild from an array of 16 bytes.
         /// </summary>
         /// <param name="bytes">The byte array to create the BareGuild from</param>
         public BareGuid(byte[] bytes) =>
-            this.bytes = FromBytes(bytes).bytes;
-
-        /// <inheritdoc />
-        /// <summary>
-        /// Serialization stuff you don't need to worry about.
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public BareGuid(SerializationInfo info, StreamingContext context) : this((byte[])info.GetValue(nameof(bytes), typeof(byte[]))) { }
+            Bytes = FromBytes(bytes).Bytes;
         #endregion
 
         #region Creation/getting object
@@ -67,9 +59,9 @@ namespace DispatchSystem.Common
             if (existing == null)
                 throw new ArgumentNullException(nameof(existing));
 
-            BareGuid guid = default(BareGuid);
+            BareGuid guid = null;
             IEnumerable<BareGuid> betterGuids = existing as BareGuid[] ?? existing.ToArray();
-            while (guid == default(BareGuid) || betterGuids.Contains(guid))
+            while (guid == null || betterGuids.Contains(guid))
                 guid = NewBareGuid();
 
             return guid;
@@ -82,7 +74,7 @@ namespace DispatchSystem.Common
 
             return new BareGuid
             {
-                bytes = bytes
+                Bytes = bytes
             };
         }
         #endregion
@@ -130,7 +122,7 @@ namespace DispatchSystem.Common
             }
             catch
             {
-                guid = default(BareGuid);
+                guid = null;
                 return false;
             }
         }
@@ -139,6 +131,9 @@ namespace DispatchSystem.Common
         #region Overrides and operators
         public override bool Equals(object obj)
         {
+            if (obj == null)
+                throw new ArgumentNullException(nameof(obj));
+
             try
             {
                 return this == (BareGuid)obj;
@@ -149,10 +144,10 @@ namespace DispatchSystem.Common
             }
         }
         public override int GetHashCode() =>
-            bytes[0] + bytes[1] + bytes[2] + bytes[3] + bytes[4] + bytes[5] + bytes[6] + bytes[7];
+            Bytes[0] + Bytes[1] + Bytes[2] + Bytes[3] + Bytes[4] + Bytes[5] + Bytes[6] + Bytes[7];
         public override string ToString()
         {
-            char[] chars = BitConverter.ToString(bytes).ToCharArray();
+            char[] chars = BitConverter.ToString(Bytes).ToCharArray();
             string str = new string(new char[]
             {
                 chars[0], chars[1],
@@ -186,7 +181,17 @@ namespace DispatchSystem.Common
 
         public static bool operator ==(BareGuid guid1, BareGuid guid2)
         {
-            return !ReferenceEquals(guid1, null) && guid1.ToString() == guid2?.ToString();
+            if (ReferenceEquals(guid1, null))
+                throw new ArgumentNullException(nameof(guid1));
+
+            if (ReferenceEquals(guid2, null))
+                throw new ArgumentNullException(nameof(guid2));
+
+            bool equals = true;
+            for (int i = 0; i < 16; i++)
+                equals = equals && guid1.Bytes[i] == guid2.Bytes[i];
+
+            return equals;
         }
         public static bool operator !=(BareGuid guid1, BareGuid guid2) =>
             !(guid1 == guid2);
