@@ -1,4 +1,4 @@
-@echo on
+@echo off
 
 rem                 Please Note:
 rem                   - Should be inside the src/bin folder for it to work
