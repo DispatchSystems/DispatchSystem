@@ -41,11 +41,7 @@ luac.out
 *.userprefs
 
 # Build folders
-src/Client/obj/*
-src/Server/obj/*
-src/Common/obj/*
-src/DumpServer/obj/*
-src/DumpUnloader/obj/*
+obj/
 src/bin/*
 .vs/*
 src/.vs/*
