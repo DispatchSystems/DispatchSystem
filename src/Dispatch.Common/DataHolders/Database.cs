@@ -65,18 +65,14 @@ namespace EZDatabase
                                     ? new BinaryFormatter().Deserialize(uncompressed)
                                     : null; // Deserialization of the bytes given
                             }
-                            catch (SerializationException) // Catching anything that has to due with serialization
+                            catch (Exception e)
                             {
+                                if (!(e is SerializationException) && !(e is IOException))
+                                    throw;
+
                                 failed++;
-                            }
-                            catch (IOException) // Catching anything that has to due with IO streams corrupting
-                            {
-                                failed++;
-                            }
-                            finally // throwing exception if failed too many times
-                            {
                                 if (failed > MAX_FAIL)
-                                    throw new SerializationException("Database failed to serialize items after " + MAX_FAIL + " attempts");
+                                    throw new SerializationException("Database failed to serialize items after " + MAX_FAIL + " attempts", e);
                             }
                         }
                     }
@@ -122,18 +118,14 @@ namespace EZDatabase
                                 break;
                             }
                         }
-                        catch (SerializationException) // Catching anything that has to due with serialization
+                        catch (Exception e)
                         {
+                            if (!(e is SerializationException) && !(e is IOException))
+                                throw;
+
                             failed++;
-                        }
-                        catch (IOException) // Catching anything that has to due with IO streams corrupting
-                        {
-                            failed++;
-                        }
-                        finally // throwing exception if failed too many times
-                        {
                             if (failed > MAX_FAIL)
-                                throw new SerializationException("Database failed to serialize items after " + MAX_FAIL + " attempts");
+                                throw new SerializationException("Database failed to serialize items after " + MAX_FAIL + " attempts", e);
                         }
                     }
 

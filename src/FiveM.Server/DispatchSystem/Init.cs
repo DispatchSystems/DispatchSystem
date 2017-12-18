@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using CitizenFX.Core;
 using Dispatch.Common.DataHolders.Storage;
 
 using Config.Reader;
@@ -96,7 +97,35 @@ namespace DispatchSystem.Server
                 {
                     Log.WriteLine("Reading database...");
                     Data = new Database("dispatchsystem.data"); // creating the database instance
-                    Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read = Data.Read(); // reading the serialized tuple from the database
+                    Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read;
+                    try
+                    {
+                        read = Data.Read(); // reading the serialized tuple from the database
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine("----------------------------------------\n" +
+                                        "     Error reading the data file\n" +
+                                        "   More information in the log file\n" +
+                                        "----------------------------------------");
+                        Log.WriteLineSilent(e.ToString());
+                        try
+                        {
+                            Data.Write(null);
+                        }
+                        catch (Exception e2)
+                        {
+                            Debug.WriteLine("-------------------------------------------\n" +
+                                            "     Error writing the data file\n" +
+                                            "    Is this a read/write problem?\n" +
+                                            "   Stopping database functionality\n" +
+                                            "   More information in the log file\n" +
+                                            "-------------------------------------------");
+                            Log.WriteLineSilent(e2.ToString());
+                            return;
+                        }
+                        read = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(null, null);
+                    }
                     Civs = read?.Item1 ?? new StorageManager<Civilian>();
                     CivVehs = read?.Item2 ?? new StorageManager<CivilianVeh>();
                     Log.WriteLine("Read and set database"); // logging done
