@@ -1,4 +1,5 @@
 var lastmenu;
+var lastinfo;
 var resourcename;
 
 $( function() {
@@ -15,18 +16,21 @@ $( function() {
             ofcContainer.show();
             $("#ofcinfo").show();
             lastmenu = ofcContainer;
+			lastinfo = $("#ofcinfo");
         }
         if ( item.showcivmenu ) {
             $("div").hide();
             civContainer.show();
             $("#civinfo").show();
             lastmenu = ofcContainer;
+			lastinfo = $("#civinfo");
         }
         if (item.openlastmenu) {
             lastmenu.show();
+			lastinfo.show();
         }
         if ( item.hidemenus ) {
-            lastmenu.hide();
+            exit();
         }
         if ( item.setname ) {
             resourcename = item.metadata;

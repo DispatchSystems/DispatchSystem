@@ -2,15 +2,19 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using CitizenFX.Core;
-using Dispatch.Common.DataHolders.Storage;
-
-using Config.Reader;
-using EZDatabase;
 
 using CitizenFX.Core.Native;
-using Dispatch.Common;
+using CitizenFX.Core;
+
+using Config.Reader;
+
+using EZDatabase;
+
 using DispatchSystem.Server.External;
+using DispatchSystem.Server.RequestHandling;
+
+using Dispatch.Common;
+using Dispatch.Common.DataHolders.Storage;
 
 namespace DispatchSystem.Server
 {
@@ -18,51 +22,65 @@ namespace DispatchSystem.Server
     {
         private void RegisterEvents()
         {
-            // adding the main events
-            EventHandlers["chatMessage"] += new Action<int, string, string>(OnChatMessage);
-            EventHandlers["dispatchsystem:dsreset"] += new Action<string>(DispatchReset);
-            EventHandlers["dispatchsystem:requestClientInfo"] += new Action<string>(PushbackClientInfo);
+            // source, type, error, args, calArgs
+            EventHandlers["dispatchsystem:event"] +=
+                new Action<int, string, string, List<object>, List<object>>((source, type, error, args, calArgs) => { });
+            // type, args, calArgs
+            EventHandlers["dispatchsystem:post"] +=
+                new Action<string, List<object>, List<object>>((str, args, calArgs) =>
+                    ReqHandler.Handle(str, args.ToArray(), calArgs?.ToArray()));
 
-            // civilian events
-            #region Civilian Commands
-            EventHandlers["dispatchsystem:displayCiv"] += new Action<string>(DisplayCurrentCivilian);
-            EventHandlers["dispatchsystem:setName"] += new Action<string, string, string>(SetName);
-            EventHandlers["dispatchsystem:toggleWarrant"] += new Action<string>(ToggleWarrant);
-            EventHandlers["dispatchsystem:setCitations"] += new Action<string, int>(SetCitations);
-            EventHandlers["dispatchsystem:911init"] += new Action<string>(InitializeEmergency);
-            EventHandlers["dispatchsystem:911msg"] += new Action<string, string>(MessageEmergency);
-            EventHandlers["dispatchsystem:911end"] += new Action<string>(EndEmergency);
-            #endregion
+            #region Request Types
+            Log.WriteLine("Adding request types to request handler");
+            ReqHandler.Types = new List<Request>
+            {
+                // General events
+                new Request("gen_reset", args => DispatchReset((string)args[0])),
+                new Request("gen_dump", args => EmergencyDump(Common.GetPlayerByHandle((string)args[0])).Result),
+                new Request("gen_info", args => PushClientInfo((string)args[0])),
 
-            // events for vehicles
-            #region Vehicle Commands
-            EventHandlers["dispatchsystem:displayVeh"] += new Action<string>(DisplayCurrentVehicle);
-            EventHandlers["dispatchsystem:setVehicle"] += new Action<string, string>(SetVehicle);
-            EventHandlers["dispatchsystem:toggleVehStolen"] += new Action<string>(ToggleVehicleStolen);
-            EventHandlers["dispatchsystem:toggleVehRegi"] += new Action<string>(ToggleVehicleRegistration);
-            EventHandlers["dispatchsystem:toggleVehInsured"] += new Action<string>(ToggleVehicleInsurance);
-            #endregion
+                // Civilian events
+                new Request("civ_display", args => DisplayCurrentCivilian((string)args[0])),
+                new Request("civ_create", args => SetName((string)args[0], (string)args[1], (string)args[2])),
+                new Request("civ_toggle_warrant", args => ToggleWarrant((string)args[0])),
+                new Request("civ_set_citations", args => SetCitations((string)args[0], (int)args[1])),
+                new Request("civ_911_init", args => InitializeEmergency((string)args[0]).Result),
+                new Request("civ_911_msg", args => MessageEmergency((string)args[0], (string)args[1]).Result),
+                new Request("civ_911_end", args => EndEmergency((string)args[0]).Result),
 
-            // officer specific events
-            #region Police Commands
-            EventHandlers["dispatchsystem:initOfficer"] += new Action<string, string>(AddOfficer);
-            EventHandlers["dispatchsystem:onDuty"] += new Action<string>(ToggleOnDuty);
-            EventHandlers["dispatchsystem:offDuty"] += new Action<string>(ToggleOffDuty);
-            EventHandlers["dispatchsystem:busy"] += new Action<string>(ToggleBusy);
-            EventHandlers["dispatchsystem:displayStatus"] += new Action<string>(DisplayStatus);
-            EventHandlers["dispatchsystem:getCivilian"] += new Action<string, string, string>(RequestCivilian);
-            EventHandlers["dispatchsystem:addCivNote"] += new Action<string, string, string, string>(AddCivilianNote);
-            EventHandlers["dispatchsystem:ticketCiv"] += new Action<string, string, string, string, float>(TicketCivilian);
-            EventHandlers["dispatchsystem:civTickets"] += new Action<string, string, string>(DisplayCivilianTickets);
-            EventHandlers["dispatchsystem:displayCivNotes"] += new Action<string, string, string>(DipslayCivilianNotes);
-            EventHandlers["dispatchsystem:getCivilianVeh"] += new Action<string, string>(RequestCivilianVeh);
-            EventHandlers["dispatchsystem:addBolo"] += new Action<string, string>(AddBolo);
-            EventHandlers["dispatchsystem:viewBolos"] += new Action<string>(ViewBolos);
+                // Vehicle events
+                new Request("veh_display", args => DisplayCurrentVehicle((string)args[0])),
+                new Request("veh_create", args => SetVehicle((string)args[0], (string)args[1])),
+                new Request("veh_toggle_stolen", args => ToggleVehicleStolen((string)args[0])),
+                new Request("veh_toggle_regi", args => ToggleVehicleRegistration((string)args[0])),
+                new Request("veh_toggle_insurance", args => ToggleVehicleRegistration((string)args[0])),
+
+                // Officer events
+                new Request("leo_create", args => AddOfficer((string)args[0], (string)args[1])),
+                new Request("leo_on_duty", args => ToggleOnDuty((string)args[0])),
+                new Request("leo_off_duty", args => ToggleOffDuty((string)args[0])),
+                new Request("leo_busy", args => ToggleBusy((string)args[0])),
+                new Request("leo_display_status", args => DisplayStatus((string)args[0])),
+                new Request("leo_get_civ", args => RequestCivilian(
+                    (string)args[0], (string)args[1], (string)args[2])),
+                new Request("leo_add_civ_note", args => AddCivilianNote(
+                    (string)args[0], (string)args[1], (string)args[2], (string)args[3])),
+                new Request("leo_add_civ_ticket", args => TicketCivilian(
+                    (string)args[0], (string)args[1], (string)args[2], (string)args[3], (float)args[4])),
+                new Request("leo_display_civ_tickets", args => DisplayCivilianTickets(
+                    (string)args[0], (string)args[1], (string)args[2])),
+                new Request("leo_display_civ_notes", args => DisplayCivilianNotes(
+                    (string)args[0], (string)args[1], (string)args[2])),
+                new Request("leo_get_civ_veh", args => RequestCivilianVeh((string)args[0], (string)args[1])),
+                new Request("leo_bolo_add", args => AddBolo((string)args[0], (string)args[1])),
+                new Request("leo_bolo_view", args => ViewBolos((string)args[0]))
+            };
             #endregion
         }
         private static void InitializeComponents()
         {
-            // creating new instances of objects
+            // creating new instances of object
+            Log.WriteLine("Creating needed objects");
             callbacks = new ConcurrentQueue<Action>();
             Officers = new StorageManager<Officer>();
             Assignments = new StorageManager<Assignment>();
@@ -72,6 +90,9 @@ namespace DispatchSystem.Server
             CivVehs = new StorageManager<CivilianVeh>();
             CurrentCalls = new StorageManager<EmergencyCall>();
             Cfg = new ServerConfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
+
+            Log.WriteLine("Starting Request Handler");
+            ReqHandler = new RequestHandler();
 
             // creating the permissions singleton
             Log.WriteLine("Setting permission information");

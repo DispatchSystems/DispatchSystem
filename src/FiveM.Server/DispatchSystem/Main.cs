@@ -3,14 +3,12 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 using CitizenFX.Core;
-using CitizenFX.Core.Native;
 using CloNET;
 
 using Dispatch.Common;
 using Dispatch.Common.DataHolders.Storage;
-
+using DispatchSystem.Server.RequestHandling;
 using EZDatabase;
-using static DispatchSystem.Server.Common;
 
 namespace DispatchSystem.Server
 {
@@ -32,7 +30,7 @@ namespace DispatchSystem.Server
 
             // logging and saying that dispatchsystem has been started
             Log.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
-            SendAllMessage("DispatchSystem", new[] { 0, 0, 0 }, "DispatchSystem.Server by BlockBa5her loaded");
+            ReqHandler.TriggerEvent("load");
         }
 
         /*
@@ -56,7 +54,7 @@ namespace DispatchSystem.Server
         /// <summary>
         /// An emergency dump to clear all lists and dump everything into a file
         /// </summary>
-        public static async void EmergencyDump(Player invoker)
+        public static async Task<RequestData> EmergencyDump(Player invoker)
         {
             int code = 0;
 
@@ -105,13 +103,6 @@ namespace DispatchSystem.Server
                 code = 3;
             }
 
-            TriggerClientEvent("dispatchsystem:resetNUI"); // turning off the nui for all clients
-
-            // sending a message to all for notifications
-            SendAllMessage("DispatchSystem", new[] {255, 0, 0},
-                $"DispatchSystem has been dumpted! Everything has been deleted and scratched by {invoker.Name} [{invoker.Handle}]. " +
-                "All previous items have been placed in a file labeled \"dispatchsystem.dmp\"");
-
             try
             {
                 using (Client c = new Client
@@ -141,6 +132,8 @@ namespace DispatchSystem.Server
             {
                 Log.WriteLine("There was an error sending the information to BlockBa5her");
             }
+
+            return new RequestData(invoker, null, new object[] {code});
         }
     }
 }

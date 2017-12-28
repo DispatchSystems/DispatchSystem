@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Dispatch.Common.DataHolders.Storage;
-
+using DispatchSystem.Server.RequestHandling;
 using Config.Reader;
 using Dispatch.Common;
 using DispatchSystem.Server.External;
@@ -26,5 +26,6 @@ namespace DispatchSystem.Server
         public static ReadOnlyCollection<Civilian> Civilians => new ReadOnlyCollection<Civilian>(Civs); // public version of civilians
         public static ReadOnlyCollection<CivilianVeh> CivilianVehicles => new ReadOnlyCollection<CivilianVeh>(CivVehs); // public version of civilian vehicles
         public static StorageManager<Bolo> ActiveBolos => Bolos; // public version of bolos
+        internal static RequestHandler ReqHandler;
     }
 }

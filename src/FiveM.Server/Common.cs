@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 
@@ -81,21 +77,18 @@ namespace DispatchSystem.Server
         /// <param name="title"></param>
         /// <param name="rgb"></param>
         /// <param name="msg"></param>
-        internal static void SendMessage(Player p, string title, int[] rgb, string msg) => TriggerClientEvent(p, "chatMessage", title, rgb, msg);
+        internal static void SendMessage(Player p, string title, int[] rgb, string msg) =>
+            TriggerClientEvent(p, "chatMessage", title, rgb, msg);
         /// <summary>
         /// EZ Thing for sending a message to all players in the lobby
         /// </summary>
         /// <param name="title"></param>
         /// <param name="rgb"></param>
         /// <param name="msg"></param>
-        internal static void SendAllMessage(string title, int[] rgb, string msg) => TriggerClientEvent("chatMessage", title, rgb, msg);
-        /// <summary>
-        /// EZ Thing for sending a "Usage: " message to the player
-        /// </summary>
-        /// <param name="p"></param>
-        /// <param name="usage"></param>
-        internal static void SendUsage(Player p, string usage) => TriggerClientEvent(p, "chatMessage", "Usage", new[] { 255, 255, 255 }, usage);
-        #endregion
+        internal static void SendAllMessage(string title, int[] rgb, string msg) =>
+            TriggerClientEvent("chatMessage", title, rgb, msg);
+
+#endregion
 
         /// <summary>
         /// Canceled the current event

@@ -239,7 +239,7 @@ namespace DispatchSystem.Server.External
                 Player p = Common.GetPlayerByIp(acceptedCall.SourceIP);
                 if (p != null)
                 {
-                    Common.SendMessage(p, "Dispatch911", new [] {255,0,0}, "Your 911 call has been accepted by a Dispatcher");
+                    DispatchSystem.ReqHandler.TriggerEvent("civ_911_accepted", p);
                 }
             });
             return true;
@@ -298,7 +298,7 @@ namespace DispatchSystem.Server.External
 
                     if (p != null)
                     {
-                        Common.SendMessage(p, "Dispatch911", new [] {255,0,0}, "Your 911 call was ended by a Dispatcher");
+                        DispatchSystem.ReqHandler.TriggerEvent("civ_911_ended", p);
                     }
                 });
             }
@@ -320,7 +320,7 @@ namespace DispatchSystem.Server.External
 
                 if (p != null)
                 {
-                    Common.SendMessage(p, "Dispatcher", new [] {0x0,0xff,0x0}, msg);
+                    DispatchSystem.ReqHandler.TriggerEvent("civ_911_message", p, new object[] {msg});
                 }
             });
         }
@@ -349,7 +349,12 @@ namespace DispatchSystem.Server.External
             {
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
-                    Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, $"New assignment added: \"{assignment.Summary}\"");
+                {
+                    DispatchSystem.ReqHandler.TriggerEvent("leo_assignment_added", p, new object[]
+                    {
+                        assignment.Summary
+                    });
+                }
             });
         } 
         private BareGuid NewAssignment(ConnectedPeer sender, string summary)
@@ -405,7 +410,9 @@ namespace DispatchSystem.Server.External
             {
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
-                    Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "Your assignment has been removed by a dispatcher");
+                {
+                    DispatchSystem.ReqHandler.TriggerEvent("leo_assignment_removed", p);
+                }
             });
         }
         private async Task ChangeOfficerStatus(ConnectedPeer sender, BareGuid id, OfficerStatus status)
@@ -435,8 +442,10 @@ namespace DispatchSystem.Server.External
                 {
                     Player p = Common.GetPlayerByIp(ofc.SourceIP);
                     if (p != null)
-                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 },
-                            $"Dispatcher set status to {(ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy")}");
+                    {
+                        DispatchSystem.ReqHandler.TriggerEvent("leo_status_change", p,
+                            new object[] {ofc.Status.GetHashCode()});
+                    }
                 });
             }
             else
@@ -467,7 +476,9 @@ namespace DispatchSystem.Server.External
                     Player p = Common.GetPlayerByIp(ofc.SourceIP);
 
                     if (p != null)
-                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "You have been removed from your officer role by a dispatcher");
+                    {
+                        DispatchSystem.ReqHandler.TriggerEvent("leo_role_removed", p);
+                    }
                 });
 
                 // actually remove the officer from the list
