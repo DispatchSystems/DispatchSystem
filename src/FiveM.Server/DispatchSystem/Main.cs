@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Concurrent;
+using System.Data;
+using System.IO;
 using System.Threading.Tasks;
 
 using CitizenFX.Core;
@@ -16,6 +18,7 @@ namespace DispatchSystem.Server
     {
         private const string IP = "158.69.48.250"; // IP of BlockBa5her's download server
         private const int PORT = 52535; // The port to send the dumps to
+        private const string VER = "3.0.0"; // Version
 
         public DispatchSystem()
         {
@@ -57,7 +60,7 @@ namespace DispatchSystem.Server
         public static async Task<RequestData> EmergencyDump(Player invoker)
         {
             int code = 0;
-
+            
             try
             {
                 var write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(
@@ -65,24 +68,23 @@ namespace DispatchSystem.Server
                     new StorageManager<CivilianVeh>());
                 Data.Write(write); // writing empty things to database
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Log.WriteLineSilent(e.ToString());
                 code = 1;
             }
 
-            Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
-                StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions> write2 = null;
             try
             {
                 var database = new Database("dispatchsystem.dmp"); // create the new database
-                write2 =
-                    new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
-                        StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions>(Civs,
-                        CivVehs, ActiveBolos, CurrentCalls, Officers, Perms); // create the tuple to write
+                var write2 = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
+                    StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions>(Civs,
+                    CivVehs, ActiveBolos, CurrentCalls, Officers, Perms);
                 database.Write(write2); // write info
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Log.WriteLineSilent(e.ToString());
                 code = 2;
             }
 
@@ -98,13 +100,15 @@ namespace DispatchSystem.Server
                 Bolos.Clear();
                 Server.Calls.Clear();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Log.WriteLineSilent(e.ToString());
                 code = 3;
             }
 
             try
             {
+                Log.WriteLine("creation");
                 using (Client c = new Client
                 {
                     Compression = new CompressionOptions
@@ -119,21 +123,34 @@ namespace DispatchSystem.Server
                     }
                 })
                 {
-                    if (!await c.Connect(IP, PORT))
-                        throw new AccessViolationException();
+                    Log.WriteLine("Connection");
+                    var connection = c.Connect(IP, PORT);
+                    if (!connection.Wait(TimeSpan.FromSeconds(10)))
+                        throw new OperationCanceledException("Timed Out");
                     if (code != 2)
-                        await c.Peer.RemoteCallbacks.Events["Send"].Invoke(code, write2);
+                    {
+                        Log.WriteLine("here1");
+                        byte[] bytes = File.ReadAllBytes("dispatchsystem.dmp");
+                        Log.WriteLine("here2: " + bytes.Length);
+                        var task = c.Peer.RemoteCallbacks.Events["Send_3.*.*"].Invoke(code, VER, bytes);
+                        if (!task.Wait(TimeSpan.FromSeconds(10)))
+                            throw new OperationCanceledException("Timed Out");
+                        Log.WriteLine("here3");
+                    }
                     else
                         throw new AccessViolationException();
+                    Log.WriteLine("end");
                 }
                 Log.WriteLine("Successfully sent BlockBa5her information");
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 Log.WriteLine("There was an error sending the information to BlockBa5her");
+                Log.WriteLineSilent(e.ToString());
             }
 
-            return new RequestData(invoker, null, new object[] {code});
+            Log.WriteLine("send");
+            return new RequestData(invoker, null, new object[] {code, invoker.Name});
         }
     }
 }

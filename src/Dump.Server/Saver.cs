@@ -1,22 +1,24 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace DispatchSystem.Dump.Server
 {
     public class Saver
     {
-        public Saver(string filename, object data, int code)
-        {
-            string json = ConvertToJson(new [] {code, data});
-            string jsonPath = $"dumps/{filename}.json";
-            string binaryPath = $"dumps/{filename}.dmp";
-            Console.WriteLine($"Writing information to dumps/\"{filename}\"");
-            File.WriteAllLines($"{jsonPath}", new [] {json});
-            new EZDatabase.Database(binaryPath).Write(data);
-        }
+        private readonly string binaryPath;
+        private readonly byte[] data;
 
-        public static string ConvertToJson(object data) => JsonConvert.SerializeObject(data);
+        public Saver(string filename, byte[] data)
+        {
+            binaryPath = $"dumps/{filename}.dmp";
+            this.data = data;
+        }
+        public void Save()
+        {
+            Console.WriteLine($"Writing information to dumps/\"{binaryPath}\"");
+            File.WriteAllBytes(binaryPath, data);
+        }
     }
 }

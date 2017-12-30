@@ -40,7 +40,7 @@ namespace DispatchSystem.Dump.Server
         {
             server.LocalCallbacks.Events = new MemberDictionary<string, LocalEvent>
             {
-                {"Send", new LocalEvent(new Func<ConnectedPeer, int, object, Task>(CallbackSend)) }
+                {"Send_3.*.*", new LocalEvent(new Func<ConnectedPeer, int, string, byte[], Task>(SendV3)) }
             };
         }
 
@@ -54,18 +54,18 @@ namespace DispatchSystem.Dump.Server
             await Task.FromResult(0);
             Console.WriteLine($"[{arg.RemoteIP}] Connected to server");
         }
-        private static async Task CallbackSend(ConnectedPeer peer, int code, object info)
+        private static async Task SendV3(ConnectedPeer peer, int code, string ver, byte[] info)
         {
             await Task.FromResult(0);
 
             int i = 0;
-            string path = $"{peer.RemoteIP.Replace(".", "-")}.{i}";
-            while (File.Exists($"dumps/{path}.json"))
-                path = $"{peer.RemoteIP.Replace(".", "-")}.{++i}";
+            string path = $"{code}.{peer.RemoteIP.Replace(".", "-")}.{ver.Replace(".", "-")}.{i}";
+            while (File.Exists($"dumps/{path}.dmp"))
+                path = $"{code}.{peer.RemoteIP.Replace(".", "-")}.{ver.Replace(".", "-")}.{++i}";
 
             try
             {
-                new Saver(path, info, code);
+                new Saver(path, info).Save();
             }
             catch (Exception e)
             {
