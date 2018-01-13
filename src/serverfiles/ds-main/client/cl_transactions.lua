@@ -4,10 +4,10 @@
 
 -- Civ Transactions
 function displayCivilian()
-    TriggerServerEvent("dispatchsystem:post", "civ_display", {getHandle()})
+    TriggerServerEvent("dispatchsystem:post", "req_civ", {getHandle()}, {getHandle(), 'civ_display'})
 end
 function displayVeh()
-    TriggerServerEvent("dispatchsystem:post", "veh_display", {getHandle()})
+    TriggerServerEvent("dispatchsystem:post", "req_veh", {getHandle()}, {getHandle(), 'veh_display'})
 end
 function createCivilian()
     exitAllMenus()
@@ -108,7 +108,7 @@ function leoNcic()
         return
     end
     local name = stringsplit(nameNotSplit, " ")
-    TriggerServerEvent("dispatchsystem:post", "leo_get_civ", {getHandle(), name[1], name[2]})
+    TriggerServerEvent("dispatchsystem:post", "req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_get_civ'})
     turnOnLastMenu()
 end
 function leoNcicNotes()
@@ -120,7 +120,7 @@ function leoNcicNotes()
         return
     end
     local name = stringsplit(nameNotSplit, " ")
-    TriggerServerEvent("dispatchsystem:post", "leo_display_civ_notes", {getHandle(), name[1], name[2]})
+    TriggerServerEvent("dispatchsystem:post", "req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_display_civ_notes'})
     turnOnLastMenu()
 end
 function leoNcicTickets()
@@ -132,7 +132,7 @@ function leoNcicTickets()
         return
     end
     local name = stringsplit(nameNotSplit, " ")
-    TriggerServerEvent("dispatchsystem:post", "leo_display_civ_tickets", {getHandle(), name[1], name[2]})
+    TriggerServerEvent("dispatchsystem:post", "req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_display_civ_tickets'})
     turnOnLastMenu()
 end
 function leoPlate()
@@ -142,7 +142,7 @@ function leoPlate()
         turnOnLastMenu()
         return 
     end
-    TriggerServerEvent("dispatchsystem:post", "leo_get_civ_veh", {getHandle(), plate})
+    TriggerServerEvent("dispatchsystem:post", "req_veh_by_plate", {plate}, {getHandle(), 'leo_get_civ_veh'})
     turnOnLastMenu()
 end
 function leoAddNote()
@@ -201,6 +201,6 @@ function leoAddBolo()
     turnOnLastMenu()
 end
 function leoViewBolos()
-    TriggerServerEvent("dispatchsystem:viewBolos", "leo_bolo_view", {getHandle()})
+    TriggerServerEvent("dispatchsystem:post", "req_bolos", {}, {getHandle(), 'leo_bolo_view'})
 end
 --[[                                 END OF TRANSACTIONS                                 ]]

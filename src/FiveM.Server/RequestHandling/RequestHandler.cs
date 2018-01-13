@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CitizenFX.Core;
+using Dispatch.Common.DataHolders;
 
 namespace DispatchSystem.Server.RequestHandling
 {
-    public delegate void RequestHandlerHandler(string type, Request req, string err, object[] reqInfo);
+    public delegate void RequestHandlerHandler(string type, Request req, string err, EventArgument[] reqInfo);
 
     public class RequestHandler
     {
@@ -51,25 +53,20 @@ namespace DispatchSystem.Server.RequestHandling
 
             SendExplicitData(type, calArgs, sendBack);
         }
-        public void TriggerEvent(string eventName, Player p = null, object[] args = null, string err = null)
+        public void TriggerEvent(string eventName, EventArgument[] args = null, string err = null)
         {
             object[] calArgs = {};
-            SendExplicitData("on_" + eventName, calArgs, new RequestData(p, err, args));
+            SendExplicitData("on_" + eventName, calArgs, new RequestData(err, args));
         }
-        private void SendExplicitData(string type, object[] calArgs, RequestData info)
+        private static void SendExplicitData(string type, object[] calArgs, RequestData info)
         {
             string err = info?.Error ?? "none";
-            Player p = info?.Player;
-            object[] args = info?.Arguments ?? new object[] { };
+            EventArgument[] args = info?.Arguments ?? new EventArgument[] { };
             calArgs = calArgs ?? new object[] { };
 
-            Log.WriteLineSilent($"Sending Data: \"{type}\"|\"{err}\"|\"{p?.Handle ?? "-1"}\"");
+            Log.WriteLineSilent($"Sending Data: Type: \"{type}\" | Error: \"{err}\"");
 
-            if (p == null)
-                BaseScript.TriggerEvent("dispatchsystem:event", -1, type, err, args, calArgs);
-            else
-                BaseScript.TriggerEvent("dispatchsystem:event",
-                    int.Parse(p.Handle ?? throw new InvalidOperationException()), type, err, args, calArgs);
+            BaseScript.TriggerEvent("dispatchsystem:event", type, err, EventArgument.ToArray(args.AsEnumerable()), calArgs);
         }
     }
 }

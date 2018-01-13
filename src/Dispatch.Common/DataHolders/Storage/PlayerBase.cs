@@ -3,19 +3,20 @@
 namespace Dispatch.Common.DataHolders.Storage
 {
     [Serializable]
-    public abstract class PlayerBase : IDataHolder, IOwnable, IEquatable<PlayerBase>
+    public abstract class PlayerBase : IDataHolder, IOwnable, IEquatable<PlayerBase>, IEventInfo
     {
-        public virtual string SourceIP { get; protected set; }
+        public string SourceIP { get; protected set; }
         public virtual DateTime Creation { get; }
         public virtual BareGuid Id { get; }
 
-        public PlayerBase(string ip)
+        protected PlayerBase(string ip)
         {
             Creation = DateTime.Now;
             Id = BareGuid.NewBareGuid();
 
             SourceIP = string.IsNullOrWhiteSpace(ip) ? string.Empty : ip;
         }
+        public abstract EventArgument[] ToArray();
         public override int GetHashCode() => Id.GetHashCode();
         public override bool Equals(object obj)
         {
@@ -25,6 +26,6 @@ namespace Dispatch.Common.DataHolders.Storage
             PlayerBase _base = (PlayerBase)obj;
             return _base.Id == Id;
         }
-        public bool Equals(PlayerBase item) => Equals(item);
+        public bool Equals(PlayerBase item) => Equals((object)item);
     }
 }

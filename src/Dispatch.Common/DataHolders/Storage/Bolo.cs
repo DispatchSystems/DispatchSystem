@@ -1,36 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dispatch.Common.DataHolders.Storage
 {
     [Serializable]
-    public class Bolo : IDataHolder, IOwnable
+    public class Bolo : IDataHolder, IOwnable, IEventInfo
     {
-        string _player;
-        string _reason;
-        DateTime _creation;
-
         public string SourceIP { get; }
-        public string Player => _player;
-        public string Reason => _reason;
-        public DateTime Creation => _creation;
+        public string Player { get; }
+        public string Reason { get; }
+        public DateTime Creation { get; }
         public BareGuid Id { get; }
 
-        public Bolo(string playerName, string createrIp, string reason)
+        public Bolo(string playerName, string creatorIp, string reason)
         {
-            _player = playerName;
-            SourceIP = string.IsNullOrWhiteSpace(createrIp) ? string.Empty : createrIp;
-            _reason = reason;
-            _creation = DateTime.Now;
+            Player = playerName;
+            SourceIP = string.IsNullOrWhiteSpace(creatorIp) ? string.Empty : creatorIp;
+            Reason = reason;
+            Creation = DateTime.Now;
             Id = BareGuid.NewBareGuid();
         }
 
-        public object[] ToObjectArray()
+        public EventArgument[] ToArray()
         {
-            return new[] { (object)_player, (object)_reason };
+            return new EventArgument[]
+            {
+                Player,
+                Reason,
+                new EventArgument[] {Id.ToString(), SourceIP, Creation.Ticks}
+            };
         }
     }
 }

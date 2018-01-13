@@ -1,18 +1,16 @@
-﻿using CitizenFX.Core;
+﻿using Dispatch.Common.DataHolders;
 
 namespace DispatchSystem.Server.RequestHandling
 {
     public class RequestData
     {
-        public readonly Player Player;
         public readonly string Error;
-        public readonly object[] Arguments;
+        public readonly EventArgument[] Arguments;
 
-        public RequestData(Player p, string err, object[] args = null)
+        public RequestData(string err, EventArgument[] args = null)
         {
-            Player = p;
             Error = err;
-            Arguments = args ?? new object[] {};
+            Arguments = args ?? new EventArgument[] {};
         }
     }
 }

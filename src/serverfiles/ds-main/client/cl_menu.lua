@@ -8,14 +8,14 @@ RegisterNetEvent("dispatchsystem:pushbackData")
 
 local menu = nil
 function turnOnCivMenu()
-	TriggerServerEvent("dispatchsystem:post", "gen_info", {getHandle()}, {'silent'})
+	reqInfo()
 
 	menu = "civ"
 	SetNuiFocus(true, true)
 	SendNUIMessage({showcivmenu = true})
 end
 function turnOnLeoMenu()
-	TriggerServerEvent("dispatchsystem:post", "gen_info", {getHandle()}, {'silent'})
+	reqInfo()
 
 	menu = "leo"
 	SetNuiFocus(true, true)

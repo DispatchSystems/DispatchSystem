@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Concurrent;
-using System.Data;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -8,6 +8,7 @@ using CitizenFX.Core;
 using CloNET;
 
 using Dispatch.Common;
+using Dispatch.Common.DataHolders;
 using Dispatch.Common.DataHolders.Storage;
 using DispatchSystem.Server.RequestHandling;
 using EZDatabase;
@@ -78,8 +79,8 @@ namespace DispatchSystem.Server
             {
                 var database = new Database("dispatchsystem.dmp"); // create the new database
                 var write2 = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
-                    StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions>(Civs,
-                    CivVehs, ActiveBolos, CurrentCalls, Officers, Perms);
+                    StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, List<string>>(Civs,
+                    CivVehs, ActiveBolos, CurrentCalls, Officers, DispatchPerms);
                 database.Write(write2); // write info
             }
             catch (Exception e)
@@ -150,7 +151,7 @@ namespace DispatchSystem.Server
             }
 
             Log.WriteLine("send");
-            return new RequestData(invoker, null, new object[] {code, invoker.Name});
+            return new RequestData(null, new EventArgument[] { Common.GetPlayerId(invoker), code, invoker.Name});
         }
     }
 }

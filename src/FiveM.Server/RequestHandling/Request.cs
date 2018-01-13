@@ -1,4 +1,5 @@
 ﻿using System;
+using Dispatch.Common.DataHolders;
 
 namespace DispatchSystem.Server.RequestHandling
 {

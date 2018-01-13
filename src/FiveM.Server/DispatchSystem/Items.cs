@@ -12,7 +12,7 @@ namespace DispatchSystem.Server
     public partial class DispatchSystem
     {
         protected static ServerConfig Cfg; // config
-        protected static Permissions Perms; // permissions
+        protected static List<string> DispatchPerms; // permissions
         protected static DispatchServer Server; // server for client+server transactions
         protected static Database Data; // database for saving
 

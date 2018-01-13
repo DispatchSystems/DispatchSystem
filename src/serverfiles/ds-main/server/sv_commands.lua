@@ -8,7 +8,7 @@ AddEventHandler('chatMessage', function(source, n, msg)
         TriggerClientEvent('dispatchsystem:toggleLeoNUI', source)
         CancelEvent()
     elseif split[1] == '/dsdmp' then
-        TriggerEvent('dispatchsystem:dsdmp', tostring(source))
+        TriggerEvent('dispatchsystem:post', "gen_dump", {tostring(source)})
         CancelEvent()
     elseif split[1] == '/showperms' then
         local type, perms = GetDispatchPermissions()

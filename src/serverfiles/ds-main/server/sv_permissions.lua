@@ -41,3 +41,12 @@ function GetDispatchPermissions()
 	
 	return type, perms
 end
+
+Citizen.CreateThread(function()
+	Wait(1500)
+	local type, perms = GetDispatchPermissions()
+	if string.lower(type) ~= 'specific' then
+		table.insert(perms, type)
+	end
+	TriggerEvent('dispatchsystem:post', 'set_dispatch_perms', perms, {})
+end)

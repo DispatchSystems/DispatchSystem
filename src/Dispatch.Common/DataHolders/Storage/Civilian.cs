@@ -1,51 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dispatch.Common.DataHolders.Storage
 {
     [Serializable]
-    public class Civilian : PlayerBase, IDataHolder, IOwnable
+    public class Civilian : PlayerBase
     {
-        protected string _first;
+        private static string NameString(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+            char[] str = input.ToCharArray();
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (i == 0)
+                    str[i] = char.ToUpper(str[i]);
+                else
+                    str[i] = char.ToLower(str[i]);
+            }
+            return new string(str);
+        }
+
+        private string first;
         public string First
         {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(_first))
-                    return string.Empty;
-                char[] str = _first.ToCharArray();
-                for (int i = 0; i < str.Length; i++)
-                {
-                    if (i == 0)
-                        str[i] = char.ToUpper(str[i]);
-                    else
-                        str[i] = char.ToLower(str[i]);
-                }
-                return new string(str);
-            }
-            set => _first = value;
+            get => NameString(first);
+            set => first = value;
         }
-        protected string _last;
+        private string last;
         public string Last
         {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(_last))
-                    return string.Empty;
-                char[] str = _last.ToCharArray();
-                for (int i = 0; i < str.Length; i++)
-                {
-                    if (i == 0)
-                        str[i] = char.ToUpper(str[i]);
-                    else
-                        str[i] = char.ToLower(str[i]);
-                }
-                return new string(str);
-            }
-            set => _last = value;
+            get => NameString(last);
+            set => last = value;
         }
         public bool WarrantStatus { get; set; }
         public int CitationCount { get; set; }
@@ -62,9 +49,24 @@ namespace Dispatch.Common.DataHolders.Storage
             Creation = DateTime.Now;
         }
 
+        public override EventArgument[] ToArray()
+        {
+            return new EventArgument[]
+            {
+                First,
+                Last,
+                WarrantStatus,
+                CitationCount,
+                Notes.Select(x => (EventArgument)x).ToArray(),
+                Tickets.Select(x => (EventArgument)x.ToArray()).ToArray(),
+                new EventArgument[] {SourceIP, Id.ToString(), Creation.Ticks}
+            };
+        }
+
         public static Civilian CreateRandomCivilian()
         {
             #region NamesDic
+            // ReSharper disable StringLiteralTypo
             List<string> rndNames = new List<string>
             {
                 "Mason Bishan",
@@ -102,6 +104,7 @@ namespace Dispatch.Common.DataHolders.Storage
                 "Anish Gabriel",
                 "Karl Andreas"
             };
+            // ReSharper restore StringLiteralTypo
             #endregion
 
             Random rnd = new Random();
@@ -115,11 +118,5 @@ namespace Dispatch.Common.DataHolders.Storage
                 CitationCount = rnd.Next(0, 11)
             };
         }
-
-        // Below is for communcation reasons between server and client
-        // [NonSerialized]
-        public static readonly Civilian Empty = new Civilian(null);
-        // [NonSerialized]
-        public static readonly Civilian Null = null;
     }
 }

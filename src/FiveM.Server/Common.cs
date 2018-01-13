@@ -68,6 +68,7 @@ namespace DispatchSystem.Server
             return new PlayerList().FirstOrDefault(plr => plr.Identifiers["ip"] == ip); // Finding the first player with the right IP
         }
 
+        public static int GetPlayerId(Player p) => int.Parse(p?.Handle ?? "-1");
 
         #region Chat Commands
         /// <summary>

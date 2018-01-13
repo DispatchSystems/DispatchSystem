@@ -56,8 +56,8 @@ $( function() {
             
             // setting civ stuff
             civname.text(civinfo[1] + ", " + civinfo[0]);
-            civwarrant.text(civinfo[3]);
-            civcitations.text(civinfo[2]);
+            civwarrant.text(civinfo[2]);
+            civcitations.text(civinfo[3]);
             // setting veh stuff
             vehplate.text(civinfo[4]);
             vehstolen.text(civinfo[5]);

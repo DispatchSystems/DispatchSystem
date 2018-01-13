@@ -32,7 +32,7 @@ RegisterNUICallback("civ", function(data, cb)
         displayVeh()
     end
 
-    TriggerServerEvent("dispatchsystem:post", "gen_info", {getHandle()}, {'silent'})
+    reqInfo()
 
 	if cb then cb("OK") end
 end)
@@ -70,7 +70,7 @@ RegisterNUICallback("leo", function(data, cb)
         end
     end
 
-    TriggerServerEvent("dispatchsystem:post", "gen_info", {getHandle()}, {'silent'})
+    reqInfo()
 
     if cb then cb("OK") end
 end)
@@ -84,7 +84,7 @@ RegisterNUICallback("common", function(data, cb)
         TriggerServerEvent("dispatchsystem:post", "gen_reset", {getHandle()})
     end
 
-    TriggerServerEvent("dispatchsystem:post", "gen_info", {getHandle()}, {'silent'})
+    reqInfo()
 
     if cb then cb("OK") end
 end)

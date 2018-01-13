@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net;
 using System.Net.Sockets;
 
 using Config.Reader;
@@ -15,6 +14,7 @@ using CloNET.LocalCallbacks;
 
 using CitizenFX.Core;
 using Dispatch.Common;
+using Dispatch.Common.DataHolders;
 
 namespace DispatchSystem.Server.External
 {
@@ -23,6 +23,7 @@ namespace DispatchSystem.Server.External
         private CloNET.Server server; // server from CloNET
         private readonly string ip; // ip of the server
         private readonly int port; // port of the server
+        public List<string> Permissions { get; set; }
 
         /// <summary>
         /// <see cref="Array"/> of <see cref="ConnectedPeer"/> that are currently connected to the server
@@ -30,14 +31,16 @@ namespace DispatchSystem.Server.External
         public ConnectedPeer[] ConnectedDispatchers => server.ConnectedPeers.ToArray();
 
         // 911calls items, for keeping track of dispatchers connected to which 911 call
-        internal Dictionary<BareGuid, string> Calls;
+        internal readonly Dictionary<BareGuid, string> Calls;
 
         /// <summary>
         /// Initializes the <see cref="DispatchSystem"/> class from a config
         /// </summary>
         /// <param name="cfg"></param>
-        internal DispatchServer(ServerConfig cfg)
+        /// <param name="perms"></param>
+        internal DispatchServer(ServerConfig cfg, List<string> perms = null)
         {
+            Permissions = perms ?? new List<string>();
             Calls = new Dictionary<BareGuid, string>(); // creating the calls item
             ip = cfg.GetStringValue("server", "ip", "0.0.0.0"); // setting the ip
             Log.WriteLine("Setting ip to " + ip);
@@ -115,7 +118,7 @@ namespace DispatchSystem.Server.External
             };
         }
 
-        private static async Task OnConnect(ConnectedPeer user)
+        private async Task OnConnect(ConnectedPeer user)
         {
             // logging the ip connected
 #if DEBUG
@@ -125,7 +128,7 @@ namespace DispatchSystem.Server.External
 #endif
 
             // dispose if the permissions bad
-            if (!_(user)) return;
+            if (!CheckPerms(user)) return;
             try
             {
                 await user.RemoteCallbacks.Events["SendInvalidPerms"].Invoke("");
@@ -239,7 +242,7 @@ namespace DispatchSystem.Server.External
                 Player p = Common.GetPlayerByIp(acceptedCall.SourceIP);
                 if (p != null)
                 {
-                    DispatchSystem.ReqHandler.TriggerEvent("civ_911_accepted", p);
+                    DispatchSystem.ReqHandler.TriggerEvent("civ_911_accepted", new EventArgument[] { Common.GetPlayerId(p) });
                 }
             });
             return true;
@@ -298,7 +301,7 @@ namespace DispatchSystem.Server.External
 
                     if (p != null)
                     {
-                        DispatchSystem.ReqHandler.TriggerEvent("civ_911_ended", p);
+                        DispatchSystem.ReqHandler.TriggerEvent("civ_911_ended", new EventArgument[] {Common.GetPlayerId(p)});
                     }
                 });
             }
@@ -320,7 +323,7 @@ namespace DispatchSystem.Server.External
 
                 if (p != null)
                 {
-                    DispatchSystem.ReqHandler.TriggerEvent("civ_911_message", p, new object[] {msg});
+                    DispatchSystem.ReqHandler.TriggerEvent("civ_911_message", new EventArgument[] {Common.GetPlayerId(p), msg });
                 }
             });
         }
@@ -350,8 +353,9 @@ namespace DispatchSystem.Server.External
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
                 {
-                    DispatchSystem.ReqHandler.TriggerEvent("leo_assignment_added", p, new object[]
+                    DispatchSystem.ReqHandler.TriggerEvent("leo_assignment_added", new EventArgument[]
                     {
+                        Common.GetPlayerId(p),
                         assignment.Summary
                     });
                 }
@@ -411,7 +415,7 @@ namespace DispatchSystem.Server.External
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
                 {
-                    DispatchSystem.ReqHandler.TriggerEvent("leo_assignment_removed", p);
+                    DispatchSystem.ReqHandler.TriggerEvent("leo_assignment_removed", new EventArgument[] { Common.GetPlayerId(p) });
                 }
             });
         }
@@ -443,8 +447,12 @@ namespace DispatchSystem.Server.External
                     Player p = Common.GetPlayerByIp(ofc.SourceIP);
                     if (p != null)
                     {
-                        DispatchSystem.ReqHandler.TriggerEvent("leo_status_change", p,
-                            new object[] {ofc.Status.GetHashCode()});
+                        DispatchSystem.ReqHandler.TriggerEvent("leo_status_change",
+                            new EventArgument[]
+                            {
+                                Common.GetPlayerId(p),
+                                ofc.Status.GetHashCode()
+                            });
                     }
                 });
             }
@@ -477,7 +485,7 @@ namespace DispatchSystem.Server.External
 
                     if (p != null)
                     {
-                        DispatchSystem.ReqHandler.TriggerEvent("leo_role_removed", p);
+                        DispatchSystem.ReqHandler.TriggerEvent("leo_role_removed", new EventArgument[] { Common.GetPlayerId(p) });
                     }
                 });
 
@@ -570,26 +578,7 @@ namespace DispatchSystem.Server.External
 #endif
         }
 
-        private static bool _(ConnectedPeer sender)
-        {
-            switch (Permissions.Get.DispatchPermission)
-            {
-                case Permission.Specific: // checking for specific permissions
-                    if (!Permissions.Get.DispatchContains(IPAddress.Parse(sender.RemoteIP))) // checking if the ip is in the perms
-                    {
-                        Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); // log if not
-                        return true;
-                    }
-                    break;
-                case Permission.None:
-                    Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS");
-                    return true; // automatically return not
-                case Permission.Everyone:
-                    break; // continue through
-                default:
-                    throw new ArgumentOutOfRangeException(); // throw because there is no other options
-            }
-            return false; // return false by default
-        }
+        private bool CheckPerms(ConnectedPeer sender) => Permissions.Contains("everyone") ||
+                                                !Permissions.Contains("none") && Permissions.Contains(sender.RemoteIP);
     }
 }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dispatch.Common.DataHolders.Storage
 {
@@ -14,7 +10,7 @@ namespace Dispatch.Common.DataHolders.Storage
         Busy
     }
     [Serializable]
-    public class Officer : PlayerBase, IDataHolder, IOwnable
+    public class Officer : PlayerBase
     {
         public string Callsign { get; set; }
         public OfficerStatus Status { get; set; }
@@ -22,11 +18,17 @@ namespace Dispatch.Common.DataHolders.Storage
         public Officer(string ip, string callsign) : base(ip)
         {
             Callsign = callsign;
-
             Status = OfficerStatus.OffDuty;
         }
 
-        // For communicating
-        public static readonly Officer Empty = new Officer(string.Empty, string.Empty);
+        public override EventArgument[] ToArray()
+        {
+            return new EventArgument[]
+            {
+                Callsign,
+                Status,
+                new EventArgument[] {Id.ToString(), SourceIP, Creation.Ticks}
+            };
+        }
     }
 }

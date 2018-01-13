@@ -7,14 +7,15 @@ files {
 }
 
 server_scripts {
-    'sv_commands.lua',
-	'sv_event.lua',
-    'sv_messages.lua',
-	'sv_permissions.lua'
+    'server/sv_common.lua',
+    'server/sv_commands.lua',
+	'server/sv_event.lua',
+    'server/sv_messages.lua',
+	'server/sv_permissions.lua'
 }
 client_scripts {
-    'cl_callbacks.lua',
-    'cl_common.lua',
-    'cl_menu.lua',
-    'cl_transactions.lua'
+    'client/cl_callbacks.lua',
+    'client/cl_common.lua',
+    'client/cl_menu.lua',
+    'client/cl_transactions.lua'
 }
