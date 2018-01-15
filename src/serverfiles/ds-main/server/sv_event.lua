@@ -3,21 +3,24 @@ local vehArr = {}
 local leoArr = {}
 local ofcAssignment = {}
 
+local lang = reqLang()
+local none = lang.global.types.none
+
 local function infoToClInfo()
 	local civ = {
-		civArr[1] or "None",
-		civArr[2] or "None",
-		civArr[3] ~= nil and boolean(civArr[3], true) or "None",
-		civArr[4] or "None",
-		vehArr[2] or "None",
-		vehArr[3] ~= nil and boolean(vehArr[3], true) or "None",
-		vehArr[4] ~= nil and boolean(vehArr[4], true) or "None",
-		vehArr[5] ~= nil and boolean(vehArr[5], true) or "None"
+		civArr[1] or none,
+		civArr[2] or none,
+		civArr[3] ~= nil and boolean(civArr[3], true) or none,
+		civArr[4] or none,
+		vehArr[2] or none,
+		vehArr[3] ~= nil and boolean(vehArr[3], true) or none,
+		vehArr[4] ~= nil and boolean(vehArr[4], true) or none,
+		vehArr[5] ~= nil and boolean(vehArr[5], true) or none
 	}
 	local leo = {
-		leoArr[1] or "None",
-		leoArr[2] ~= nil and status(leoArr[2]) or "None",
-		ofcAssignment[1] or "None"
+		leoArr[1] or none,
+		leoArr[2] ~= nil and status(leoArr[2]) or none,
+		ofcAssignment[1] or none
 	}
 	
 	return civ, leo

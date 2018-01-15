@@ -3,7 +3,9 @@ ui_page 'nui/index.html'
 files {
     'nui/index.css',
     'nui/index.html',
-    'nui/menu.js'
+    'nui/menu.js',
+    'nui/localization.js',
+    'lang.json' -- language file (default: en)
 }
 
 server_scripts {

@@ -10,12 +10,6 @@ AddEventHandler('chatMessage', function(source, n, msg)
     elseif split[1] == '/dsdmp' then
         TriggerEvent('dispatchsystem:post', "gen_dump", {tostring(source)})
         CancelEvent()
-    elseif split[1] == '/showperms' then
-        local type, perms = GetDispatchPermissions()
-		Citizen.Trace(type..'\n')
-		for _, val in ipairs(perms) do
-			Citizen.Trace(val..'\n')
-		end
     end
 end)
 

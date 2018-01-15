@@ -1,4 +1,9 @@
 -- Common functions used across server
+local lang = json.decode(LoadResourceFile(GetCurrentResourceName(), 'lang.json')).chat
+function reqLang()
+    return lang
+end
+
 function dsMessage(p, msg)
     TriggerClientEvent('chatMessage', p, 'DispatchSystem', {0,0,0}, msg)
 end
@@ -18,18 +23,21 @@ end
 function boolean(bool, upper)
     if type(bool) == 'boolean' then
         upper = upper ~= nil and upper or false
-        local t = 'true'
-        local f = 'false'
+        local t = lang.global.status["t_lower"]
+        local f = lang.global.status["f_lower"]
         if upper then
-            t = 'True'
-            f = 'False'
+            t = lang.global.status["t_upper"]
+            f = lang.global.status["f_upper"]
         end
         return bool and t or f
     end
     return bool
 end
 function status(enum)
-    return enum == 0 and 'On Duty' or enum == 1 and 'Off Duty' or enum == 2 and 'Busy' or 'Gay'
+    return  enum == 0 and lang.global.status["on_duty"] or 
+            enum == 1 and lang.global.status["off_duty"] or 
+            enum == 2 and lang.global.status["busy"] or 
+            lang.global.status["gay"]
 end
 
 dsMessageAll('DispatchSystem.Server by BlockBa5her loaded.')

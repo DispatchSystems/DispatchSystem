@@ -36,6 +36,7 @@ $( function() {
             resourcename = item.metadata;
         }
         if ( item.pushback ) {
+            return;
             // getting info arr
             var civinfo = item.data[0];
             var ofcinfo = item.data[1];
@@ -101,9 +102,9 @@ function arrSkip(arr, count) {
 function init() {
     $(".menu").each(function(i,obj) {
         if ( $(this).attr("data-parent")) {
-            $(this).append("<button class='option back' onclick='back(this)'>Back</button>");
+            $(this).append("<button class='option back' onclick='back(this)'></button>");
         }
-        $(this).append("<button class='option x' onclick='exit()'>Exit</button>");
+        $(this).append("<button class='option x' onclick='exit()'></button>");
     });
 
     $( ".option" ).each( function( i, obj ) {
