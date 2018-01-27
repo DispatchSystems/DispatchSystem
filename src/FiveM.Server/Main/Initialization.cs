@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-
+using System.Threading.Tasks;
 using CitizenFX.Core.Native;
 using CitizenFX.Core;
 
@@ -12,13 +12,52 @@ using EZDatabase;
 
 using DispatchSystem.Server.External;
 using DispatchSystem.Server.RequestHandling;
+using static DispatchSystem.Server.Main.Core;
 
 using Dispatch.Common.DataHolders.Storage;
 
-namespace DispatchSystem.Server
+
+namespace DispatchSystem.Server.Main
 {
-    public partial class DispatchSystem
+    public class DispatchSystem : BaseScript
     {
+        #region Main
+        public DispatchSystem()
+        {
+            Log.Create("dispatchsystem.log");
+
+            // starting the dispatchsystem
+            InitializeComponents();
+            RegisterEvents();
+
+            // setting ontick for invocation
+            Tick += OnTick;
+
+            // logging and saying that dispatchsystem has been started
+            Log.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
+            ReqHandler.TriggerEvent("load");
+        }
+
+        /*
+         * Below is just for executing something on the main thread
+        */
+
+        /// <summary>
+        /// Queue for action to execute on the main thread
+        /// </summary>
+        private static volatile ConcurrentQueue<Action> callbacks;
+        private static async Task OnTick()
+        {
+            // Executing all of the callback methods available
+            while (callbacks.TryDequeue(out Action queue))
+                queue(); // executing the queue
+
+            await Delay(0);
+        }
+        internal static void Invoke(Action method) => callbacks.Enqueue(method); // adding method for execution in main thread
+        #endregion
+
+        #region Initialization
         private void RegisterEvents()
         {
             // source, type, error, args, calArgs
@@ -48,7 +87,7 @@ namespace DispatchSystem.Server
 
                 // General events
                 new Request("gen_reset", args => DispatchReset((string)args[0])),
-                new Request("gen_dump", args => EmergencyDump(Common.GetPlayerByHandle((string)args[0])).Result),
+                new Request("gen_dump", args => DispatchSystemDump.EmergencyDump(Common.GetPlayerByHandle((string)args[0])).Result),
 
                 // Civilian events
                 new Request("civ_create", args => SetName((string)args[0], (string)args[1], (string)args[2])),
@@ -98,7 +137,7 @@ namespace DispatchSystem.Server
             // reading config, then starting the server is config true
             if (Cfg.GetIntValue("server", "enable", 0) == 1)
             {
-                ThreadPool.QueueUserWorkItem(x => Server = new DispatchServer(Cfg, DispatchPerms), null);
+                ThreadPool.QueueUserWorkItem(x => Core.Server = new DispatchServer(Cfg, DispatchPerms), null);
                 Log.WriteLine("Starting DISPATCH server");
             }
             else
@@ -169,5 +208,6 @@ namespace DispatchSystem.Server
                 Log.WriteLine("Not starting the database");
             }
         }
+        #endregion
     }
 }

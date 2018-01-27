@@ -5,7 +5,7 @@ using CitizenFX.Core.Native;
 
 using Dispatch.Common.DataHolders.Storage;
 
-using static DispatchSystem.Server.DispatchSystem;
+using static DispatchSystem.Server.Main.Core;
 using static CitizenFX.Core.BaseScript;
 
 namespace DispatchSystem.Server

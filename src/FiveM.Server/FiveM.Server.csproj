@@ -52,12 +52,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common.cs" />
-    <Compile Include="DispatchSystem\Events.cs" />
-    <Compile Include="DispatchSystem\Init.cs" />
-    <Compile Include="DispatchSystem\Items.cs" />
+    <Compile Include="Main\Core.cs" />
+    <Compile Include="Main\Initialization.cs" />
     <Compile Include="External\Log.cs" />
     <Compile Include="External\Config.cs" />
-    <Compile Include="DispatchSystem\Main.cs" />
+    <Compile Include="Main\Dumping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="External\DispatchServer.cs" />
     <Compile Include="RequestHandling\Request.cs" />

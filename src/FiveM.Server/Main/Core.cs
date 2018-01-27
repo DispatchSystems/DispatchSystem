@@ -1,17 +1,38 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
-
+using Config.Reader;
 using Dispatch.Common.DataHolders;
 using Dispatch.Common.DataHolders.Storage;
+using DispatchSystem.Server.External;
 using DispatchSystem.Server.RequestHandling;
+using EZDatabase;
 using static DispatchSystem.Server.Common;
 
-namespace DispatchSystem.Server
+namespace DispatchSystem.Server.Main
 {
-    public partial class DispatchSystem
+    public static class Core
     {
+        #region Variables
+        internal static ServerConfig Cfg; // config
+        internal static List<string> DispatchPerms; // permissions
+        internal static DispatchServer Server; // server for client+server transactions
+        internal static Database Data; // database for saving
+
+        internal static StorageManager<Bolo> Bolos; // active bolos
+        internal static StorageManager<Civilian> Civs; // civilians
+        internal static StorageManager<CivilianVeh> CivVehs; // civilian vehicles
+        internal static StorageManager<Officer> Officers; // current officers
+        internal static StorageManager<Assignment> Assignments; // active assignments
+        internal static Dictionary<Officer, Assignment> OfcAssignments; // assignments attached to officers
+        internal static StorageManager<EmergencyCall> CurrentCalls; // 911 calls
+        internal static RequestHandler ReqHandler;
+        #endregion
+
+        #region Events
+        #region General Events
         public static RequestData DispatchReset(string handle)
         {
             Player p = GetPlayerByHandle(handle);
@@ -48,7 +69,7 @@ namespace DispatchSystem.Server
 
             return new RequestData(null, new EventArgument[] {GetPlayerId(p), deletedProfiles.ToArray()});
         }
-
+        #endregion
         #region Set Requests
         public static RequestData SetDispatchPerms(object[] args)
         {
@@ -56,7 +77,6 @@ namespace DispatchSystem.Server
             return new RequestData(null, DispatchPerms.Select(x => (EventArgument) x).ToArray());
         }
         #endregion
-
         #region Request Types
         public static RequestData RequestCivilian(string handle)
         {
@@ -104,7 +124,6 @@ namespace DispatchSystem.Server
             return new RequestData(null, Bolos.Select(x => (EventArgument)x.ToArray()).ToArray());
         }
         #endregion
-
         #region Civilian Events
         public static RequestData SetName(string handle, string first, string last)
         {
@@ -241,7 +260,6 @@ namespace DispatchSystem.Server
             return new RequestData(null, new EventArgument[] { GetPlayerId(p) });
         }
         #endregion
-
         #region Vehicle Events
         public static RequestData SetVehicle(string handle, string plate)
         {
@@ -353,7 +371,6 @@ namespace DispatchSystem.Server
             return new RequestData(null, new EventArgument[] { GetPlayerId(p), veh.ToArray(), old});
         }
         #endregion
-
         #region Police Events
         public static RequestData AddOfficer(string handle, string callsign)
         {
@@ -494,6 +511,7 @@ namespace DispatchSystem.Server
             Bolos.Add(bolo); // adding teh bolos
             return new RequestData(null, new EventArgument[] { GetPlayerId(p), bolo.ToArray() });
         }
+        #endregion
         #endregion
     }
 }
