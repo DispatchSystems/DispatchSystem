@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CloNET;
 using CloNET.LocalCallbacks;
+using Dispatch.Common;
 using Dispatch.Common.DataHolders.Storage;
 using DispatchSystem.Terminal.Windows;
 using DispatchSystem.Terminal.Windows.Emergency;
@@ -13,7 +14,7 @@ namespace DispatchSystem.Terminal
 {
     internal static class Program
     {
-        internal static CloNET.Client Client;
+        internal static Client Client;
         private static DispatchMain mainWindow;
 
         private const ushort RECONNECT_COUNT = 3;
@@ -29,12 +30,14 @@ namespace DispatchSystem.Terminal
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            Run();
+            var thread = new SafeThread(Run);
+            thread.OnException += HandleException;
+            thread.Start();
         }
 
-        private static async void Run()
+        private static void Run()
         {
-            using (Client = new CloNET.Client())
+            using (Client = new Client())
             {
                 Client.Encryption = new EncryptionOptions
                 {
@@ -113,7 +116,7 @@ namespace DispatchSystem.Terminal
                 mainWindow = new DispatchMain();
                 Application.Run(mainWindow);
                 cd.Abort();
-                await Client.Disconnect();
+                Client.Disconnect().GetAwaiter().GetResult();
 
                 Environment.Exit(0);
             }
@@ -135,6 +138,13 @@ namespace DispatchSystem.Terminal
             {
                 new Accept911(civ, call).Show();
             });
+        }
+
+        private static void HandleException(Exception e)
+        {
+            MessageBox.Show(
+                $"Whoops! Looks like something went wrong.\nPlease screenshot this and send it to BlockBa5her on his discord!\n\nException:\n{e}",
+                "DispatchSystem", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
