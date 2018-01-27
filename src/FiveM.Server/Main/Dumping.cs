@@ -47,8 +47,8 @@ namespace DispatchSystem.Server.Main
             {
                 var database = new Database("dispatchsystem.dmp"); // create the new database
                 var write2 = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
-                    StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, List<string>>(Civs,
-                    CivVehs, Bolos, CurrentCalls, Officers, DispatchPerms);
+                    StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, List<string>>(Civilians,
+                    CivilianVehs, Bolos, CurrentCalls, Officers, DispatchPerms);
                 database.Write(write2); // write info
             }
             catch (Exception e)
@@ -60,11 +60,11 @@ namespace DispatchSystem.Server.Main
             try
             {
                 // clearing all of the lists
-                Civs.Clear();
-                CivVehs.Clear();
+                Civilians.Clear();
+                CivilianVehs.Clear();
                 Officers.Clear();
                 Assignments.Clear();
-                OfcAssignments.Clear();
+                OfficerAssignments.Clear();
                 CurrentCalls.Clear();
                 Bolos.Clear();
                 Core.Server.Calls.Clear();

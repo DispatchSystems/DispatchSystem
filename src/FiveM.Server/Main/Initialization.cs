@@ -12,7 +12,6 @@ using EZDatabase;
 
 using DispatchSystem.Server.External;
 using DispatchSystem.Server.RequestHandling;
-using static DispatchSystem.Server.Main.Core;
 
 using Dispatch.Common.DataHolders.Storage;
 
@@ -35,7 +34,7 @@ namespace DispatchSystem.Server.Main
 
             // logging and saying that dispatchsystem has been started
             Log.WriteLine("DispatchSystem.Server by BlockBa5her loaded");
-            ReqHandler.TriggerEvent("load");
+            Core.RequestHandler.TriggerEvent("load");
         }
 
         /*
@@ -66,53 +65,53 @@ namespace DispatchSystem.Server.Main
             // type, args, calArgs
             EventHandlers["dispatchsystem:post"] +=
                 new Action<string, List<object>, List<object>>((str, args, calArgs) =>
-                    ReqHandler.Handle(str, args?.ToArray(), calArgs?.ToArray()));
+                    Core.RequestHandler.Handle(str, args?.ToArray(), calArgs?.ToArray()));
 
             #region Request Types
             Log.WriteLine("Adding request types to request handler");
-            ReqHandler.Types = new List<Request>
+            Core.RequestHandler.Types = new List<Request>
             {
                 // Set requests
-                new Request("set_dispatch_perms", SetDispatchPerms),
+                new Request("set_dispatch_perms", Core.SetDispatchPerms),
 
                 // Backbone requests
-                new Request("req_civ", args => RequestCivilian((string)args[0])),
-                new Request("req_veh", args => RequestCivilianVeh((string)args[0])),
-                new Request("req_civ_by_name", args => RequestCivilianByName((string)args[0], (string)args[1])),
-                new Request("req_veh_by_plate", args => RequestCivilianVehByPlate((string)args[0])),
-                new Request("req_leo", args => RequestOfficer((string)args[0])),
-                new Request("req_leo_by_callsign", args => RequestOfficerByCallsign((string)args[0])),
-                new Request("req_leo_assignment", args => RequestOfficerAssignment((string)args[0])),
-                new Request("req_bolos", args => RequestBolos()),
+                new Request("req_civ", args => Core.RequestCivilian((string)args[0])),
+                new Request("req_veh", args => Core.RequestCivilianVeh((string)args[0])),
+                new Request("req_civ_by_name", args => Core.RequestCivilianByName((string)args[0], (string)args[1])),
+                new Request("req_veh_by_plate", args => Core.RequestCivilianVehByPlate((string)args[0])),
+                new Request("req_leo", args => Core.RequestOfficer((string)args[0])),
+                new Request("req_leo_by_callsign", args => Core.RequestOfficerByCallsign((string)args[0])),
+                new Request("req_leo_assignment", args => Core.RequestOfficerAssignment((string)args[0])),
+                new Request("req_bolos", args => Core.RequestBolos()),
 
                 // General events
-                new Request("gen_reset", args => DispatchReset((string)args[0])),
+                new Request("gen_reset", args => Core.DispatchReset((string)args[0])),
                 new Request("gen_dump", args => DispatchSystemDump.EmergencyDump(Common.GetPlayerByHandle((string)args[0])).Result),
 
                 // Civilian events
-                new Request("civ_create", args => SetName((string)args[0], (string)args[1], (string)args[2])),
-                new Request("civ_toggle_warrant", args => ToggleWarrant((string)args[0])),
-                new Request("civ_set_citations", args => SetCitations((string)args[0], (int)args[1])),
-                new Request("civ_911_init", args => InitializeEmergency((string)args[0]).Result),
-                new Request("civ_911_msg", args => MessageEmergency((string)args[0], (string)args[1]).Result),
-                new Request("civ_911_end", args => EndEmergency((string)args[0]).Result),
+                new Request("civ_create", args => Core.SetName((string)args[0], (string)args[1], (string)args[2])),
+                new Request("civ_toggle_warrant", args => Core.ToggleWarrant((string)args[0])),
+                new Request("civ_set_citations", args => Core.SetCitations((string)args[0], (int)args[1])),
+                new Request("civ_911_init", args => Core.InitializeEmergency((string)args[0]).Result),
+                new Request("civ_911_msg", args => Core.MessageEmergency((string)args[0], (string)args[1]).Result),
+                new Request("civ_911_end", args => Core.EndEmergency((string)args[0]).Result),
 
                 // Vehicle events
-                new Request("veh_create", args => SetVehicle((string)args[0], (string)args[1])),
-                new Request("veh_toggle_stolen", args => ToggleVehicleStolen((string)args[0])),
-                new Request("veh_toggle_regi", args => ToggleVehicleRegistration((string)args[0])),
-                new Request("veh_toggle_insurance", args => ToggleVehicleInsurance((string)args[0])),
+                new Request("veh_create", args => Core.SetVehicle((string)args[0], (string)args[1])),
+                new Request("veh_toggle_stolen", args => Core.ToggleVehicleStolen((string)args[0])),
+                new Request("veh_toggle_regi", args => Core.ToggleVehicleRegistration((string)args[0])),
+                new Request("veh_toggle_insurance", args => Core.ToggleVehicleInsurance((string)args[0])),
 
                 // Officer events
-                new Request("leo_create", args => AddOfficer((string)args[0], (string)args[1])),
-                new Request("leo_on_duty", args => ToggleOnDuty((string)args[0])),
-                new Request("leo_off_duty", args => ToggleOffDuty((string)args[0])),
-                new Request("leo_busy", args => ToggleBusy((string)args[0])),
-                new Request("leo_add_civ_note", args => AddCivilianNote(
+                new Request("leo_create", args => Core.AddOfficer((string)args[0], (string)args[1])),
+                new Request("leo_on_duty", args => Core.ToggleOnDuty((string)args[0])),
+                new Request("leo_off_duty", args => Core.ToggleOffDuty((string)args[0])),
+                new Request("leo_busy", args => Core.ToggleBusy((string)args[0])),
+                new Request("leo_add_civ_note", args => Core.AddCivilianNote(
                     (string)args[0], (string)args[1], (string)args[2], (string)args[3])),
-                new Request("leo_add_civ_ticket", args => TicketCivilian(
+                new Request("leo_add_civ_ticket", args => Core.TicketCivilian(
                     (string)args[0], (string)args[1], (string)args[2], (string)args[3], (float)args[4])),
-                new Request("leo_bolo_add", args => AddBolo((string)args[0], (string)args[1]))
+                new Request("leo_bolo_add", args => Core.AddBolo((string)args[0], (string)args[1]))
             };
             #endregion
         }
@@ -121,40 +120,40 @@ namespace DispatchSystem.Server.Main
             // creating new instances of object
             Log.WriteLine("Creating needed objects");
             callbacks = new ConcurrentQueue<Action>();
-            Officers = new StorageManager<Officer>();
-            Assignments = new StorageManager<Assignment>();
-            OfcAssignments = new Dictionary<Officer, Assignment>();
-            Bolos = new StorageManager<Bolo>();
-            Civs = new StorageManager<Civilian>();
-            CivVehs = new StorageManager<CivilianVeh>();
-            CurrentCalls = new StorageManager<EmergencyCall>();
-            Cfg = new ServerConfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
-            DispatchPerms = new List<string>();
+            Core.Officers = new StorageManager<Officer>();
+            Core.Assignments = new StorageManager<Assignment>();
+            Core.OfficerAssignments = new Dictionary<Officer, Assignment>();
+            Core.Bolos = new StorageManager<Bolo>();
+            Core.Civilians = new StorageManager<Civilian>();
+            Core.CivilianVehs = new StorageManager<CivilianVeh>();
+            Core.CurrentCalls = new StorageManager<EmergencyCall>();
+            Core.Config = new ServerConfig(Function.Call<string>(Hash.GET_CURRENT_RESOURCE_NAME), "settings.ini");
+            Core.DispatchPerms = new List<string>();
 
             Log.WriteLine("Starting Request Handler");
-            ReqHandler = new RequestHandler();
+            Core.RequestHandler = new RequestHandler();
 
             // reading config, then starting the server is config true
-            if (Cfg.GetIntValue("server", "enable", 0) == 1)
+            if (Core.Config.GetIntValue("server", "enable", 0) == 1)
             {
-                ThreadPool.QueueUserWorkItem(x => Core.Server = new DispatchServer(Cfg, DispatchPerms), null);
+                ThreadPool.QueueUserWorkItem(x => Core.Server = new DispatchServer(Core.Config, Core.DispatchPerms), null);
                 Log.WriteLine("Starting DISPATCH server");
             }
             else
                 Log.WriteLine("Not starting DISPATCH server");
 
             // reading config, then starting database if config true
-            if (Cfg.GetIntValue("database", "enable", 0) == 1)
+            if (Core.Config.GetIntValue("database", "enable", 0) == 1)
             {
                 // starting the read/write thread for database
                 async void RunDatabase()
                 {
                     Log.WriteLine("Reading database...");
-                    Data = new Database("dispatchsystem.data"); // creating the database instance
+                    Core.Data = new Database("dispatchsystem.data"); // creating the database instance
                     Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>> read;
                     try
                     {
-                        read = Data.Read(); // reading the serialized tuple from the database
+                        read = Core.Data.Read(); // reading the serialized tuple from the database
                     }
                     catch (Exception e)
                     {
@@ -165,7 +164,7 @@ namespace DispatchSystem.Server.Main
                         Log.WriteLineSilent(e.ToString());
                         try
                         {
-                            Data.Write(null);
+                            Core.Data.Write(null);
                         }
                         catch (Exception e2)
                         {
@@ -180,8 +179,8 @@ namespace DispatchSystem.Server.Main
                         }
                         read = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(null, null);
                     }
-                    Civs = read?.Item1 ?? new StorageManager<Civilian>();
-                    CivVehs = read?.Item2 ?? new StorageManager<CivilianVeh>();
+                    Core.Civilians = read?.Item1 ?? new StorageManager<Civilian>();
+                    Core.CivilianVehs = read?.Item2 ?? new StorageManager<CivilianVeh>();
                     Log.WriteLine("Read and set database"); // logging done
 
                     // starting while loop for writing the database
@@ -193,9 +192,9 @@ namespace DispatchSystem.Server.Main
                         Log.WriteLineSilent("Writing current information to database");
 #endif
                         // creating the tuple to write
-                        var write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(Civs, CivVehs);
+                        var write = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>>(Core.Civilians, Core.CivilianVehs);
                         // writing the information
-                        Data.Write(write);
+                        Core.Data.Write(write);
                         // waiting 3 minutes before doing it again
                         await Delay(180 * 1000);
                     }

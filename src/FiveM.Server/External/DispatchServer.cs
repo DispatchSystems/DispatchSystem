@@ -243,7 +243,7 @@ namespace DispatchSystem.Server.External
                 Player p = Common.GetPlayerByIp(acceptedCall.SourceIP);
                 if (p != null)
                 {
-                    global::DispatchSystem.Server.Main.Core.ReqHandler.TriggerEvent("civ_911_accepted", new EventArgument[] { Common.GetPlayerId(p) });
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("civ_911_accepted", new EventArgument[] { Common.GetPlayerId(p) });
                 }
             });
             return true;
@@ -302,7 +302,7 @@ namespace DispatchSystem.Server.External
 
                     if (p != null)
                     {
-                        global::DispatchSystem.Server.Main.Core.ReqHandler.TriggerEvent("civ_911_ended", new EventArgument[] {Common.GetPlayerId(p)});
+                        global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("civ_911_ended", new EventArgument[] {Common.GetPlayerId(p)});
                     }
                 });
             }
@@ -324,7 +324,7 @@ namespace DispatchSystem.Server.External
 
                 if (p != null)
                 {
-                    global::DispatchSystem.Server.Main.Core.ReqHandler.TriggerEvent("civ_911_message", new EventArgument[] {Common.GetPlayerId(p), msg });
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("civ_911_message", new EventArgument[] {Common.GetPlayerId(p), msg });
                 }
             });
         }
@@ -341,10 +341,10 @@ namespace DispatchSystem.Server.External
             Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.ToList().Find(x => x.Id == ofcId); // finding the officer from the id
             if (assignment is null || ofc is null) // returning if either is null
                 return;
-            if (global::DispatchSystem.Server.Main.Core.OfcAssignments.ContainsKey(ofc)) // returning if the officer already contains the assignment
+            if (global::DispatchSystem.Server.Main.Core.OfficerAssignments.ContainsKey(ofc)) // returning if the officer already contains the assignment
                 return;
 
-            global::DispatchSystem.Server.Main.Core.OfcAssignments.Add(ofc, assignment); // adding the assignment to the officer
+            global::DispatchSystem.Server.Main.Core.OfficerAssignments.Add(ofc, assignment); // adding the assignment to the officer
 
             ofc.Status = OfficerStatus.OffDuty;
 
@@ -354,7 +354,7 @@ namespace DispatchSystem.Server.External
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
                 {
-                    global::DispatchSystem.Server.Main.Core.ReqHandler.TriggerEvent("leo_assignment_added", new EventArgument[]
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_assignment_added", new EventArgument[]
                     {
                         Common.GetPlayerId(p),
                         assignment.Summary
@@ -406,8 +406,8 @@ namespace DispatchSystem.Server.External
             Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.FirstOrDefault(x => x.Id == ofcId);
             if (ofc == null) return;
 
-            if (!global::DispatchSystem.Server.Main.Core.OfcAssignments.ContainsKey(ofc)) return;
-            global::DispatchSystem.Server.Main.Core.OfcAssignments.Remove(ofc); // removing the assignment from the officer
+            if (!global::DispatchSystem.Server.Main.Core.OfficerAssignments.ContainsKey(ofc)) return;
+            global::DispatchSystem.Server.Main.Core.OfficerAssignments.Remove(ofc); // removing the assignment from the officer
 
             ofc.Status = OfficerStatus.OnDuty; // set on duty
 
@@ -416,7 +416,7 @@ namespace DispatchSystem.Server.External
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
                 {
-                    global::DispatchSystem.Server.Main.Core.ReqHandler.TriggerEvent("leo_assignment_removed", new EventArgument[] { Common.GetPlayerId(p) });
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_assignment_removed", new EventArgument[] { Common.GetPlayerId(p) });
                 }
             });
         }
@@ -448,7 +448,7 @@ namespace DispatchSystem.Server.External
                     Player p = Common.GetPlayerByIp(ofc.SourceIP);
                     if (p != null)
                     {
-                        global::DispatchSystem.Server.Main.Core.ReqHandler.TriggerEvent("leo_status_change",
+                        global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_status_change",
                             new EventArgument[]
                             {
                                 Common.GetPlayerId(p),
@@ -486,7 +486,7 @@ namespace DispatchSystem.Server.External
 
                     if (p != null)
                     {
-                        global::DispatchSystem.Server.Main.Core.ReqHandler.TriggerEvent("leo_role_removed", new EventArgument[] { Common.GetPlayerId(p) });
+                        global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_role_removed", new EventArgument[] { Common.GetPlayerId(p) });
                     }
                 });
 
@@ -560,7 +560,7 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add Civilian note Request Received");
 #endif
 
-            Civilian civ = global::DispatchSystem.Server.Main.Core.Civs.FirstOrDefault(x => x.Id == id); // finding the civ from the id
+            Civilian civ = global::DispatchSystem.Server.Main.Core.Civilians.FirstOrDefault(x => x.Id == id); // finding the civ from the id
 
             if (civ != null)
             {
