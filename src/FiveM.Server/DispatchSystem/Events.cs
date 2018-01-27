@@ -1,8 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 
-using CloNET;
 using Dispatch.Common.DataHolders;
 using Dispatch.Common.DataHolders.Storage;
 using DispatchSystem.Server.RequestHandling;
@@ -15,34 +15,38 @@ namespace DispatchSystem.Server
         public static RequestData DispatchReset(string handle)
         {
             Player p = GetPlayerByHandle(handle);
-            int deletedProfiles = 0;
+            var deletedProfiles = new List<EventArgument>();
 
-            if (GetCivilian(p.Handle) != null)
+            var civ = GetCivilian(p.Handle);
+            var veh = GetCivilianVeh(p.Handle);
+            var ofc = GetOfficer(p.Handle);
+
+            if (civ != null)
             {
 #if DEBUG
                 SendMessage(p, "", new [] {0,0,0}, "Removing Civilian Profile...");
 #endif
-                Civs.Remove(GetCivilian(p.Handle)); // removing instance of civilian
-                deletedProfiles++;
+                Civs.Remove(civ); // removing instance of civilian
+                deletedProfiles.Add(civ.ToArray());
             }
-            if (GetCivilianVeh(p.Handle) != null)
+            if (veh != null)
             {
 #if DEBUG
                 SendMessage(p, "", new[] { 0, 0, 0 }, "Removing Civilian Vehicle Profile...");
 #endif
-                CivVehs.Remove(GetCivilianVeh(p.Handle)); // removing instance of vehicle
-                deletedProfiles++;
+                CivVehs.Remove(veh); // removing instance of vehicle
+                deletedProfiles.Add(veh.ToArray());
             }
-            if (GetOfficer(p.Handle) != null)
+            if (ofc != null)
             {
 #if DEBUG
                 SendMessage(p, "", new[] { 0, 0, 0 }, "Removing Officer Profile...");
 #endif
-                Officers.Remove(GetOfficer(p.Handle)); // removing instance of officer
-                deletedProfiles++;
+                Officers.Remove(ofc); // removing instance of officer
+                deletedProfiles.Add(ofc.ToArray());
             }
 
-            return new RequestData(null, new EventArgument[] {GetPlayerId(p), deletedProfiles});
+            return new RequestData(null, new EventArgument[] {GetPlayerId(p), deletedProfiles.ToArray()});
         }
 
         #region Set Requests
@@ -106,26 +110,28 @@ namespace DispatchSystem.Server
         {
             Player p = GetPlayerByHandle(handle);
 
-            if (GetCivilianByName(first, last) != null && GetPlayerByIp(GetCivilian(handle).SourceIP) != p) // checking if the name already exists in the system
+            var civ = GetCivilian(handle);
+            var oldVeh = GetCivilianVeh(handle);
+
+            if (GetCivilianByName(first, last) != null && GetPlayerByIp(civ?.SourceIP) != p) // checking if the name already exists in the system
             {
                 return new RequestData("civ_name_exist", new EventArgument[] {GetPlayerId(p)});
             }
-            if (GetCivilianVeh(handle) != null)
+            if (oldVeh != null)
             {
-                // below basically resets the vehicle if it exists
-                int index = CivVehs.IndexOf(GetCivilianVeh(handle));
-                CivVehs[index] = new CivilianVeh(p.Identifiers["ip"]);
+                // deletes vehicle from list of vehicles
+                CivVehs.Remove(oldVeh);
             }
 
-            Civilian civ;
-            EventArgument[] old = null;
+            // old civilian information, for the event
+            EventArgument[] oldCivInfo = null;
             // checking if the civilian already has a civ in the system
             if (GetCivilian(handle) != null)
             {
                 int index = Civs.IndexOf(GetCivilian(handle)); // finding the index of the existing civ
 
                 civ = new Civilian(p.Identifiers["ip"]) { First = first, Last = last }; // setting the index to an instance of a new civilian
-                old = Civs[index].ToArray();
+                oldCivInfo = Civs[index].ToArray();
                 Civs[index] = civ;
             }
             else // if the civ doesn't exist
@@ -138,59 +144,56 @@ namespace DispatchSystem.Server
 #endif
             }
 
-            return new RequestData(null, new EventArgument[] {GetPlayerId(p), civ.ToArray(), old});
+            return new RequestData(null, new EventArgument[] {GetPlayerId(p), civ.ToArray(), oldCivInfo});
         }
         public static RequestData ToggleWarrant(string handle)
         {
             Player p = GetPlayerByHandle(handle);
+            var civ = GetCivilian(handle);
 
-            if (GetCivilian(handle) == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(p)});
+            if (civ == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(p)});
 
-            int index = Civs.IndexOf(GetCivilian(handle)); // finding the index
-            var old = Civs[index].ToArray();
-            Civs[index].WarrantStatus =
-                !Civs[index].WarrantStatus; // setting the warrant status of the opposite of before
-            return new RequestData(null, new EventArgument[] {GetPlayerId(p), Civs[index].ToArray(), old});
+            var old = civ.ToArray();
+            // setting the warrant status of the opposite of before
+            civ.WarrantStatus = !civ.WarrantStatus;
+
+            return new RequestData(null, new EventArgument[] {GetPlayerId(p), civ.ToArray(), old});
         }
         public static RequestData SetCitations(string handle, int count)
         {
             Player p = GetPlayerByHandle(handle);
+            var civ = GetCivilian(handle);
 
-            if (GetCivilian(handle) == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(p)});
+            if (civ == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(p)});
 
-            int index = Civs.IndexOf(GetCivilian(handle)); // again finding index
-            var old = Civs[index].ToArray();
-            Civs[index].CitationCount = count; // setting the count of the citations
+            var old = civ.ToArray();
+            civ.CitationCount = count; // setting the count of the citations
 
-            return new RequestData(null, new EventArgument[] {GetPlayerId(p), Civs[index].ToArray(), old});
+            return new RequestData(null, new EventArgument[] {GetPlayerId(p), civ.ToArray(), old});
         }
         public static async Task<RequestData> InitializeEmergency(string handle)
         {
             Player p = GetPlayerByHandle(handle);
+            // ReSharper disable once IdentifierTypo
+            var emerCall = GetEmergencyCall(handle);
 
             // checking for an existing emergency
-            if (GetEmergencyCall(handle) != null)
-            {
-                return new RequestData("civ_911_exist", new EventArgument[] {GetPlayerId(p)});
-            }
-
-            if (GetCivilian(handle) == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(p)});
+            if (emerCall != null) return new RequestData("civ_911_exist", new EventArgument[] { GetPlayerId(p) });
 
             Civilian civ = GetCivilian(handle); // finding the civ
+            if (civ == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(p)});
+
             // checking how many active dispatchers there are
             if (Server.ConnectedDispatchers.Length == 0)
-            {
                 return new RequestData("civ_911_no_dispatchers", new EventArgument[] {GetPlayerId(p)});
-            }
 
-            EmergencyCall call;
-            CurrentCalls.Add(call =
-                new EmergencyCall(p.Identifiers["ip"],
-                    $"{civ.First} {civ.Last}")); // adding and creating the instance of the emergency
+            emerCall = new EmergencyCall(p.Identifiers["ip"],
+                $"{civ.First} {civ.Last}");
+            CurrentCalls.Add(emerCall); // adding and creating the instance of the emergency
             foreach (var peer in Server.ConnectedDispatchers)
             {
                 await peer.RemoteCallbacks.Events["911alert"]
-                    .Invoke(civ, call); // notifying the dispatchers of the 911 call
+                    .Invoke(civ, emerCall); // notifying the dispatchers of the 911 call
             }
             return new RequestData(null, new EventArgument[] {GetPlayerId(p)});
         }
@@ -198,14 +201,14 @@ namespace DispatchSystem.Server
         {
             Player p = GetPlayerByHandle(handle);
 
-            EmergencyCall call = GetEmergencyCall(handle);
+            var call = GetEmergencyCall(handle);
             if (call?.Accepted ?? true) // checking if null and if accepted in the same check
             {
                 return new RequestData("civ_911_not_exist", new EventArgument[] { GetPlayerId(p) });
             }
 
-            string dispatcherIp = Server.Calls[call.Id]; // getting the dispatcher ip from the calls
-            ConnectedPeer peer = Server.ConnectedDispatchers.First(x => x.RemoteIP == dispatcherIp); // finding the peer from the given IP
+            var dispatcherIp = Server.Calls[call.Id]; // getting the dispatcher ip from the calls
+            var peer = Server.ConnectedDispatchers.First(x => x.RemoteIP == dispatcherIp); // finding the peer from the given IP
             await peer.RemoteCallbacks.Events[call.Id.ToString()].Invoke(msg); // invoking the remote event for the message in the peer
 
             return new RequestData(null, new EventArgument[] { GetPlayerId(p), msg});
@@ -226,8 +229,8 @@ namespace DispatchSystem.Server
 #endif
 
             // finding the dispatcher ip
-            string dispatcherIp = Server.Calls.ContainsKey(call.Id) ? Server.Calls[call.Id] : null;
-            ConnectedPeer peer = Server.ConnectedDispatchers.FirstOrDefault(x => x.RemoteIP == dispatcherIp); // finding the peer from the ip
+            var dispatcherIp = Server.Calls.ContainsKey(call.Id) ? Server.Calls[call.Id] : null;
+            var peer = Server.ConnectedDispatchers.FirstOrDefault(x => x.RemoteIP == dispatcherIp); // finding the peer from the ip
             var task = peer?.RemoteCallbacks.Events?["end" + call.Id].Invoke(); // creating the task from the events
 
             // removing the call from the calls list
@@ -244,18 +247,20 @@ namespace DispatchSystem.Server
         {
             Player p = GetPlayerByHandle(handle);
 
+            var civ = GetCivilian(handle);
+            var veh = GetCivilianVeh(handle);
+
             // if no civilian exists
-            if (GetCivilian(handle) == null)
+            if (civ == null)
             {
                 return new RequestData("civ_not_exist", new EventArgument[] { GetPlayerId(p) });
             }
             // checking if the plate already exists in the system
-            if (GetCivilianVehByPlate(plate) != null && GetPlayerByIp(GetCivilianVeh(handle).SourceIP) != p)
+            if (GetCivilianVehByPlate(plate) != null && GetPlayerByIp(veh.SourceIP) != p)
             {
                 return new RequestData("veh_plate_exist", new EventArgument[] { GetPlayerId(p), plate});
             }
 
-            CivilianVeh veh = GetCivilianVeh(handle);
             EventArgument[] old = null;
             // checking if player already owns a vehicle
             if (veh != null)
@@ -277,70 +282,75 @@ namespace DispatchSystem.Server
         public static RequestData ToggleVehicleStolen(string handle)
         {
             Player p = GetPlayerByHandle(handle);
+
+            var civ = GetCivilian(handle);
+            var veh = GetCivilianVeh(handle);
             
             // checking if player has a name
-            if (GetCivilian(handle) == null)
+            if (civ == null)
             {
                 return new RequestData("civ_not_exist", new EventArgument[] { GetPlayerId(p) });
             }
 
             // checking if vehicle exists
-            if (GetCivilianVeh(handle) == null) return new RequestData("veh_not_exist", new EventArgument[] {GetPlayerId(p)});
+            if (veh == null) return new RequestData("veh_not_exist", new EventArgument[] {GetPlayerId(p)});
 
-            int index = CivVehs.IndexOf(GetCivilianVeh(handle)); // finding index of vehicle
-            var old = CivVehs[index].ToArray();
-            CivVehs[index].StolenStatus = !CivVehs[index].StolenStatus; // toggle stolen
+            var old = veh.ToArray();
+            veh.StolenStatus = !veh.StolenStatus; // toggle stolen
 
-            if (CivVehs[index].StolenStatus) // checking if it is stolen
+            if (veh.StolenStatus) // checking if it is stolen
             {
-                Civilian civ = Civilian.CreateRandomCivilian(); // creating a new random civ
-                CivVehs[index].Owner = civ; // setting the vehicle owner to the civ
+                civ = Civilian.CreateRandomCivilian(); // creating a new random civ
+                veh.Owner = civ; // setting the vehicle owner to the civ
                 Civs.Add(civ); // adding the civ to the database
             }
             else
             {
-                Civilian civ = CivVehs[index].Owner; // finding the existing civ
                 Civs.Remove(civ); // removing the civ from the database
-                CivVehs[index].Owner = GetCivilian(handle); // setting the owner to the person
+                veh.Owner = civ; // setting the owner to the person
             }
 
-            return new RequestData(null, new EventArgument[] { GetPlayerId(p), CivVehs[index].ToArray(), old});
+            return new RequestData(null, new EventArgument[] { GetPlayerId(p), veh.ToArray(), old});
         }
         public static RequestData ToggleVehicleRegistration(string handle)
         {
             Player p = GetPlayerByHandle(handle);
 
+            var civ = GetCivilian(handle);
+            var veh = GetCivilianVeh(handle);
+
             // checking for existing civ
-            if (GetCivilian(handle) == null)
+            if (civ == null)
             {
                 return new RequestData("civ_not_exist", new EventArgument[] { GetPlayerId(p) });
             }
 
             // checking if the vehicle exists
-            if (GetCivilianVeh(handle) == null) return new RequestData("veh_not_exist", new EventArgument[] {GetPlayerId(p)});
+            if (veh == null) return new RequestData("veh_not_exist", new EventArgument[] {GetPlayerId(p)});
 
-            int index = CivVehs.IndexOf(GetCivilianVeh(handle)); // finding the index of the vehicle
-            var old = CivVehs[index].ToArray();
-            CivVehs[index].Registered = !CivVehs[index].Registered; // setting the registration
-            return new RequestData(null, new EventArgument[] { GetPlayerId(p), CivVehs[index].ToArray(), old});
+            var old = veh.ToArray();
+            veh.Registered = !veh.Registered; // setting the registration
+            return new RequestData(null, new EventArgument[] { GetPlayerId(p), veh.ToArray(), old});
         }
         public static RequestData ToggleVehicleInsurance(string handle)
         {
             Player p = GetPlayerByHandle(handle);
 
+            var civ = GetCivilian(handle);
+            var veh = GetCivilianVeh(handle);
+
             // checking for existing civ
-            if (GetCivilian(handle) == null)
+            if (civ == null)
             {
                 return new RequestData("civ_not_exist", new EventArgument[] { GetPlayerId(p) });
             }
 
             // checking if the vehicle exists
-            if (GetCivilianVeh(handle) == null) return new RequestData("veh_not_exist", new EventArgument[] {GetPlayerId(p)});
+            if (veh == null) return new RequestData("veh_not_exist", new EventArgument[] {GetPlayerId(p)});
 
-            int index = CivVehs.IndexOf(GetCivilianVeh(handle)); // finding the index
-            var old = CivVehs[index].ToArray();
-            CivVehs[index].Insured = !CivVehs[index].Insured; // toggle insurance
-            return new RequestData(null, new EventArgument[] { GetPlayerId(p), CivVehs[index].ToArray(), old});
+            var old = veh.ToArray();
+            veh.Insured = !veh.Insured; // toggle insurance
+            return new RequestData(null, new EventArgument[] { GetPlayerId(p), veh.ToArray(), old});
         }
         #endregion
 
@@ -349,7 +359,7 @@ namespace DispatchSystem.Server
         {
             Player p = GetPlayerByHandle(handle);
 
-            Officer ofc = GetOfficer(handle);
+            var ofc = GetOfficer(handle);
             EventArgument[] old = null;
 
             // check for officer existing
@@ -363,8 +373,8 @@ namespace DispatchSystem.Server
             }
             else
             {
-                int index = Officers.IndexOf(GetOfficer(handle)); // finding the index
-                old = Officers[index].ToArray();
+                int index = Officers.IndexOf(ofc); // finding the index
+                old = ofc.ToArray();
                 ofc = new Officer(p.Identifiers["ip"], callsign);
                 Officers[index] = ofc; // setting the index to the specified officer
             }
@@ -375,11 +385,11 @@ namespace DispatchSystem.Server
         {
             Player p = GetPlayerByHandle(handle);
 
-            // checking if the officer exists
-            if (GetOfficer(handle) == null)
-                return new RequestData("leo_not_exist", new EventArgument[] {GetPlayerId(p)});
+            var ofc = GetOfficer(handle);
 
-            Officer ofc = GetOfficer(handle); // finding the officer
+            // checking if the officer exists
+            if (ofc == null)
+                return new RequestData("leo_not_exist", new EventArgument[] {GetPlayerId(p)});
 
             if (ofc.Status == OfficerStatus.OnDuty)
             {
@@ -394,11 +404,11 @@ namespace DispatchSystem.Server
         {
             Player p = GetPlayerByHandle(handle);
 
-            // checking if the officer exists
-            if (GetOfficer(handle) == null)
-                return new RequestData("leo_not_exist", new EventArgument[] { GetPlayerId(p) });
+            var ofc = GetOfficer(handle);
 
-            Officer ofc = GetOfficer(handle); // finding the officer
+            // checking if the officer exists
+            if (ofc == null)
+                return new RequestData("leo_not_exist", new EventArgument[] { GetPlayerId(p) });
 
             if (ofc.Status == OfficerStatus.OffDuty)
             {
@@ -413,11 +423,11 @@ namespace DispatchSystem.Server
         {
             Player p = GetPlayerByHandle(handle);
 
-            // checking if the officer exists
-            if (GetOfficer(handle) == null)
-                return new RequestData("leo_not_exist", new EventArgument[] { GetPlayerId(p) });
+            var ofc = GetOfficer(handle);
 
-            Officer ofc = GetOfficer(handle); // finding the officer
+            // checking if the officer exists
+            if (ofc == null)
+                return new RequestData("leo_not_exist", new EventArgument[] { GetPlayerId(p) });
 
             if (ofc.Status == OfficerStatus.Busy)
             {
@@ -431,13 +441,15 @@ namespace DispatchSystem.Server
         public static RequestData AddCivilianNote(string invokerHandle, string first, string last, string note)
         {
             Player invoker = GetPlayerByHandle(invokerHandle); // getting the invoker
-            Civilian civ = GetCivilianByName(first, last); // finding the civ
+            var civ = GetCivilianByName(first, last); // finding the civ
+            var ofc = GetOfficer(invokerHandle);
 
+            // checking leo
+            if (ofc == null) return new RequestData("leo_not_exist", new EventArgument[] {GetPlayerId(invoker)});
             // checking civ 
-            if (civ == null) return new RequestData("civ_not_exist", new EventArgument[] { GetPlayerId(invoker) });
+            if (civ == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(invoker)});
 
-            int index = Civs.IndexOf(civ); // finding the index
-            Civs[index].Notes.Add(note); // adding the note to the civ
+            civ.Notes.Add(note); // adding the note to the civ
             return new RequestData(null, new EventArgument[]
             {
                 GetPlayerId(invoker),
@@ -449,16 +461,18 @@ namespace DispatchSystem.Server
         public static RequestData TicketCivilian(string invokerHandle, string first, string last, string reason, float amount)
         {
             Player invoker = GetPlayerByHandle(invokerHandle); // getting the invoker
-            Civilian civ = GetCivilianByName(first, last); // finding the civ
+            var civ = GetCivilianByName(first, last); // finding the civ
+            var ofc = GetOfficer(invokerHandle);
 
+            // checking for leo
+            if (ofc == null) return new RequestData("leo_not_exist", new EventArgument[] {GetPlayerId(invoker)});
             // checking for civ
             if (civ == null) return new RequestData("civ_not_exist", new EventArgument[] {GetPlayerId(invoker)});
 
-            int index = Civs.IndexOf(civ); // finding the index of the civ
-            Player p = GetPlayerByIp(Civs[index].SourceIP); // finding the player that the civ owns
-            Civs[index].CitationCount++; // adding 1 to the citations
+            Player p = GetPlayerByIp(civ.SourceIP); // finding the player that the civ owns
+            civ.CitationCount++; // adding 1 to the citations
             Ticket ticket = new Ticket(reason, amount);
-            Civs[index].Tickets.Add(ticket); // adding a ticket to the existing tickets
+            civ.Tickets.Add(ticket); // adding a ticket to the existing tickets
             // msgs for the civs
             return new RequestData(null, new EventArgument[]
             {
@@ -471,6 +485,11 @@ namespace DispatchSystem.Server
         public static RequestData AddBolo(string handle, string reason)
         {
             Player p = GetPlayerByHandle(handle); // getting the invoker
+            var ofc = GetOfficer(handle);
+
+            // checking for leo
+            if (ofc == null) return new RequestData("leo_not_exist", new EventArgument[] {GetPlayerId(p)});
+
             var bolo = new Bolo(p.Name, p.Identifiers["ip"], reason);// creating new bolo
             Bolos.Add(bolo); // adding teh bolos
             return new RequestData(null, new EventArgument[] { GetPlayerId(p), bolo.ToArray() });

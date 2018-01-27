@@ -63,53 +63,52 @@ namespace Dispatch.Common.DataHolders.Storage
             };
         }
 
+
+        #region NamesDic
+        // ReSharper disable StringLiteralTypo
+        private static readonly List<string> rndNames = new List<string>
+        {
+            "Mason Bishan",
+            "Zaahir Romolo",
+            "Sang-Hun Adam",
+            "Morgan Narayan",
+            "Arsen Wendel",
+            "Lazzaro Kylian",
+            "Raleigh Jacob",
+            "Paolino Marko",
+            "Hafiz Shahnaz",
+            "Saddam Feidhlimidh",
+            "Eugène Doriano",
+            "Gorden Roger",
+            "Luke Patrizio",
+            "Hisham Bertram",
+            "Cornelius Kuldeep",
+            "Vasu Wolter",
+            "Rhett Uaithne",
+            "Gallo Énna",
+            "Jaffar Niklaus",
+            "Silver Hendrik",
+            "Norman Frazier",
+            "Jerrold Hall",
+            "Manus Cormac",
+            "Arsenio Ikaia",
+            "Yasser Morten",
+            "Eugène Carmine",
+            "Ciar Claude",
+            "Michelangelo Olivier",
+            "Fiachna Vasileios",
+            "Wulf Myles",
+            "Pyry Hyun-Woo",
+            "Salman Gallo",
+            "Anish Gabriel",
+            "Karl Andreas"
+        };
+        // ReSharper restore StringLiteralTypo
+        #endregion
+        private static readonly Random rnd = new Random();
         public static Civilian CreateRandomCivilian()
         {
-            #region NamesDic
-            // ReSharper disable StringLiteralTypo
-            List<string> rndNames = new List<string>
-            {
-                "Mason Bishan",
-                "Zaahir Romolo",
-                "Sang-Hun Adam",
-                "Morgan Narayan",
-                "Arsen Wendel",
-                "Lazzaro Kylian",
-                "Raleigh Jacob",
-                "Paolino Marko",
-                "Hafiz Shahnaz",
-                "Saddam Feidhlimidh",
-                "Eugène Doriano",
-                "Gorden Roger",
-                "Luke Patrizio",
-                "Hisham Bertram",
-                "Cornelius Kuldeep",
-                "Vasu Wolter",
-                "Rhett Uaithne",
-                "Gallo Énna",
-                "Jaffar Niklaus",
-                "Silver Hendrik",
-                "Norman Frazier",
-                "Jerrold Hall",
-                "Manus Cormac",
-                "Arsenio Ikaia",
-                "Yasser Morten",
-                "Eugène Carmine",
-                "Ciar Claude",
-                "Michelangelo Olivier",
-                "Fiachna Vasileios",
-                "Wulf Myles",
-                "Pyry Hyun-Woo",
-                "Salman Gallo",
-                "Anish Gabriel",
-                "Karl Andreas"
-            };
-            // ReSharper restore StringLiteralTypo
-            #endregion
-
-            Random rnd = new Random();
-
-            string[] name = rndNames[rnd.Next(rndNames.Count)].Split(' ');
+            var name = rndNames[rnd.Next(rndNames.Count)].Split(' ');
 
             return new Civilian(string.Empty)
             {
