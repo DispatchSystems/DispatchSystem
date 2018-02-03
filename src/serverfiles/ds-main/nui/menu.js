@@ -36,7 +36,6 @@ $( function() {
             resourcename = item.metadata;
         }
         if ( item.pushback ) {
-            return;
             // getting info arr
             var civinfo = item.data[0];
             var ofcinfo = item.data[1];
