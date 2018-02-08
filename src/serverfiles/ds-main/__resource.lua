@@ -22,5 +22,6 @@ client_scripts {
     'client/cl_menu.lua',
     'client/cl_transactions.lua',
     'client/cl_refresh.lua',
+	'client/cl_suggestions.lua',
     'config.lua'
 }
