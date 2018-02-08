@@ -1,0 +1,161 @@
+{
+    "nui": {
+        "modify": [
+            {"selector": ".x", "text": "Выйти"},
+            {"selector": ".back", "text": "Назад"},
+
+            {"selector": "#civinfo-header", "text": "Информация"},
+
+            {"selector": "#header-civ", "text": "Гражданин:"},
+            {"selector": "#header-civname", "text": "ФИО: "},
+            {"selector": "#civname", "text": "Нет, Нет"},
+            {"selector": "#header-civwarrant", "text": "Розыск: "},
+            {"selector": "#civwarrant", "text": "Нет"},
+            {"selector": "#header-civcit", "text": "Штрафы: "},
+            {"selector": "#civcit", "text": "Нет"},
+
+            {"selector": "#header-veh", "text": "Транспорт: "},
+            {"selector": "#header-vehplate", "text": "Номерной знак: "},
+            {"selector": "#vehplate", "text": "Нет"},
+            {"selector": "#header-vehstolen", "text": "Украдено: "},
+            {"selector": "#vehstolen", "text": "Нет"},
+            {"selector": "#header-vehregi", "text": "Регистрация: "},
+            {"selector": "#vehregi", "text": "Нет"},
+            {"selector": "#header-vehinsured", "text": "Страховка: "},
+            {"selector": "#vehinsured", "text": "Нет"},
+
+
+            {"selector": "#ofcinfo-header", "text": "Информация"},
+
+            {"selector": "#header-ofc", "text": "Сотрудник полиции:"},
+            {"selector": "#header-ofcsign", "text": "Позывной: "},
+            {"selector": "#ofcsign", "text": "Нет"},
+            {"selector": "#header-ofcstatus", "text": "Статус:"},
+            {"selector": "#ofcstatus", "text": "Нет"},
+            {"selector": "#header-ofcass", "text": "Задание: "},
+            {"selector": "#ofcass", "text": "Нет"},
+
+
+            {"selector": "#btn-civmenu", "text": "Меню Гражданина"}, 
+            {"selector": "#btn-vehmenu", "text": "Меню Транспорта"},
+            {"selector": "#btn-911menu", "text": "Меню Экстренного Звонка"},
+            {"selector": "#btn-civdelprofiles", "text": "Удалить Профиль"},
+
+            {"selector": "#btn-civcreate", "text": "Создать Нового"},
+            {"selector": "#btn-civdisplay", "text": "Показать Текущего"},
+            {"selector": "#btn-civwarrant", "text": "Установить Розыск"},
+            {"selector": "#btn-civcit", "text": "Установить Штрафы"},
+
+            {"selector": "#btn-vehcreate", "text": "Создать Новый"},
+            {"selector": "#btn-vehdisplay", "text": "Показать Текущий"},
+            {"selector": "#btn-vehstolen", "text": "Установить Кражу"},
+            {"selector": "#btn-vehregi", "text": "Установить Регистрацию"},
+            {"selector": "#btn-vehinsured", "text": "Установить Страховку"},
+
+            {"selector": "#btn-call911", "text": "Экстренный Звонок"},
+            {"selector": "#btn-msg911", "text": "Сообщить в 911"},
+            {"selector": "#btn-end911", "text": "Сбросить Экстренный звонок"},
+
+
+            {"selector": "#btn-leocreate", "text": "Создать Нового"},
+            {"selector": "#btn-leostatus", "text": "Изменить Статус"},
+            {"selector": "#btn-leodatabase", "text": "База Данных"},
+            {"selector": "#btn-leocad", "text": "Настройки Диспетчера"},
+            {"selector": "#btn-leodelprofiles", "text": "Удалить Профиль"},
+            {"selector": "#btn-leostatusview", "text": "Посмотреть Статус"},
+            {"selector": "#btn-leoonduty", "text": "На Службе"},
+            {"selector": "#btn-leooffduty", "text": "Вне Службы"},
+            {"selector": "#btn-leobusy", "text": "Занят"},
+
+            {"selector": "#btn-leocivoptions", "text": "Настройки Гражданских"},
+            {"selector": "#btn-leoplate", "text": "Пробить Номерной знак"},
+
+            {"selector": "#btn-leoname", "text": "Обыскать Гражданина"},
+            {"selector": "#btn-leonotes", "text": "Посмотреть Заметки Гражданина"},
+            {"selector": "#btn-leotickets", "text": "Посмотреть Штрафы Гражданина"},
+            {"selector": "#btn-leoaddnote", "text": "Добавить Заметку Гражданину"},
+            {"selector": "#btn-leoaddticket", "text": "Выписать Штраф"},
+
+            {"selector": "#btn-leoaddbolo", "text": "Добавить машину в Розыск"},
+            {"selector": "#btn-leoviewbolo", "text": "Просмотреть машины в Розыске"}
+        ]
+    },
+    "chat": {
+        "global": {
+            "types": {
+                "tickets": "Штрафы",
+                "notes": "Заметки",
+                "bolos": "Машины в Розыске",
+                "none": "Нет",
+
+                "name": "ФИО",
+                "warrant": "Розыск",
+                "citations": "Штрафы",
+                
+                "plate": "Номерной знак",
+                "owner": "Владелец",
+                "stolen": "Украдено",
+                "registration": "Регистрация",
+                "insurance": "Страховка"
+            },
+            "headers": {
+                "911": "911",
+                "dispatch": "Диспетчер",
+                "cad": "CAD-Диспетчер",
+                "civ_info": "Информация о Гражданине",
+                "veh_info": "Информация о Транспорте"
+            },
+            "status": {
+                "on_duty": "На Службе",
+                "off_duty": "Вне Службы",
+                "busy": "Занят",
+                "gay": "Гей",
+
+                "t_lower": "верно",
+                "f_lower": "неверно",
+                "t_upper": "Верно",
+                "f_upper": "Неверно"
+            }
+        },
+        "errors": {
+            "civ_not_exist": "Гражданин не существует в базе данных",
+            "civ_name_exist": "Это имя уже существует в базе данных",
+            "civ_911_exist": "Экстренный звонок уже существует под вашим именем", 
+            "civ_911_no_dispatchers": "На данный момент нет Диспетчеров которые смогли бы ответить на ваш звонок", 
+            "civ_911_not_exist": "Экстренный звонок отсутсвует",
+
+            "veh_not_exist": "Транспорт не существует в базе данных",
+            "veh_plate_exist": "Похоже что этот номерной знак уже существует в базе данных",
+
+            "leo_not_exist": "Полицейский отсутсвует в базе данных",
+            "leo_status_prev": "Ваш статус уже %s"
+        },
+        "system": {
+            "gen_reset": "Профили были успешно сброшены",
+            "gen_dump": "%s Сбросил настройки DispatchSystem.",
+
+            "on_leo_assignment_added": "Новое Задание: %s",
+            "on_leo_assignment_removed": "Задание удалено Диспетчером",
+            "on_leo_status_change": "Статус обновлен Диспетчером: %s",
+            "on_leo_role_removed": "Вы были удалены из полиции Диспетчером",
+            "on_civ_911_accepted": "Ваш Экстренный звонок был принят", 
+
+            "civ_create": "Новый гражданский персонаж создан: %s %s",
+            "civ_toggle_warrant": "Статус розыска обновлен: %s",
+            "civ_set_citations": "Количество штрафов обновлено: %s",
+            "civ_911_init": "Пожалуйста подождите пока Диспетчер возьмет трубку",
+            "civ_911_end": "Ваш Экстренный звонок был окончен",
+            
+            "veh_create": "Новый Транспорт создан: %s",
+            "veh_toggle_stolen": "Украденный статус обновлен: %s",
+            "veh_toggle_regi": "Статус регистрации обновлен: %s",
+            "veh_toggle_insurance": "Статус страховки обновлен: %s",
+
+            "leo_create": "Новый Полицейский создан: %s",
+            "leo_status_change": "Статус полицейского был обновлен: %s",
+            "leo_add_civ_note": "Заметка о \"%s\" была добавлена к %s %s",
+            "leo_add_civ_ticket": "Штраф за \"%s\" в размере $%s был записан на Гражданина %s %s",
+            "leo_bolo_add": "Розыск машины \"%s\" добавлен"
+        }
+    }
+}

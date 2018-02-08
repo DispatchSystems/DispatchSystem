@@ -23,15 +23,16 @@ IF NOT EXIST "Dump Client" mkdir "Dump Client"
 IF NOT EXIST "FiveM Resources" mkdir "FiveM Resources"
 cd "FiveM Resources"
 echo . > "^ Resource Folders"
-IF NOT EXIST "dispatchsystem" mkdir "dispatchsystem"
 
 rem Going back to the main folder
 cd ..\..
 
 rem Copying files (I think)
 echo Press any key to continue to copy the files
+
+xcopy /e /v /c /q /y "%BASE_FILES%" "%VERSION%\FiveM Resources" > nul
+
 pause > nul
-xcopy /e /v /c /q /y %BASE_FILES% "%VERSION%\FiveM Resources\dispatchsystem" > nul
 xcopy /e /v /c /q /y %SERVER_FILES% "%VERSION%\FiveM Resources\dispatchsystem" > nul
 xcopy /e /v /c /q /y %DUMP_FILES% "%VERSION%\Dump Client" > nul
 xcopy /e /v /c /q /y %CLIENT_FILES% "%VERSION%\Terminal" > nul

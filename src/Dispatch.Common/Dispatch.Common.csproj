@@ -42,8 +42,10 @@
   <ItemGroup>
     <Compile Include="BareGuid.cs" />
     <Compile Include="DataHolders\Database.cs" />
+    <Compile Include="DataHolders\EventArgument.cs" />
     <Compile Include="DataHolders\IOwnable.cs" />
     <Compile Include="DataHolders\IDataHolder.cs" />
+    <Compile Include="DataHolders\IEventInfo.cs" />
     <Compile Include="DataHolders\Storage\Assignment.cs" />
     <Compile Include="DataHolders\Storage\Bolo.cs" />
     <Compile Include="DataHolders\Storage\Civilian.cs" />
@@ -53,8 +55,8 @@
     <Compile Include="DataHolders\Storage\Officer.cs" />
     <Compile Include="DataHolders\Storage\StorageManager.cs" />
     <Compile Include="DataHolders\Storage\Ticket.cs" />
-    <Compile Include="Permissions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SafeThread.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,0 +1,161 @@
+{
+    "nui": {
+        "modify": [
+            {"selector": ".x", "text": "Vypnuù"},
+            {"selector": ".back", "text": "Sp‰ù"},
+
+            {"selector": "#civinfo-header", "text": "Inform·cie"},
+
+            {"selector": "#header-civ", "text": "Civilista:"},
+            {"selector": "#header-civname", "text": "Meno: "},
+            {"selector": "#civname", "text": "éiadne, éiadne"},
+            {"selector": "#header-civwarrant", "text": "Hæadanosù: "},
+            {"selector": "#civwarrant", "text": "éiadne"},
+            {"selector": "#header-civcit", "text": "Pokuty: "},
+            {"selector": "#civcit", "text": "éiadne"},
+
+            {"selector": "#header-veh", "text": "Vozidlo: "},
+            {"selector": "#header-vehplate", "text": "Oznacenie: "},
+            {"selector": "#vehplate", "text": "NiË"},
+            {"selector": "#header-vehstolen", "text": "UkradnutÈ: "},
+            {"selector": "#vehstolen", "text": "Nie"},
+            {"selector": "#header-vehregi", "text": "RegistrovanÈ: "},
+            {"selector": "#vehregi", "text": "Nie"},
+            {"selector": "#header-vehinsured", "text": "PoistenÈ: "},
+            {"selector": "#vehinsured", "text": "Nie"},
+
+
+            {"selector": "#ofcinfo-header", "text": "Inform·cie"},
+
+            {"selector": "#header-ofc", "text": "Policajt:"},
+            {"selector": "#header-ofcsign", "text": "OznaËenie: "},
+            {"selector": "#ofcsign", "text": "éiadne"},
+            {"selector": "#header-ofcstatus", "text": "Status:"},
+            {"selector": "#ofcstatus", "text": "éiadny"},
+            {"selector": "#header-ofcass", "text": "Prideæenie: "},
+            {"selector": "#ofcass", "text": "éiadne"},
+
+
+            {"selector": "#btn-civmenu", "text": "Menu Civiliov"}, 
+            {"selector": "#btn-vehmenu", "text": "Menu Vozidiel"},
+            {"selector": "#btn-911menu", "text": "Menu 911"},
+            {"selector": "#btn-civdelprofiles", "text": "Zmazaù Profily"},
+
+            {"selector": "#btn-civcreate", "text": "Vytvoriù nov˝"},
+            {"selector": "#btn-civdisplay", "text": "Zobraziù nov˝"},
+            {"selector": "#btn-civwarrant", "text": "Nastaviù hæadanosù"},
+            {"selector": "#btn-civcit", "text": "Nastaviù poËet pok˙t"},
+
+            {"selector": "#btn-vehcreate", "text": "Vytvoriù novÈ"},
+            {"selector": "#btn-vehdisplay", "text": "Zobraziù aktu·lne"},
+            {"selector": "#btn-vehstolen", "text": "Nastaviù ukradnutie"},
+            {"selector": "#btn-vehregi", "text": "Nastaviù regristrovanie"},
+            {"selector": "#btn-vehinsured", "text": "Nastaviù poistenie"},
+
+            {"selector": "#btn-call911", "text": "Zavolaù 911"},
+            {"selector": "#btn-msg911", "text": "NapÌsaù 911"},
+            {"selector": "#btn-end911", "text": "Zruöiù hovor s 911"},
+
+
+            {"selector": "#btn-leocreate", "text": "Vytvoriù nov˝"},
+            {"selector": "#btn-leostatus", "text": "Zmeniù stav"},
+            {"selector": "#btn-leodatabase", "text": "Pozrieù datab·zu"},
+            {"selector": "#btn-leocad", "text": "CAD Moûnosti"},
+            {"selector": "#btn-leodelprofiles", "text": "Zmazaù profily"},
+            {"selector": "#btn-leostatusview", "text": "Pozrieù stav"},
+            {"selector": "#btn-leoonduty", "text": "V sluûbe"},
+            {"selector": "#btn-leooffduty", "text": "Mimo sluûby"},
+            {"selector": "#btn-leobusy", "text": "Zanepr·zdneny"},
+
+            {"selector": "#btn-leocivoptions", "text": "Moûnosti(civilista)"},
+            {"selector": "#btn-leoplate", "text": "Vyhæadaù oznaËenie vozidla"},
+
+            {"selector": "#btn-leoname", "text": "Vyhladaù civilistu"},
+            {"selector": "#btn-leonotes", "text": "Pozrieù si pozn·mky k civilistovi"},
+            {"selector": "#btn-leotickets", "text": "Pozrieù pokuty civilistu"},
+            {"selector": "#btn-leoaddnote", "text": "Pridaù pozn·mku k civilistovi"},
+            {"selector": "#btn-leoaddticket", "text": "Daù civilistovi pokutu"},
+
+            {"selector": "#btn-leoaddbolo", "text": "Pridaù BOLO"},
+            {"selector": "#btn-leoviewbolo", "text": "Pozrieù BOLO"}
+        ]
+    },
+    "chat": {
+        "global": {
+            "types": {
+                "tickets": "Pokuty",
+                "notes": "Pozn·mky",
+                "bolos": "BOLOs",
+                "none": "NiË",
+
+                "name": "Meno",
+                "warrant": "Hladanosù",
+                "citations": "Pokuty",
+                
+                "plate": "OznaËenie",
+                "owner": "VlastnÌk",
+                "stolen": "UkradnutÈ",
+                "registration": "Registr·cia",
+                "insurance": "Poistenie"
+            },
+            "headers": {
+                "911": "911",
+                "dispatch": "DispeËer",
+                "cad": "DispatchCAD",
+                "civ_info": "Inform·cie o civilistovi",
+                "veh_info": "Inform·cie o vozidle"
+            },
+            "status": {
+                "on_duty": "V Sluûbe",
+                "off_duty": "Mimo Sluûby",
+                "busy": "Zanepr·zden˝",
+                "gay": "Gay",
+
+                "t_lower": "ano",
+                "f_lower": "nie",
+                "t_upper": "Ano",
+                "f_upper": "Nie"
+            }
+        },
+        "errors": {
+            "civ_not_exist": "Civilista neni v systÈme",
+            "civ_name_exist": "Toto meno uû je v systÈme",
+            "civ_911_exist": "Hovor na 911 uû existuje s tvojÌm menom", 
+            "civ_911_no_dispatchers": "éiadny dispeËeri niesu online aby si mohol zavolaù 911", 
+            "civ_911_not_exist": "Nem·me pre teba hovor s 911",
+
+            "veh_not_exist": "Vozidlo neexistuje v systÈme",
+            "veh_plate_exist": "Tato SPZ uû existuje",
+
+            "leo_not_exist": "Tento policajt neexistuje",
+            "leo_status_prev": "Tvoj stav je: %s"
+        },
+        "system": {
+            "gen_reset": "Profil bol vyresetovan˝",
+            "gen_dump": "DispatchSystem bol zmazan˝ %s. Vöetko bolo vyresetovanÈ a zmazanÈ.",
+
+            "on_leo_assignment_added": "Nov· ˙loha: %s",
+            "on_leo_assignment_removed": "⁄loh· zruöen· dispeËerom",
+            "on_leo_status_change": "Nov˝ status aplikovan˝ dispeËerom: %s",
+            "on_leo_role_removed": "Bol si zruöen˝ z policajta od dispeËera",
+            "on_civ_911_accepted": "Tvoj hovor s 911 bol prijat˝", 
+
+            "civ_create": "Nov˝ civilista vytvoren˝: %s %s",
+            "civ_toggle_warrant": "Nov˝ stav hæadanosti nastaven˝: %s",
+            "civ_set_citations": "Nov˝ stav pokut nastaven˝: %s",
+            "civ_911_init": "ProsÌm poËkaj na dispeËera k˝m ti odpovie",
+            "civ_911_end": "Tvoj hovor s 911 bol zruöen˝",
+            
+            "veh_create": "NovÈ vozidlo vytvorenÈ: %s",
+            "veh_toggle_stolen": "Nov˝ stav \"ukradnutia\" nastaven˝: %s",
+            "veh_toggle_regi": "Nov˝ stav registr·cie nastaven˝: %s",
+            "veh_toggle_insurance": "Nov˝ stav poistenia nastaven˝: %s",
+
+            "leo_create": "Nov˝ Policajt vytvoren˝: %s",
+            "leo_status_change": "Nov˝ stav pre policajta bol nastaven˝: %s",
+            "leo_add_civ_note": "Pozn·mka \"%s\" bola pridan· do %s %s",
+            "leo_add_civ_ticket": "Pokuta \"%s\" pre $%s pridan· do %s %s",
+            "leo_bolo_add": "NovÈ bolo vytvorenÈ pre \"%s\" "
+        }
+    }
+}

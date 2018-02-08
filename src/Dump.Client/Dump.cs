@@ -1,4 +1,5 @@
-﻿using Dispatch.Common;
+﻿using System.Collections.Generic;
+using Dispatch.Common;
 using Dispatch.Common.DataHolders.Storage;
 
 namespace DispatchSystem.Dump.Client
@@ -10,6 +11,6 @@ namespace DispatchSystem.Dump.Client
         public StorageManager<Bolo> Bolos { get; set; }
         public StorageManager<EmergencyCall> EmergencyCalls { get; set; }
         public StorageManager<Officer> Officers { get; set; }
-        public Permissions Permissions { get; set; }
+        public List<string> Permissions { get; set; }
     }
 }

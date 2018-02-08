@@ -1,0 +1,161 @@
+{
+    "nui": {
+        "modify": [
+            {"selector": ".x", "text": "Exit"},
+            {"selector": ".back", "text": "Back"},
+
+            {"selector": "#civinfo-header", "text": "Information"},
+
+            {"selector": "#header-civ", "text": "Civilian:"},
+            {"selector": "#header-civname", "text": "Name: "},
+            {"selector": "#civname", "text": "None, None"},
+            {"selector": "#header-civwarrant", "text": "Warrant: "},
+            {"selector": "#civwarrant", "text": "None"},
+            {"selector": "#header-civcit", "text": "Citations: "},
+            {"selector": "#civcit", "text": "None"},
+
+            {"selector": "#header-veh", "text": "Vehicle: "},
+            {"selector": "#header-vehplate", "text": "Plate: "},
+            {"selector": "#vehplate", "text": "None"},
+            {"selector": "#header-vehstolen", "text": "Stolen: "},
+            {"selector": "#vehstolen", "text": "None"},
+            {"selector": "#header-vehregi", "text": "Registration: "},
+            {"selector": "#vehregi", "text": "None"},
+            {"selector": "#header-vehinsured", "text": "Insured: "},
+            {"selector": "#vehinsured", "text": "None"},
+
+
+            {"selector": "#ofcinfo-header", "text": "Information"},
+
+            {"selector": "#header-ofc", "text": "Officer:"},
+            {"selector": "#header-ofcsign", "text": "Callsign: "},
+            {"selector": "#ofcsign", "text": "None"},
+            {"selector": "#header-ofcstatus", "text": "Status:"},
+            {"selector": "#ofcstatus", "text": "None"},
+            {"selector": "#header-ofcass", "text": "Assignment: "},
+            {"selector": "#ofcass", "text": "None"},
+
+
+            {"selector": "#btn-civmenu", "text": "Civilian Menu"}, 
+            {"selector": "#btn-vehmenu", "text": "Vehicle Menu"},
+            {"selector": "#btn-911menu", "text": "911 Menu"},
+            {"selector": "#btn-civdelprofiles", "text": "Delete Profiles"},
+
+            {"selector": "#btn-civcreate", "text": "Create New"},
+            {"selector": "#btn-civdisplay", "text": "Display Current"},
+            {"selector": "#btn-civwarrant", "text": "Toggle Warrant"},
+            {"selector": "#btn-civcit", "text": "Set Citations"},
+
+            {"selector": "#btn-vehcreate", "text": "Create New"},
+            {"selector": "#btn-vehdisplay", "text": "Display Current"},
+            {"selector": "#btn-vehstolen", "text": "Toggle Stolen"},
+            {"selector": "#btn-vehregi", "text": "Toggle Registration"},
+            {"selector": "#btn-vehinsured", "text": "Toggle Insurance"},
+
+            {"selector": "#btn-call911", "text": "Call 911"},
+            {"selector": "#btn-msg911", "text": "Message 911"},
+            {"selector": "#btn-end911", "text": "End 911 call"},
+
+
+            {"selector": "#btn-leocreate", "text": "Create New"},
+            {"selector": "#btn-leostatus", "text": "Change Status"},
+            {"selector": "#btn-leodatabase", "text": "View Database"},
+            {"selector": "#btn-leocad", "text": "CAD Options"},
+            {"selector": "#btn-leodelprofiles", "text": "Delete Profiles"},
+            {"selector": "#btn-leostatusview", "text": "View Status"},
+            {"selector": "#btn-leoonduty", "text": "On Duty"},
+            {"selector": "#btn-leooffduty", "text": "Off Duty"},
+            {"selector": "#btn-leobusy", "text": "Busy"},
+
+            {"selector": "#btn-leocivoptions", "text": "Civilian Options"},
+            {"selector": "#btn-leoplate", "text": "Search Plate"},
+
+            {"selector": "#btn-leoname", "text": "Search Civilian"},
+            {"selector": "#btn-leonotes", "text": "View Civilian Notes"},
+            {"selector": "#btn-leotickets", "text": "View Civilian Tickets"},
+            {"selector": "#btn-leoaddnote", "text": "Add Civilian Note"},
+            {"selector": "#btn-leoaddticket", "text": "Add Civilian Ticket"},
+
+            {"selector": "#btn-leoaddbolo", "text": "Add BOLO"},
+            {"selector": "#btn-leoviewbolo", "text": "View BOLOs"}
+        ]
+    },
+    "chat": {
+        "global": {
+            "types": {
+                "tickets": "Tickets",
+                "notes": "Notes",
+                "bolos": "BOLOs",
+                "none": "None",
+
+                "name": "Name",
+                "warrant": "Warrant",
+                "citations": "Citations",
+                
+                "plate": "Plate",
+                "owner": "Owner",
+                "stolen": "Stolen",
+                "registration": "Registration",
+                "insurance": "Insurance"
+            },
+            "headers": {
+                "911": "911",
+                "dispatch": "Dispatcher",
+                "cad": "DispatchCAD",
+                "civ_info": "Civilian Information",
+                "veh_info": "Vehicle Information"
+            },
+            "status": {
+                "on_duty": "On Duty",
+                "off_duty": "Off Duty",
+                "busy": "Busy",
+                "gay": "Gay",
+
+                "t_lower": "true",
+                "f_lower": "false",
+                "t_upper": "True",
+                "f_upper": "False"
+            }
+        },
+        "errors": {
+            "civ_not_exist": "Civilian not existing in the system",
+            "civ_name_exist": "It seems as if that name already exists in the system",
+            "civ_911_exist": "A 911 call already exists under your name", 
+            "civ_911_no_dispatchers": "There are no dispatchers online to answer your 911 call", 
+            "civ_911_not_exist": "We don't have a 911 call for you",
+
+            "veh_not_exist": "Vehicle not existing in the system",
+            "veh_plate_exist": "It seems as if that plate already exists in the system",
+
+            "leo_not_exist": "Officer not existing in the system",
+            "leo_status_prev": "Your status is already %s"
+        },
+        "system": {
+            "gen_reset": "Profiles reset successfully",
+            "gen_dump": "DispatchSystem has been dumped by %s. Everything has been reset and deleted.",
+
+            "on_leo_assignment_added": "New Assignment: %s",
+            "on_leo_assignment_removed": "Assignment removed by Dispatcher",
+            "on_leo_status_change": "New status applied by Dispatcher: %s",
+            "on_leo_role_removed": "You were removed from officer by a Dispatcher",
+            "on_civ_911_accepted": "Your 911 call has been accepted", 
+
+            "civ_create": "New Civilian created: %s %s",
+            "civ_toggle_warrant": "New warrant status applied: %s",
+            "civ_set_citations": "New citation count applied: %s",
+            "civ_911_init": "Please wait for a dispatcher to answer your call",
+            "civ_911_end": "Your 911 call has been ended",
+            
+            "veh_create": "New Vehicle created: %s",
+            "veh_toggle_stolen": "New stolen status applied: %s",
+            "veh_toggle_regi": "New registration status applied: %s",
+            "veh_toggle_insurance": "New insurance status applied: %s",
+
+            "leo_create": "New Officer created: %s",
+            "leo_status_change": "New officer status applied: %s",
+            "leo_add_civ_note": "Note of \"%s\" added to %s %s",
+            "leo_add_civ_ticket": "Ticket of \"%s\" for $%s added to %s %s",
+            "leo_bolo_add": "A new bolo for \"%s\" added"
+        }
+    }
+}

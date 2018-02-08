@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dispatch.Common.DataHolders.Storage
 {
     [Serializable]
-    public class Assignment : IDataHolder
+    public class Assignment : IDataHolder, IEventInfo
     {
         public BareGuid Id { get; }
         public string Summary { get; }
@@ -19,9 +15,14 @@ namespace Dispatch.Common.DataHolders.Storage
             Creation = DateTime.Now;
             Id = BareGuid.NewBareGuid();
         }
-        private Assignment() : this(string.Empty) { }
 
-        // For communication
-        public static readonly Assignment Empty = new Assignment();
+        public EventArgument[] ToArray()
+        {
+            return new EventArgument[]
+            {
+                Summary,
+                new EventArgument[] {Id.ToString(), Creation.Ticks}
+            };
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using Dispatch.Common;
@@ -14,7 +15,8 @@ namespace DispatchSystem.Dump.Client
 
         public DumpParser(string file)
         {
-            Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>, StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, Permissions> parsedInfo;
+            Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>, StorageManager<Bolo>,
+                StorageManager<EmergencyCall>, StorageManager<Officer>, List<string>> parsedInfo;
             var database = new Database(file, false);
 
             try

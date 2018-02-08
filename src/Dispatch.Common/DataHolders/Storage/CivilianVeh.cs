@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Dispatch.Common.DataHolders.Storage
 {
     [Serializable]
-    public class CivilianVeh : PlayerBase, IDataHolder, IOwnable
+    public class CivilianVeh : PlayerBase
     {
         public Civilian Owner { get; set; }
-        protected string _plate;
-        public string Plate { get => string.IsNullOrEmpty(_plate) ? string.Empty : _plate.ToUpper(); set => _plate = value; }
+        private string plate;
+        public string Plate { get => string.IsNullOrEmpty(plate) ? string.Empty : plate.ToUpper(); set => plate = value; }
         public bool StolenStatus { get; set; }
         public bool Registered { get; set; }
         public bool Insured { get; set; }
@@ -23,10 +19,17 @@ namespace Dispatch.Common.DataHolders.Storage
             Insured = true;
         }
 
-        // Below is for communcation reasons between server and client
-        [NonSerialized]
-        public static readonly CivilianVeh Empty = new CivilianVeh(null);
-        [NonSerialized]
-        public static readonly CivilianVeh Null = null;
+        public override EventArgument[] ToArray()
+        {
+            return new EventArgument[]
+            {
+                Owner?.ToArray(),
+                Plate,
+                StolenStatus,
+                Registered,
+                Insured,
+                new EventArgument[] {SourceIP, Id.ToString(), Creation.Ticks}
+            };
+        }
     }
 }

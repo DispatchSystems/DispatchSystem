@@ -1,11 +1,12 @@
-﻿using System.Windows.Forms;
-using Dispatch.Common;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace DispatchSystem.Dump.Client.Windows
 {
     public partial class PermissionsDialogue : Form
     {
-        public PermissionsDialogue(Permissions settings)
+        public PermissionsDialogue(List<string> settings)
         {
             InitializeComponent();
 
@@ -16,61 +17,17 @@ namespace DispatchSystem.Dump.Client.Windows
                 return;
             }
 
-            switch (settings?.CivilianPermission)
+            if (settings.Contains("everyone"))
             {
-                case Permission.Everyone:
-                    civs.Items.Add("Everyone");
-                    break;
-                case Permission.None:
-                    civs.Items.Add("None");
-                    break;
-                case null:
-                    civs.Items.Add("NULL");
-                    break;
-                default:
-                    foreach (var item in settings.CivilianData)
-                    {
-                        civs.Items.Add(item?.ToString() ?? "NULL");
-                    }
-                    break;
+                dispatch.Items.Add("everyone");
             }
-
-            switch (settings?.DispatchPermission)
+            else if (settings.Contains("none"))
             {
-                case Permission.Everyone:
-                    dispatch.Items.Add("Everyone");
-                    break;
-                case Permission.None:
-                    dispatch.Items.Add("None");
-                    break;
-                case null:
-                    dispatch.Items.Add("NULL");
-                    break;
-                default:
-                    foreach (var item in settings.DispatchData)
-                    {
-                        dispatch.Items.Add(item?.ToString() ?? "NULL");
-                    }
-                    break;
+                dispatch.Items.Add("none");
             }
-
-            switch (settings?.LeoPermission)
+            else
             {
-                case Permission.Everyone:
-                    leo.Items.Add("Everyone");
-                    break;
-                case Permission.None:
-                    leo.Items.Add("None");
-                    break;
-                case null:
-                    leo.Items.Add("NULL");
-                    break;
-                default:
-                    foreach (var item in settings.LeoData)
-                    {
-                        leo.Items.Add(item?.ToString() ?? "NULL");
-                    }
-                    break;
+                dispatch.Items.AddRange(settings.Select(x => new ListViewItem(x)).ToArray());
             }
         }
     }

@@ -45,3 +45,4 @@ obj/
 src/bin/*
 .vs/*
 src/.vs/*
+*.DotSettings.user

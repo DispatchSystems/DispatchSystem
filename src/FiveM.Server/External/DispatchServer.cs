@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net;
 using System.Net.Sockets;
 
 using Config.Reader;
 
 using Dispatch.Common.DataHolders.Storage;
+using Dispatch.Common;
+using Dispatch.Common.DataHolders;
 
 using CloNET;
 using CloNET.Callbacks;
 using CloNET.LocalCallbacks;
 
 using CitizenFX.Core;
-using Dispatch.Common;
+// ReSharper disable RedundantNameQualifier
 
 namespace DispatchSystem.Server.External
 {
@@ -23,6 +24,7 @@ namespace DispatchSystem.Server.External
         private CloNET.Server server; // server from CloNET
         private readonly string ip; // ip of the server
         private readonly int port; // port of the server
+        public List<string> Permissions { get; set; }
 
         /// <summary>
         /// <see cref="Array"/> of <see cref="ConnectedPeer"/> that are currently connected to the server
@@ -30,14 +32,16 @@ namespace DispatchSystem.Server.External
         public ConnectedPeer[] ConnectedDispatchers => server.ConnectedPeers.ToArray();
 
         // 911calls items, for keeping track of dispatchers connected to which 911 call
-        internal Dictionary<BareGuid, string> Calls;
+        internal readonly Dictionary<BareGuid, string> Calls;
 
         /// <summary>
         /// Initializes the <see cref="DispatchSystem"/> class from a config
         /// </summary>
         /// <param name="cfg"></param>
-        internal DispatchServer(ServerConfig cfg)
+        /// <param name="perms"></param>
+        internal DispatchServer(ServerConfig cfg, List<string> perms = null)
         {
+            Permissions = perms ?? new List<string>();
             Calls = new Dictionary<BareGuid, string>(); // creating the calls item
             ip = cfg.GetStringValue("server", "ip", "0.0.0.0"); // setting the ip
             Log.WriteLine("Setting ip to " + ip);
@@ -75,7 +79,7 @@ namespace DispatchSystem.Server.External
                 Log.WriteLine("The specified port (" + port + ") is already in use.");
                 return;
             }
-            Log.WriteLine("TCP Started, Listening for connections...");
+            Log.WriteLine("TCP Started, Listening for connections..");
 
             AddCallbacks(); // adding the callbacks to the server for use from client
         }
@@ -115,7 +119,7 @@ namespace DispatchSystem.Server.External
             };
         }
 
-        private static async Task OnConnect(ConnectedPeer user)
+        private async Task OnConnect(ConnectedPeer user)
         {
             // logging the ip connected
 #if DEBUG
@@ -125,7 +129,7 @@ namespace DispatchSystem.Server.External
 #endif
 
             // dispose if the permissions bad
-            if (!_(user)) return;
+            if (!CheckPerms(user)) return;
             try
             {
                 await user.RemoteCallbacks.Events["SendInvalidPerms"].Invoke("");
@@ -203,7 +207,7 @@ namespace DispatchSystem.Server.External
 #endif
 
             // finding the officer from the list
-            Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == id);
+            Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.ToList().Find(x => x.Id == id);
             return ofc;
         }
         private Assignment GetOfcAssignment(ConnectedPeer sender, BareGuid id)
@@ -215,7 +219,7 @@ namespace DispatchSystem.Server.External
 #endif
             
             // finding the officer in the list
-            Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == id);
+            Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.ToList().Find(x => x.Id == id);
 
             // finding assignment in common
             return Common.GetOfficerAssignment(ofc);
@@ -229,17 +233,17 @@ namespace DispatchSystem.Server.External
 #endif
 
             // finding the call in the current calls
-            EmergencyCall acceptedCall = DispatchSystem.CurrentCalls.FirstOrDefault(x => x.Id == id);
+            EmergencyCall acceptedCall = global::DispatchSystem.Server.Main.Core.CurrentCalls.FirstOrDefault(x => x.Id == id);
             if (Calls.ContainsKey(id) || acceptedCall == null) return false; // Checking null and accepted in same expression
 
             Calls.Add(id, sender.RemoteIP); // adding the call and dispatcher to the call list
             // setting a message for invocation on the main thread
-            DispatchSystem.Invoke(delegate
+            global::DispatchSystem.Server.Main.DispatchSystem.Invoke(delegate
             {
                 Player p = Common.GetPlayerByIp(acceptedCall.SourceIP);
                 if (p != null)
                 {
-                    Common.SendMessage(p, "Dispatch911", new [] {255,0,0}, "Your 911 call has been accepted by a Dispatcher");
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("civ_911_accepted", new EventArgument[] { Common.GetPlayerId(p) });
                 }
             });
             return true;
@@ -253,7 +257,7 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Get bolos Request Received");
 #endif
 
-            return DispatchSystem.ActiveBolos;
+            return global::DispatchSystem.Server.Main.Core.Bolos;
         }
         private async Task<object> GetOfficers(ConnectedPeer sender)
         {
@@ -264,7 +268,7 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Get officers Request Received");
 #endif
 
-            return DispatchSystem.Officers;
+            return global::DispatchSystem.Server.Main.Core.Officers;
         }
         private async Task<object> GetAssignments(ConnectedPeer sender)
         {
@@ -275,7 +279,7 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Get assignments Request Received");
 #endif
 
-            return DispatchSystem.Assignments;
+            return global::DispatchSystem.Server.Main.Core.Assignments;
         }
         private async Task EndEmergency(ConnectedPeer sender, BareGuid id)
         {
@@ -288,17 +292,17 @@ namespace DispatchSystem.Server.External
 
             Calls.Remove(id); // removing the id from the calls
 
-            EmergencyCall call = DispatchSystem.CurrentCalls.FirstOrDefault(x => x.Id == id); // obtaining the call from the civ
+            EmergencyCall call = global::DispatchSystem.Server.Main.Core.CurrentCalls.FirstOrDefault(x => x.Id == id); // obtaining the call from the civ
 
-            if (DispatchSystem.CurrentCalls.Remove(call)) // remove, if successful, then notify
+            if (global::DispatchSystem.Server.Main.Core.CurrentCalls.Remove(call)) // remove, if successful, then notify
             {
-                DispatchSystem.Invoke(delegate
+                global::DispatchSystem.Server.Main.DispatchSystem.Invoke(delegate
                 {
                     Player p = Common.GetPlayerByIp(call?.SourceIP);
 
                     if (p != null)
                     {
-                        Common.SendMessage(p, "Dispatch911", new [] {255,0,0}, "Your 911 call was ended by a Dispatcher");
+                        global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("civ_911_ended", new EventArgument[] {Common.GetPlayerId(p)});
                     }
                 });
             }
@@ -312,15 +316,15 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Message emergency Request Received");
 #endif
 
-            EmergencyCall call = DispatchSystem.CurrentCalls.FirstOrDefault(x => x.Id == id); // finding the call
+            EmergencyCall call = global::DispatchSystem.Server.Main.Core.CurrentCalls.FirstOrDefault(x => x.Id == id); // finding the call
 
-            DispatchSystem.Invoke(() =>
+            global::DispatchSystem.Server.Main.DispatchSystem.Invoke(() =>
             {
                 Player p = Common.GetPlayerByIp(call?.SourceIP); // getting the player from the call's ip
 
                 if (p != null)
                 {
-                    Common.SendMessage(p, "Dispatcher", new [] {0x0,0xff,0x0}, msg);
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("civ_911_message", new EventArgument[] {Common.GetPlayerId(p), msg });
                 }
             });
         }
@@ -333,23 +337,29 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add officer assignment Request Received");
 #endif
 
-            Assignment assignment = DispatchSystem.Assignments.FirstOrDefault(x => x.Id == id); // finding assignment from the id
-            Officer ofc = DispatchSystem.Officers.ToList().Find(x => x.Id == ofcId); // finding the officer from the id
+            Assignment assignment = global::DispatchSystem.Server.Main.Core.Assignments.FirstOrDefault(x => x.Id == id); // finding assignment from the id
+            Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.ToList().Find(x => x.Id == ofcId); // finding the officer from the id
             if (assignment is null || ofc is null) // returning if either is null
                 return;
-            if (DispatchSystem.OfcAssignments.ContainsKey(ofc)) // returning if the officer already contains the assignment
+            if (global::DispatchSystem.Server.Main.Core.OfficerAssignments.ContainsKey(ofc)) // returning if the officer already contains the assignment
                 return;
 
-            DispatchSystem.OfcAssignments.Add(ofc, assignment); // adding the assignment to the officer
+            global::DispatchSystem.Server.Main.Core.OfficerAssignments.Add(ofc, assignment); // adding the assignment to the officer
 
             ofc.Status = OfficerStatus.OffDuty;
 
             // notify of assignment
-            DispatchSystem.Invoke(() =>
+            global::DispatchSystem.Server.Main.DispatchSystem.Invoke(() =>
             {
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
-                    Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, $"New assignment added: \"{assignment.Summary}\"");
+                {
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_assignment_added", new EventArgument[]
+                    {
+                        Common.GetPlayerId(p),
+                        assignment.Summary
+                    });
+                }
             });
         } 
         private BareGuid NewAssignment(ConnectedPeer sender, string summary)
@@ -363,7 +373,7 @@ namespace DispatchSystem.Server.External
             try
             {
                 Assignment assignment = new Assignment(summary);
-                DispatchSystem.Assignments.Add(assignment);
+                global::DispatchSystem.Server.Main.Core.Assignments.Add(assignment);
                 return assignment.Id; // returning the assignment id
             }
             catch
@@ -380,7 +390,7 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Remove assignment Request Received");
 #endif
 
-            Assignment item2 = DispatchSystem.Assignments.FirstOrDefault(x => x.Id == id); // finding the assignment from the id
+            Assignment item2 = global::DispatchSystem.Server.Main.Core.Assignments.FirstOrDefault(x => x.Id == id); // finding the assignment from the id
             Common.RemoveAllInstancesOfAssignment(item2); // removing using common
         }
         private async Task RemoveOfcAssignment(ConnectedPeer sender, BareGuid ofcId)
@@ -393,19 +403,21 @@ namespace DispatchSystem.Server.External
 #endif
 
             // finding the ofc
-            Officer ofc = DispatchSystem.Officers.FirstOrDefault(x => x.Id == ofcId);
+            Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.FirstOrDefault(x => x.Id == ofcId);
             if (ofc == null) return;
 
-            if (!DispatchSystem.OfcAssignments.ContainsKey(ofc)) return;
-            DispatchSystem.OfcAssignments.Remove(ofc); // removing the assignment from the officer
+            if (!global::DispatchSystem.Server.Main.Core.OfficerAssignments.ContainsKey(ofc)) return;
+            global::DispatchSystem.Server.Main.Core.OfficerAssignments.Remove(ofc); // removing the assignment from the officer
 
             ofc.Status = OfficerStatus.OnDuty; // set on duty
 
-            DispatchSystem.Invoke(() =>
+            global::DispatchSystem.Server.Main.DispatchSystem.Invoke(() =>
             {
                 Player p = Common.GetPlayerByIp(ofc.SourceIP);
                 if (p != null)
-                    Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "Your assignment has been removed by a dispatcher");
+                {
+                    global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_assignment_removed", new EventArgument[] { Common.GetPlayerId(p) });
+                }
             });
         }
         private async Task ChangeOfficerStatus(ConnectedPeer sender, BareGuid id, OfficerStatus status)
@@ -418,7 +430,7 @@ namespace DispatchSystem.Server.External
 #endif
 
             // finding the officer
-            Officer ofc = DispatchSystem.Officers.FirstOrDefault(x => x.Id == id);
+            Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.FirstOrDefault(x => x.Id == id);
 
             if (ofc is null) return; // checking for null
 
@@ -431,12 +443,18 @@ namespace DispatchSystem.Server.External
                 Log.WriteLineSilent($"[{sender.RemoteIP}] Setting officer status to " + status);
 #endif
 
-                DispatchSystem.Invoke(() =>
+                global::DispatchSystem.Server.Main.DispatchSystem.Invoke(() =>
                 {
                     Player p = Common.GetPlayerByIp(ofc.SourceIP);
                     if (p != null)
-                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 },
-                            $"Dispatcher set status to {(ofc.Status == OfficerStatus.OffDuty ? "Off Duty" : ofc.Status == OfficerStatus.OnDuty ? "On Duty" : "Busy")}");
+                    {
+                        global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_status_change",
+                            new EventArgument[]
+                            {
+                                Common.GetPlayerId(p),
+                                ofc.Status.GetHashCode()
+                            });
+                    }
                 });
             }
             else
@@ -458,20 +476,22 @@ namespace DispatchSystem.Server.External
 #endif
 
             // getting the officer
-            Officer ofc = DispatchSystem.Officers.FirstOrDefault(x => x.Id == id);
+            Officer ofc = global::DispatchSystem.Server.Main.Core.Officers.FirstOrDefault(x => x.Id == id);
             if (ofc != null)
             {
                 // notify of removing of role
-                DispatchSystem.Invoke(delegate
+                global::DispatchSystem.Server.Main.DispatchSystem.Invoke(delegate
                 {
                     Player p = Common.GetPlayerByIp(ofc.SourceIP);
 
                     if (p != null)
-                        Common.SendMessage(p, "^8DispatchCAD", new[] { 0, 0, 0 }, "You have been removed from your officer role by a dispatcher");
+                    {
+                        global::DispatchSystem.Server.Main.Core.RequestHandler.TriggerEvent("leo_role_removed", new EventArgument[] { Common.GetPlayerId(p) });
+                    }
                 });
 
                 // actually remove the officer from the list
-                DispatchSystem.Officers.Remove(ofc);
+                global::DispatchSystem.Server.Main.Core.Officers.Remove(ofc);
 
 #if DEBUG
                 Log.WriteLine($"[{sender.RemoteIP}] Removed the officer from the list of officers");
@@ -493,14 +513,14 @@ namespace DispatchSystem.Server.External
             await Task.FromResult(0);
 #if DEBUG
             Log.WriteLine($"[{sender.RemoteIP}] Add bolo Request Received");
-            Log.WriteLine($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
+            Log.WriteLine($"[{sender.RemoteIP}] Adding new bolo for \"{bolo}\"");
 #else
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add bolo Request Received");
             Log.WriteLineSilent($"[{sender.RemoteIP}] Adding new Bolo for \"{bolo}\"");
 #endif
 
             // adding bolo
-            DispatchSystem.ActiveBolos.Add(new Bolo(player, string.Empty, bolo));
+            global::DispatchSystem.Server.Main.Core.Bolos.Add(new Bolo(player, string.Empty, bolo));
         }
         private async Task RemoveBolo(ConnectedPeer sender, int parse)
         {
@@ -514,7 +534,7 @@ namespace DispatchSystem.Server.External
             try
             {
                 // removing at the specified index
-                DispatchSystem.ActiveBolos.RemoveAt(parse);
+                global::DispatchSystem.Server.Main.Core.Bolos.RemoveAt(parse);
 #if DEBUG
                 Log.WriteLine($"[{sender.RemoteIP}] Removed Active BOLO from the List");
 #else
@@ -525,9 +545,9 @@ namespace DispatchSystem.Server.External
             catch (ArgumentOutOfRangeException)
             {
 #if DEBUG
-                Log.WriteLine($"[{sender.RemoteIP}] Index for BOLO not found, not removing...");
+                Log.WriteLine($"[{sender.RemoteIP}] Index for BOLO not found, not removing..");
 #else
-                Log.WriteLineSilent($"[{sender.RemoteIP}] Index for BOLO not found, not removing...");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Index for BOLO not found, not removing..");
 #endif
             }
         }
@@ -540,7 +560,7 @@ namespace DispatchSystem.Server.External
             Log.WriteLineSilent($"[{sender.RemoteIP}] Add Civilian note Request Received");
 #endif
 
-            Civilian civ = DispatchSystem.Civs.FirstOrDefault(x => x.Id == id); // finding the civ from the id
+            Civilian civ = global::DispatchSystem.Server.Main.Core.Civilians.FirstOrDefault(x => x.Id == id); // finding the civ from the id
 
             if (civ != null)
             {
@@ -553,32 +573,13 @@ namespace DispatchSystem.Server.External
             }
             else
 #if DEBUG
-                Log.WriteLine($"[{sender.RemoteIP}] Civilian not found, not adding note...");
+                Log.WriteLine($"[{sender.RemoteIP}] Civilian not found, not adding note..");
 #else
-                Log.WriteLineSilent($"[{sender.RemoteIP}] Civilian not found, not adding note...");
+                Log.WriteLineSilent($"[{sender.RemoteIP}] Civilian not found, not adding note..");
 #endif
         }
 
-        private static bool _(ConnectedPeer sender)
-        {
-            switch (Permissions.Get.DispatchPermission)
-            {
-                case Permission.Specific: // checking for specific permissions
-                    if (!Permissions.Get.DispatchContains(IPAddress.Parse(sender.RemoteIP))) // checking if the ip is in the perms
-                    {
-                        Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS"); // log if not
-                        return true;
-                    }
-                    break;
-                case Permission.None:
-                    Log.WriteLine($"[{sender.RemoteIP}] NOT ENOUGH DISPATCH PERMISSIONS");
-                    return true; // automatically return not
-                case Permission.Everyone:
-                    break; // continue through
-                default:
-                    throw new ArgumentOutOfRangeException(); // throw because there is no other options
-            }
-            return false; // return false by default
-        }
+        private bool CheckPerms(ConnectedPeer sender) => Permissions.Contains("everyone") ||
+                                                !Permissions.Contains("none") && Permissions.Contains(sender.RemoteIP);
     }
 }
