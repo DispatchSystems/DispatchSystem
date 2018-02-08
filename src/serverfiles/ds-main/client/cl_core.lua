@@ -4,10 +4,10 @@
 
 -- Civ Transactions
 function displayCivilian()
-    TriggerServerEvent("dispatchsystem:post", "req_civ", {getHandle()}, {getHandle(), 'civ_display'})
+    enqueueEvent("req_civ", {getHandle()}, {getHandle(), 'civ_display'})
 end
 function displayVeh()
-    TriggerServerEvent("dispatchsystem:post", "req_veh", {getHandle()}, {getHandle(), 'veh_display'})
+    enqueueEvent("req_veh", {getHandle()}, {getHandle(), 'veh_display'})
 end
 function createCivilian()
     exitAllMenus()
@@ -22,11 +22,11 @@ function createCivilian()
         turnOnLastMenu()
         return
     end
-    TriggerServerEvent("dispatchsystem:post", "civ_create", {getHandle(), name[1], name[2]})
+    enqueueEvent("civ_create", {getHandle(), name[1], name[2]})
     turnOnLastMenu()
 end
 function toggleWarrant()
-    TriggerServerEvent("dispatchsystem:post", "civ_toggle_warrant", {getHandle()})
+    enqueueEvent("civ_toggle_warrant", {getHandle()})
 end
 function civCitations()
     exitAllMenus()
@@ -36,11 +36,11 @@ function civCitations()
         drawNotification("You must have a valid number")
         return
     end
-    TriggerServerEvent("dispatchsystem:post", "civ_set_citations", {getHandle(), amount})
+    enqueueEvent("civ_set_citations", {getHandle(), amount})
     turnOnLastMenu()
 end
 function init911() 
-    TriggerServerEvent("dispatchsystem:post", "civ_911_init", {getHandle()})
+    enqueueEvent("civ_911_init", {getHandle()})
 end
 function msg911()
     exitAllMenus()
@@ -50,11 +50,11 @@ function msg911()
         drawNotification("Invalid message")
         return
     end
-    TriggerServerEvent("dispatchsystem:post", "civ_911_msg", {getHandle(), msg})
+    enqueueEvent("civ_911_msg", {getHandle(), msg})
     turnOnLastMenu()
 end
 function end911()
-    TriggerServerEvent("dispatchsystem:post", "civ_911_end", {getHandle()})
+    enqueueEvent("civ_911_end", {getHandle()})
 end
 function createCivVehicle()
     exitAllMenus()
@@ -63,17 +63,17 @@ function createCivVehicle()
         turnOnLastMenu()
         return
     end
-    TriggerServerEvent("dispatchsystem:post", "veh_create", {getHandle(), plate})
+    enqueueEvent("veh_create", {getHandle(), plate})
     turnOnLastMenu()
 end
 function toggleVehStolen()
-    TriggerServerEvent("dispatchsystem:post", "veh_toggle_stolen", {getHandle()})
+    enqueueEvent("veh_toggle_stolen", {getHandle()})
 end
 function toggleVehRegi()
-    TriggerServerEvent("dispatchsystem:post", "veh_toggle_regi", {getHandle()})
+    enqueueEvent("veh_toggle_regi", {getHandle()})
 end
 function toggleVehInsured()
-    TriggerServerEvent("dispatchsystem:post", "veh_toggle_insurance", {getHandle()})
+    enqueueEvent("veh_toggle_insurance", {getHandle()})
 end
 
 -- Leo Transactions
@@ -84,19 +84,19 @@ function createOfficer()
         turnOnLastMenu()
         return 
     end
-    TriggerServerEvent("dispatchsystem:post", "leo_create", {getHandle(), callsign})
+    enqueueEvent("leo_create", {getHandle(), callsign})
     turnOnLastMenu()
 end
 function displayStatus()
-    TriggerServerEvent("dispatchsystem:post", "leo_display_status", {getHandle()})
+    enqueueEvent("leo_display_status", {getHandle()})
 end
 function changeStatus(type)
     if type == "onduty" then
-        TriggerServerEvent("dispatchsystem:post", "leo_on_duty", {getHandle()})
+        enqueueEvent("leo_on_duty", {getHandle()})
     elseif type == "offduty" then
-        TriggerServerEvent("dispatchsystem:post", "leo_off_duty", {getHandle()})
+        enqueueEvent("leo_off_duty", {getHandle()})
     elseif type == "busy" then
-        TriggerServerEvent("dispatchsystem:post", "leo_busy", {getHandle()})
+        enqueueEvent("leo_busy", {getHandle()})
     end
 end
 function leoNcic()
@@ -108,7 +108,7 @@ function leoNcic()
         return
     end
     local name = stringsplit(nameNotSplit, " ")
-    TriggerServerEvent("dispatchsystem:post", "req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_get_civ'})
+    enqueueEvent("req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_get_civ'})
     turnOnLastMenu()
 end
 function leoNcicNotes()
@@ -120,7 +120,7 @@ function leoNcicNotes()
         return
     end
     local name = stringsplit(nameNotSplit, " ")
-    TriggerServerEvent("dispatchsystem:post", "req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_display_civ_notes'})
+    enqueueEvent("req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_display_civ_notes'})
     turnOnLastMenu()
 end
 function leoNcicTickets()
@@ -132,7 +132,7 @@ function leoNcicTickets()
         return
     end
     local name = stringsplit(nameNotSplit, " ")
-    TriggerServerEvent("dispatchsystem:post", "req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_display_civ_tickets'})
+    enqueueEvent("req_civ_by_name", {name[1], name[2]}, {getHandle(), 'leo_display_civ_tickets'})
     turnOnLastMenu()
 end
 function leoPlate()
@@ -142,7 +142,7 @@ function leoPlate()
         turnOnLastMenu()
         return 
     end
-    TriggerServerEvent("dispatchsystem:post", "req_veh_by_plate", {plate}, {getHandle(), 'leo_get_civ_veh'})
+    enqueueEvent("req_veh_by_plate", {plate}, {getHandle(), 'leo_get_civ_veh'})
     turnOnLastMenu()
 end
 function leoAddNote()
@@ -159,7 +159,7 @@ function leoAddNote()
         turnOnLastMenu()
         return
     end
-    TriggerServerEvent("dispatchsystem:post", "leo_add_civ_note", {getHandle(), name[1], name[2], note})
+    enqueueEvent("leo_add_civ_note", {getHandle(), name[1], name[2], note})
     turnOnLastMenu()
 end
 function leoAddTicket()
@@ -187,7 +187,7 @@ function leoAddTicket()
         turnOnLastMenu()
         return
     end
-    TriggerServerEvent("dispatchsystem:post", "leo_add_civ_ticket", {getHandle(), name[1], name[2], reason, amount})
+    enqueueEvent("leo_add_civ_ticket", {getHandle(), name[1], name[2], reason, amount})
     turnOnLastMenu()
 end
 function leoAddBolo()
@@ -197,10 +197,10 @@ function leoAddBolo()
         turnOnLastMenu()
         return
     end
-    TriggerServerEvent("dispatchsystem:post", "leo_bolo_add", {getHandle(), reason})
+    enqueueEvent("leo_bolo_add", {getHandle(), reason})
     turnOnLastMenu()
 end
 function leoViewBolos()
-    TriggerServerEvent("dispatchsystem:post", "req_bolos", {}, {getHandle(), 'leo_bolo_view'})
+    enqueueEvent("req_bolos", {}, {getHandle(), 'leo_bolo_view'})
 end
 --[[                                 END OF TRANSACTIONS                                 ]]

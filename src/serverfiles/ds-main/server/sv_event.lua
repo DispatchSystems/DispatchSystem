@@ -1,12 +1,15 @@
-local civArr = {}
-local vehArr = {}
-local leoArr = {}
-local ofcAssignment = {}
+local playerInfo = {}
 
 local lang = reqLang()
 local none = lang.global.types.none
 
-local function infoToClInfo()
+local function infoToClInfo(source)
+	local info = playerInfo[source] or {}
+	local civArr = info.civArr or {}
+	local vehArr = info.vehArr or {}
+	local leoArr = info.leoArr or {}
+	local ofcAssignment = info.assignment or {}
+
 	local civ = {
 		civArr[1] or none,
 		civArr[2] or none,
@@ -27,29 +30,44 @@ local function infoToClInfo()
 end
 
 AddEventHandler('dispatchsystem:event', function(type, err, args, calArgs)
-	local source = calArgs[2]
+	local source = tostring(calArgs[2])
+
+	if playerInfo[source] == nil then
+		playerInfo[source] = {}
+	end
 
 	if type == 'req_civ' or type == 'req_civ_by_name' then
-		civArr = args
-
-		local civ, leo = infoToClInfo(civArr, vehArr, leoArr)
-		TriggerClientEvent('dispatchsystem:pushbackData', source, civ, leo)
+		playerInfo[source].civArr = args
 	elseif type == 'req_veh' or type == 'req_veh_by_plate' then
-		vehArr = args
-			
-		local civ, leo = infoToClInfo(civArr, vehArr, leoArr)
-		TriggerClientEvent('dispatchsystem:pushbackData', source, civ, leo)
+		playerInfo[source].vehArr = args
 	elseif type == 'req_leo' or type == 'req_leo_by_callsign' then
-		leoArr = args
-			
-		local civ, leo = infoToClInfo(civArr, vehArr, leoArr)
-		TriggerClientEvent('dispatchsystem:pushbackData', source, civ, leo)
+		playerInfo[source].leoArr = args
 	elseif type == 'req_leo_assignment' then
 		if err == '' then
-			ofcAssignment = args[2] or {}
+			playerInfo[source].assignment = args[2] or {}
 		end
-
-		local civ, leo = infoToClInfo(civArr, vehArr, leoArr)
-		TriggerClientEvent('dispatchsystem:pushbackData', source, civ, leo)
 	end
+end)
+
+-- pushback data
+Citizen.CreateThread(function()
+	Wait(500) -- waiting for config to load
+
+	-- thread to pushback client profile information
+	Citizen.CreateThread(function()
+		while true do
+			function loop()
+				for handle, val in pairs(playerInfo) do
+					local civ, leo = infoToClInfo(handle)
+					if handle == 'nil' then
+						playerInfo['nil'] = nil
+						return
+					end
+					TriggerClientEvent('dispatchsystem:pushbackData', tonumber(handle), civ, leo)
+				end
+			end
+			loop()
+			Wait(2000)
+		end
+	end)
 end)

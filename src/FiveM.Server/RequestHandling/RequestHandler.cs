@@ -68,5 +68,16 @@ namespace DispatchSystem.Server.RequestHandling
 
             BaseScript.TriggerEvent("dispatchsystem:event", type, err, EventArgument.ToArray(args.AsEnumerable()), calArgs);
         }
+
+        public void HandleMultiple(IEnumerable<object> objects)
+        {
+            foreach (var obj in objects)
+            {
+                var list = (List<object>) obj;
+                if (list.Count < 3)
+                    throw new InvalidOperationException("Input array was not of length 3");
+                Handle((string)list[0], ((List<object>)list[1]).ToArray(), ((List<object>)list[2]).ToArray());
+            }
+        }
     }
 }

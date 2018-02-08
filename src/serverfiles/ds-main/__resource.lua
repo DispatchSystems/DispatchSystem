@@ -20,7 +20,7 @@ client_scripts {
     'client/cl_callbacks.lua',
     'client/cl_common.lua',
     'client/cl_menu.lua',
-    'client/cl_transactions.lua',
-    'client/cl_refresh.lua',
+    'client/cl_core.lua',
+    'client/cl_event-handler.lua',
     'config.lua'
 }

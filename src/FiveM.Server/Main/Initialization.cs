@@ -51,7 +51,7 @@ namespace DispatchSystem.Server.Main
             while (callbacks.TryDequeue(out Action queue))
                 queue(); // executing the queue
 
-            await Delay(0);
+            await Delay(100);
         }
         internal static void Invoke(Action method) => callbacks.Enqueue(method); // adding method for execution in main thread
         #endregion
@@ -66,6 +66,10 @@ namespace DispatchSystem.Server.Main
             EventHandlers["dispatchsystem:post"] +=
                 new Action<string, List<object>, List<object>>((str, args, calArgs) =>
                     Core.RequestHandler.Handle(str, args?.ToArray(), calArgs?.ToArray()));
+            // array of array of type, args, calArgs
+            // request used to request multiple requests
+            EventHandlers["dispatchsystem:post-multi"] +=
+                new Action<List<object>>(objects => Core.RequestHandler.HandleMultiple(objects));
 
             #region Request Types
             Log.WriteLine("Adding request types to request handler");

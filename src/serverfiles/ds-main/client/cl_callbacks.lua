@@ -77,7 +77,7 @@ RegisterNUICallback("common", function(data, cb)
     elseif data[1] == "exit" then
         safeExit()
     elseif data[1] == "dsreset" then
-        TriggerServerEvent("dispatchsystem:post", "gen_reset", {getHandle()})
+        enqueueEvent("gen_reset", {getHandle()})
     end
 
     if cb then cb("OK") end
