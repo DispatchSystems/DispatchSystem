@@ -62,12 +62,6 @@ function terminateMenu()
         safeExit = nil
     end)
 end
-function reqInfo()
-    TriggerServerEvent('dispatchsystem:post', 'req_civ', {getHandle()}, {'silent', tonumber(getHandle())})
-    TriggerServerEvent('dispatchsystem:post', 'req_veh', {getHandle()}, {'silent', tonumber(getHandle())})
-    TriggerServerEvent('dispatchsystem:post', 'req_leo', {getHandle()}, {'silent', tonumber(getHandle())})
-    TriggerServerEvent('dispatchsystem:post', 'req_leo_assignment', {getHandle()}, {'silent', tonumber(getHandle())})
-end
 --[[                                 END OF COMMON                                 ]]
 
 --[[

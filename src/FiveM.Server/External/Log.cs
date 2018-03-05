@@ -21,31 +21,34 @@ internal static class Log
     /// Writes a log to the server console and the file
     /// </summary>
     /// <param name="line"></param>
-    public static void WriteLine(string line)
+    /// <param name="args"></param>
+    public static void WriteLine(string line, params object[] args)
     {
         lock (_lock)
         {
             // creating the string formatted with date
-            string formatted = $"[{DateTime.Now.ToString("HH:mm:ss.fff")}]: {line}";
+            string formatted = $"[{DateTime.Now:HH:mm:ss.fff}]: {line}";
             // writing the formatted line to the log
-            writer.WriteLine(formatted);
+            writer.WriteLine(string.Format(formatted, args));
             writer.Flush();
 
-            Debug.WriteLine($"(DispatchSystem) {formatted}"); // writing log to server console too
+            Debug.WriteLine($"(DispatchSystem) {formatted}", args); // writing log to server console too
         }
     }
+
     /// <summary>
     /// Writes a log just to the file
     /// </summary>
     /// <param name="line"></param>
-    public static void WriteLineSilent(string line)
+    /// <param name="args"></param>
+    public static void WriteLineSilent(string line, params object[] args)
     {
         lock (_lock)
         {
             // creating the string formatted with date
-            string formatted = $"[{DateTime.Now.ToString("HH:mm:ss.fff")}]: {line}";
+            string formatted = $"[{DateTime.Now:HH:mm:ss.fff}]: {line}";
             // writing the formatted line to the log
-            writer.WriteLine(formatted);
+            writer.WriteLine(string.Format(formatted, args));
             writer.Flush();
         }
     }

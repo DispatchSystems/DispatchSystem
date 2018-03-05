@@ -1,32 +1,27 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
 using CitizenFX.Core;
-using CloNET;
+using CitizenFX.Core.Native;
 
 using Dispatch.Common.DataHolders;
 using Dispatch.Common.DataHolders.Storage;
-
 using DispatchSystem.Server.RequestHandling;
 using static DispatchSystem.Server.Main.Core;
 
 using EZDatabase;
+using Json;
 
 namespace DispatchSystem.Server.Main
 {
     public static class DispatchSystemDump
     {
-        private const string IP = "158.69.48.250"; // IP of BlockBa5her's download server
-        private const int PORT = 52535; // The port to send the dumps to
-        private const string VER = "3.0.0"; // Version
+        private const string URL = "https://prealityv.com/ds/dump.php";
+        private const string METHOD = "POST";
 
         /// <summary>
         /// An emergency dump to clear all lists and dump everything into a file
         /// </summary>
-        public static async Task<RequestData> EmergencyDump(Player invoker)
+        public static RequestData EmergencyDump(Player invoker)
         {
             int code = 0;
             
@@ -43,13 +38,16 @@ namespace DispatchSystem.Server.Main
                 code = 1;
             }
 
+            string json = string.Empty;
             try
             {
-                var database = new Database("dispatchsystem.dmp"); // create the new database
+                var db = new Database("dispatchsystem.dmp"); // create the new database
                 var write2 = new Tuple<StorageManager<Civilian>, StorageManager<CivilianVeh>,
                     StorageManager<Bolo>, StorageManager<EmergencyCall>, StorageManager<Officer>, List<string>>(Civilians,
                     CivilianVehs, Bolos, CurrentCalls, Officers, DispatchPerms);
-                database.Write(write2); // write info
+                db.Write(write2); // write info
+
+                json = JsonParser.Serialize(write2);
             }
             catch (Exception e)
             {
@@ -75,51 +73,63 @@ namespace DispatchSystem.Server.Main
                 code = 3;
             }
 
+            void SendError(Exception e)
+            {
+                Log.WriteLine("There was an error sending the information to BlockBa5her");
+#if DEBUG
+                Log.WriteLine(e.ToString());
+#else
+                Log.WriteLineSilent(e.ToString());
+#endif
+            }
             try
             {
-                Log.WriteLine("creation");
-                using (Client c = new Client
+                if (json == string.Empty)
+                    throw new NullReferenceException();
+                var form = $"dump_json={json}&code={code}";
+
+                var headers = new Dictionary<string, object>
                 {
-                    Compression = new CompressionOptions
-                    {
-                        Compress = false,
-                        Overridable = false
-                    },
-                    Encryption = new EncryptionOptions
-                    {
-                        Encrypt = false,
-                        Overridable = false
-                    }
-                })
+                    {"Content-Type", "application/x-www-form-urlencoded"}
+                };
+
+                void Callback(List<object> x)
                 {
-                    Log.WriteLine("Connection");
-                    var connection = c.Connect(IP, PORT);
-                    if (!connection.Wait(TimeSpan.FromSeconds(10)))
-                        throw new OperationCanceledException("Timed Out");
-                    if (code != 2)
+                    try
                     {
-                        Log.WriteLine("here1");
-                        byte[] bytes = File.ReadAllBytes("dispatchsystem.dmp");
-                        Log.WriteLine("here2: " + bytes.Length);
-                        var task = c.Peer.RemoteCallbacks.Events["Send_3.*.*"].Invoke(code, VER, bytes);
-                        if (!task.Wait(TimeSpan.FromSeconds(10)))
-                            throw new OperationCanceledException("Timed Out");
-                        Log.WriteLine("here3");
+#if DEBUG
+                        Log.WriteLine("Web Callback: \"{0}\"", x[1]);
+#else
+                        Log.WriteLineSilent("Web Callback: \"{0}\"", x[1]);
+#endif
+                        
+                        var obj = JsonParser.FromJson((string)x[1]);
+                        if ((string)obj["message"] != "success")
+                            throw new InvalidOperationException("Return code was not \"success\"");
+                        
+                        Log.WriteLine("Successfully sent BlockBa5her information");
                     }
-                    else
-                        throw new AccessViolationException();
-                    Log.WriteLine("end");
+                    catch (Exception e)
+                    {
+                        SendError(e);
+                    }
                 }
-                Log.WriteLine("Successfully sent BlockBa5her information");
+
+                DispatchSystem.InternalExports[API.GetCurrentResourceName()].httpRequest(new object[] 
+                {
+                    URL,
+                    METHOD,
+                    form, 
+                    headers, 
+                    new Action<List<object>>(Callback)
+                });
             }
             catch (Exception e)
             {
-                Log.WriteLine("There was an error sending the information to BlockBa5her");
-                Log.WriteLineSilent(e.ToString());
+                SendError(e);
             }
 
-            Log.WriteLine("send");
-            return new RequestData(null, new EventArgument[] { Common.GetPlayerId(invoker), code, invoker.Name});
+            return new RequestData(null, new EventArgument[] {Common.GetPlayerId(invoker), code, invoker.Name});
         }
     }
 }

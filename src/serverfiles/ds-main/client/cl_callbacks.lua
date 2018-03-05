@@ -32,8 +32,6 @@ RegisterNUICallback("civ", function(data, cb)
         displayVeh()
     end
 
-    reqInfo()
-
 	if cb then cb("OK") end
 end)
 --[[ADDING LEO CALLBACKS]]
@@ -70,8 +68,6 @@ RegisterNUICallback("leo", function(data, cb)
         end
     end
 
-    reqInfo()
-
     if cb then cb("OK") end
 end)
 --[[ADDING COMMON CALLBACKS]]
@@ -81,10 +77,8 @@ RegisterNUICallback("common", function(data, cb)
     elseif data[1] == "exit" then
         safeExit()
     elseif data[1] == "dsreset" then
-        TriggerServerEvent("dispatchsystem:post", "gen_reset", {getHandle()})
+        enqueueEvent("gen_reset", {getHandle()})
     end
-
-    reqInfo()
 
     if cb then cb("OK") end
 end)

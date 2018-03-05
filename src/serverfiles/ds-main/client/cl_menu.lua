@@ -8,15 +8,11 @@ RegisterNetEvent("dispatchsystem:pushbackData")
 
 local menu = nil
 function turnOnCivMenu()
-	reqInfo()
-
 	menu = "civ"
 	SetNuiFocus(true, true)
 	SendNUIMessage({showcivmenu = true})
 end
 function turnOnLeoMenu()
-	reqInfo()
-
 	menu = "leo"
 	SetNuiFocus(true, true)
 	SendNUIMessage({showleomenu = true})

@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FiveM.Server", "FiveM.Serve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dump.Client", "Dump.Client\Dump.Client.csproj", "{AE90589C-1695-4F62-A408-FFA47938810E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dump.Server", "Dump.Server\Dump.Server.csproj", "{5BE22EFF-3450-4B27-8873-D415EA884D68}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,18 +69,6 @@ Global
 		{AE90589C-1695-4F62-A408-FFA47938810E}.Release|x64.Build.0 = Release|Any CPU
 		{AE90589C-1695-4F62-A408-FFA47938810E}.Release|x86.ActiveCfg = Release|Any CPU
 		{AE90589C-1695-4F62-A408-FFA47938810E}.Release|x86.Build.0 = Release|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Debug|x64.Build.0 = Debug|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Debug|x86.Build.0 = Debug|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Release|x64.ActiveCfg = Release|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Release|x64.Build.0 = Release|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Release|x86.ActiveCfg = Release|Any CPU
-		{5BE22EFF-3450-4B27-8873-D415EA884D68}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

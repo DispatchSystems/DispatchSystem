@@ -1,13 +1,13 @@
 AddEventHandler('chatMessage', function(source, n, msg)
     local split = stringsplit(msg, ' ');
     
-    if split[1] == '/dsciv' then
+    if split[1] == config.server.commands.dsciv then
         TriggerClientEvent('dispatchsystem:toggleCivNUI', source)
         CancelEvent()
-    elseif split[1] == '/dsleo' then
+    elseif split[1] == config.server.commands.dsleo then
         TriggerClientEvent('dispatchsystem:toggleLeoNUI', source)
         CancelEvent()
-    elseif split[1] == '/dsdmp' then
+    elseif split[1] == config.server.commands.dsdmp then
         TriggerEvent('dispatchsystem:post', "gen_dump", {tostring(source)})
         CancelEvent()
     end

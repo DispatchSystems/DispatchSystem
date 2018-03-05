@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using CitizenFX.Core.Native;
@@ -20,6 +21,8 @@ namespace DispatchSystem.Server.Main
 {
     public class DispatchSystem : BaseScript
     {
+        internal static ExportDictionary InternalExports { get; private set; }
+        
         #region Main
         public DispatchSystem()
         {
@@ -45,8 +48,11 @@ namespace DispatchSystem.Server.Main
         /// Queue for action to execute on the main thread
         /// </summary>
         private static volatile ConcurrentQueue<Action> callbacks;
-        private static async Task OnTick()
+        private async Task OnTick()
         {
+            // setting the "InternalExports" property constantly
+            InternalExports = Exports;
+            
             // Executing all of the callback methods available
             while (callbacks.TryDequeue(out Action queue))
                 queue(); // executing the queue
@@ -86,7 +92,7 @@ namespace DispatchSystem.Server.Main
 
                 // General events
                 new Request("gen_reset", args => Core.DispatchReset((string)args[0])),
-                new Request("gen_dump", args => DispatchSystemDump.EmergencyDump(Common.GetPlayerByHandle((string)args[0])).Result),
+                new Request("gen_dump", args => DispatchSystemDump.EmergencyDump(Common.GetPlayerByHandle((string)args[0]))),
 
                 // Civilian events
                 new Request("civ_create", args => Core.SetName((string)args[0], (string)args[1], (string)args[2])),
