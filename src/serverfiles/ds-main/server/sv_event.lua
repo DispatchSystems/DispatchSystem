@@ -32,6 +32,10 @@ end
 AddEventHandler('dispatchsystem:event', function(type, err, args, calArgs)
 	local source = tostring(calArgs[2])
 
+	if source == 'nil' then
+		return
+	end
+
 	if playerInfo[source] == nil then
 		playerInfo[source] = {}
 	end
@@ -59,10 +63,6 @@ Citizen.CreateThread(function()
 			function loop()
 				for handle, val in pairs(playerInfo) do
 					local civ, leo = infoToClInfo(handle)
-					if handle == 'nil' then
-						playerInfo['nil'] = nil
-						return
-					end
 					TriggerClientEvent('dispatchsystem:pushbackData', tonumber(handle), civ, leo)
 				end
 			end
